@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@wasrusgen1 — ЗАЩИТА · Бренд-бук 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── BRAND COLORS (ЗАЩИТА / Бордо) ── */
+  --brand-cyan:   #9F1239;  /* Бордо 600 — primary brand */
+  --brand-dark:   #3B0212;  /* Бордо 950 — gradient start */
+  --brand-cyan-l: #9F1239;  /* Бордо 500 — accent */
+  --brand-logo:   #5B5B5B;  /* Logo label gray (shared umbrella) */
+
+  /* ── PRIMARY SCALE (Бордо) ── */
+  --p-950: #3B0212;
+  --p-900: #7A0E2E;
+  --p-800: #8C1033;
+  --p-700: #9F1239;
+  --p-600: #B5163F;
+  --p-500: #C81E4E;
+  --p-400: #E8909F;
+  --p-300: #FDA4AF;
+  --p-200: #FECDD3;
+  --p-100: #FFE4E6;
+  --p-50:  #FFF1F2;
+
+  /* ── NEUTRAL SCALE (shared umbrella) ── */
+  --n-950: #030712;
+  --n-900: #111827;
+  --n-800: #1F2937;
+  --n-700: #374151;
+  --n-600: #4B5563;
+  --n-500: #6B7280;
+  --n-400: #9CA3AF;
+  --n-300: #D1D5DB;
+  --n-200: #E5E7EB;
+  --n-100: #F3F4F6;
+  --n-50:  #F9FAFB;
+
+  /* ── SEMANTIC ── */
+  --s-success:    #4F856F;
+  --s-success-bg: #E8EFEA;
+  --s-warning:    #A87E3C;
+  --s-warning-bg: #F2EBDD;
+  --s-danger:     #A14C5A;
+  --s-danger-bg:  #F0E3E6;
+  --s-info:       #3B82F6;
+  --s-info-bg:    #EFF6FF;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--n-50);
+  color: var(--n-900);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ═══════════ SIDEBAR ═══════════ */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 220px; height: 100vh;
+  background: #0C1929;
+  padding: 32px 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sidebar-logo {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 20px;
+}
+.sidebar-logo .brand { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
+.sidebar-logo .name  { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+.nav-section { padding: 0 24px; margin-bottom: 8px; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+.nav-item {
+  display: block;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(159,18,57,0.07); border-left-color: rgba(159,18,57,0.4); }
+.nav-item.active { color: #fff; background: rgba(159,18,57,0.12); border-left-color: #9F1239; }
+
+/* ═══════════ MAIN ═══════════ */
+.main { margin-left: 220px; min-height: 100vh; }
+
+/* ═══════════ SECTIONS ═══════════ */
+.section {
+  padding: 80px 64px;
+  border-bottom: 1px solid var(--n-200);
+}
+.section:last-child { border-bottom: none; }
+
+.section-num {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--p-500); margin-bottom: 8px;
+}
+.section-title {
+  font-size: 36px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--n-900); margin-bottom: 8px;
+}
+.section-sub {
+  font-size: 16px; color: var(--n-500); margin-bottom: 48px; max-width: 580px;
+}
+.rule-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--n-400); margin-bottom: 12px;
+}
+
+/* ═══════════ COVER ═══════════ */
+.cover {
+  background: linear-gradient(145deg, #3B0212 0%, #9F1239 40%, #9F1239 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 80px;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(159,18,57,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: 200px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(159,18,57,0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cover-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+  letter-spacing: .04em;
+  margin-bottom: 40px;
+  backdrop-filter: blur(8px);
+}
+.cover-h1 {
+  font-size: 52px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  max-width: 640px;
+}
+.cover-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,.6);
+  font-weight: 400;
+  margin-bottom: 48px;
+}
+.cover-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.cover-meta-item {
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+}
+.cover-meta-item strong {
+  color: rgba(255,255,255,.85);
+  font-weight: 600;
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+/* ═══════════ LOGO SECTION ═══════════ */
+.logo-demos { display: flex; flex-direction: column; gap: 32px; }
+.logo-demo { border-radius: 16px; overflow: hidden; border: 1px solid var(--n-200); }
+.logo-demo-bg {
+  padding: 48px;
+  display: flex;
+  align-items: flex-start;
+}
+.logo-demo-bg.light  { background: #fff; }
+.logo-demo-bg.dark   { background: #111827; }
+.logo-demo-bg.burgundy   { background: linear-gradient(135deg, #3B0212, #9F1239); }
+.logo-demo-label {
+  padding: 12px 20px; background: var(--n-100); border-top: 1px solid var(--n-200);
+  font-size: 12px; font-weight: 500; color: var(--n-500);
+}
+.logo-demo-bg.dark .logo-demo-label,
+.logo-demo-bg.burgundy .logo-demo-label {
+  background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);
+}
+
+/* WG LOGO component */
+.wg { display: inline-flex; align-items: flex-start; }
+.wg-img { height: 103px; flex-shrink: 0; }
+.wg-sep { width: 1.5px; height: 64px; margin: 15px 28px 0; flex-shrink: 0; }
+.wg-label { height:62px; width:auto; display:block; margin-top:4px; flex-shrink:0; }
+.wg-light .wg-img { /* no filter */ }
+.wg-light .wg-sep { background: #b0b0b0; }
+.wg-light .wg-label { height:62px; width:auto; display:block; margin-top:4px; flex-shrink:0; color:#111827; }
+.wg-dark .wg-img { filter: brightness(0) invert(1); }   /* чистый белый — единый цвет с ЗАЩИТА */
+.wg-dark .wg-sep { background: rgba(255,255,255,0.45); }
+.wg-dark .wg-label { height:62px; width:auto; display:block; margin-top:4px; flex-shrink:0; color:#fff; }
+/* SVG-знак ЗАЩИТА: расширенный viewBox (не режет «З» сверху/снизу и хвост «Щ»), компенсируем высоту */
+.wg-light svg.wg-label, .wg-dark svg.wg-label { height:76px; margin-top:0; }
+/* Текстовые знаки суббрендов (РАДАР/CRM/ЭКСПЕРТ): фирменный Montserrat 700 под кэп-хейт знака */
+.wg-light span.wg-label, .wg-dark span.wg-label {
+  font-family:'Montserrat',sans-serif; font-weight:700; font-size:90px; line-height:76px;
+  letter-spacing:4px; text-transform:uppercase; height:76px; width:auto; margin-top:0;
+  white-space:nowrap; display:flex; align-items:center;
+}
+
+/* Sub-brands row */
+.subbrands { display: flex; flex-wrap: wrap; gap: 48px; margin-bottom: 48px; }
+
+/* Clear space demo */
+.clearspace-wrap {
+  display: inline-flex; position: relative;
+  background: repeating-linear-gradient(45deg, #FEF3C7 0, #FEF3C7 4px, #FFF 4px, #FFF 20px);
+  border-radius: 12px; padding: 40px; border: 1px solid #FDE68A;
+}
+.clearspace-inner { background: #fff; border-radius: 8px; padding: 20px; }
+
+/* Logo rules grid */
+.rules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px; }
+.rule-card { border-radius: 12px; border: 1px solid var(--n-200); overflow: hidden; }
+.rule-card__demo {
+  background: var(--n-50); padding: 32px 24px;
+  display: flex; align-items: center; justify-content: center; min-height: 120px;
+  overflow: hidden;
+}
+.rule-card__desc {
+  padding: 14px 16px; border-top: 1px solid var(--n-200);
+  font-size: 12px; color: var(--n-600);
+}
+.rule-card__desc strong { color: var(--n-800); display: block; margin-bottom: 2px; font-size: 12px; }
+.rule-card.do { border-color: var(--s-success); }
+.rule-card.do .rule-card__desc { background: var(--s-success-bg); border-color: var(--s-success); }
+.rule-card.no { border-color: var(--s-danger); }
+.rule-card.no .rule-card__desc { background: var(--s-danger-bg); border-color: var(--s-danger); }
+.do-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--s-success); display: block; margin-bottom: 4px; }
+.no-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--s-danger); display: block; margin-bottom: 4px; }
+
+/* ═══════════ COLOR SECTION ═══════════ */
+.palette-group { margin-bottom: 40px; }
+.palette-group-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--n-500); margin-bottom: 16px;
+}
+.palette-row { display: flex; gap: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--n-200); }
+.swatch {
+  flex: 1; height: 80px; display: flex; align-items: flex-end;
+  padding: 8px 10px; position: relative; cursor: default;
+  transition: transform 0.15s;
+}
+.swatch:hover { transform: scaleY(1.08); transform-origin: bottom; z-index: 1; }
+.swatch-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+  line-height: 1.4; opacity: 0;
+  transition: opacity 0.15s;
+}
+.swatch:hover .swatch-label { opacity: 1; }
+
+/* Large palette cards */
+.palette-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 48px; }
+.palette-card { border-radius: 12px; overflow: hidden; border: 1px solid var(--n-200); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.palette-card__color { height: 80px; }
+.palette-card__info { padding: 12px; background: #fff; }
+.palette-card__name { font-size: 12px; font-weight: 700; color: var(--n-800); }
+.palette-card__hex  { font-size: 11px; color: var(--n-400); font-family:'Inter',sans-serif; margin-top: 2px; }
+.palette-card__use  { font-size: 10px; color: var(--n-500); margin-top: 4px; border-top: 1px solid var(--n-100); padding-top: 6px; }
+
+/* Semantic */
+.semantic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 48px; }
+.sem-card { border-radius: 12px; overflow: hidden; border: 1px solid var(--n-200); }
+.sem-card__bar { height: 8px; }
+.sem-card__body { padding: 16px; background: #fff; }
+.sem-card__name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.sem-card__hex  { font-size: 11px; color: var(--n-400); font-family:'Inter',sans-serif; }
+.sem-card__chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 12px; }
+
+/* Usage matrix */
+.usage-matrix { border: 1px solid var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 48px; }
+.usage-matrix table { width: 100%; border-collapse: collapse; }
+.usage-matrix th { padding: 12px 16px; background: #0C1929; color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; text-align: left; }
+.usage-matrix td { padding: 14px 16px; border-top: 1px solid var(--n-100); font-size: 13px; vertical-align: middle; }
+.usage-matrix tr:hover td { background: var(--p-50); }
+.dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; }
+
+/* ═══════════ TYPOGRAPHY ═══════════ */
+.font-hero { border-radius: 16px; overflow: hidden; border: 1px solid var(--n-200); margin-bottom: 32px; }
+.font-hero__demo {
+  padding: 48px; background: var(--n-900);
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 96px;
+  line-height: 1; letter-spacing: 4px; color: rgba(255,255,255,0.92);
+  text-transform: uppercase;
+}
+.font-hero__info { padding: 24px 48px; background: #fff; display: flex; gap: 48px; }
+.font-meta__label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--n-400); margin-bottom: 4px; }
+.font-meta__val { font-size: 14px; font-weight: 600; color: var(--n-800); }
+
+.type-scale { margin-bottom: 48px; }
+.type-row { display: flex; align-items: baseline; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--n-100); }
+.type-row:last-child { border-bottom: none; }
+.type-row__meta { width: 160px; flex-shrink: 0; }
+.type-row__label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--n-400); }
+.type-row__spec  { font-size: 11px; color: var(--n-500); margin-top: 2px; font-family:'Inter',sans-serif; }
+.type-row__sample { flex: 1; min-width: 0; color: var(--n-900); }
+
+.pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; }
+.pair-card { border: 1px solid var(--n-200); border-radius: 12px; padding: 28px; background: #fff; }
+.pair-card__role { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--n-400); margin-bottom: 8px; }
+.pair-card__name { font-size: 16px; font-weight: 700; color: var(--n-800); margin-bottom: 4px; }
+.pair-card__use  { font-size: 13px; color: var(--n-500); }
+
+/* ═══════════ UI COMPONENTS ═══════════ */
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.comp-card { border: 1px solid var(--n-200); border-radius: 16px; overflow: hidden; }
+.comp-card__demo { padding: 32px; background: var(--n-50); }
+.comp-card__demo.dark { background: #0C1929; }
+.comp-card__label { padding: 14px 20px; background: #fff; border-top: 1px solid var(--n-200); font-size: 12px; font-weight: 600; color: var(--n-600); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: default; border: none; line-height: 1; font-family: inherit; }
+.btn-primary   { background: var(--p-700); color: #fff; }
+.btn-secondary { background: var(--p-50); color: var(--p-700); }
+.btn-outline   { background: transparent; color: var(--p-700); border: 1.5px solid var(--p-700); }
+.btn-ghost     { background: transparent; color: var(--n-700); }
+.btn-danger    { background: var(--s-danger); color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-lg { padding: 14px 28px; font-size: 16px; }
+.btns-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
+.badge-cyan    { background: var(--p-100); color: var(--p-700); }
+.badge-success { background: var(--s-success-bg); color: var(--s-success); }
+.badge-warning { background: var(--s-warning-bg); color: #92400E; }
+.badge-danger  { background: var(--s-danger-bg);  color: var(--s-danger); }
+.badge-neutral { background: var(--n-100); color: var(--n-600); }
+.badge-dark    { background: var(--n-800); color: rgba(255,255,255,0.85); }
+.badges-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* KPI Cards */
+.ui-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+.ui-card__title { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--n-800); }
+.ui-card__sub   { font-size: 12px; color: var(--n-500); margin-bottom: 16px; }
+.ui-card__num   { font-size: 32px; font-weight: 800; letter-spacing: -0.04em; color: var(--n-900); }
+.ui-card__delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.delta-pos { color: var(--s-success); }
+.delta-neg { color: var(--s-danger); }
+.cards-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+/* Alerts */
+.ui-alert { border-radius: 10px; padding: 14px 16px; display: flex; gap: 10px; align-items: flex-start; }
+.ui-alert-icon { font-size: 16px; flex-shrink: 0; line-height: 1.4; }
+.ui-alert__body { flex: 1; }
+.ui-alert__title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.ui-alert__text  { font-size: 12px; line-height: 1.5; }
+.alert-success { background: var(--s-success-bg); color: var(--s-success); }
+.alert-warning { background: var(--s-warning-bg); color: #92400E; }
+.alert-danger  { background: var(--s-danger-bg);  color: #991B1B; }
+.alert-info    { background: var(--s-info-bg);    color: #1E40AF; }
+.alerts-col { display: flex; flex-direction: column; gap: 10px; }
+
+/* Table */
+.ui-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ui-table th { text-align: left; padding: 10px 12px; background: var(--n-50); border-bottom: 2px solid var(--n-200); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--n-500); }
+.ui-table td { padding: 12px 12px; border-bottom: 1px solid var(--n-100); color: var(--n-800); }
+.ui-table tr:last-child td { border-bottom: none; }
+.ui-table tr:hover td { background: var(--p-50); }
+
+/* ═══════════ DIVIDER ═══════════ */
+.divider { height: 1px; background: var(--n-200); margin: 48px 0; }
+
+/* ═══════════ TOKEN GRID ═══════════ */
+.token-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.token-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--n-200); border-radius: 8px; background: #fff; }
+.token-color { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
+.token-name { font-size: 12px; font-weight: 700; color: var(--n-700); font-family:'Inter',sans-serif; }
+.token-hex  { font-size: 11px; color: var(--n-400); font-family:'Inter',sans-serif; margin-top: 2px; }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 900px) {
+  .sidebar { width: 0; overflow: hidden; }
+  .main { margin-left: 0; }
+  .section { padding: 48px 24px; }
+  .palette-cards { grid-template-columns: repeat(3, 1fr); }
+  .semantic-grid { grid-template-columns: repeat(2, 1fr); }
+  .comp-grid { grid-template-columns: 1fr; }
+  .pair-grid { grid-template-columns: 1fr; }
+  .rules-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Brand Book</div>
+    <div class="name">ЗАЩИТА · 2026</div>
+  </div>
+  <div class="nav-section">Разделы</div>
+  <a href="#cover"  class="nav-item">00 · Обложка</a>
+  <a href="#logo"   class="nav-item">01 · Логотип</a>
+  <a href="#colors" class="nav-item">02 · Цвета</a>
+  <a href="#type"   class="nav-item">03 · Типографика</a>
+  <a href="#ui"     class="nav-item">04 · UI-компоненты</a>
+  <a href="#tokens" class="nav-item">05 · Токены</a>
+  <div style="padding: 24px 24px 0; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.06);">
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px">@wasrusgen1</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:12px;font-weight:600;color:rgba(67,56,202,0.8);letter-spacing:1px">РАДАР</div>
+      <div style="font-size:12px;font-weight:600;color:rgba(0,62,126,0.8);letter-spacing:1px">CRM</div>
+      <div style="font-size:12px;font-weight:600;color:#9F1239;letter-spacing:1px">ЗАЩИТА</div>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══════════ 00 COVER ═══════════ -->
+<section class="cover" id="cover">
+
+  <div class="cover-tag">@wasrusgen1 · Бренд-бук · 2026</div>
+
+  <!-- Logo row: inline @wasrusgen1 SVG + separator + ЗАЩИТА -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:28px;position:relative;z-index:1">
+    <div style="display:flex;align-items:center;height:73px;flex-shrink:0">
+      <svg width="337" height="52" viewBox="0 0 25237.134 3891.4225" xmlns="http://www.w3.org/2000/svg" style="display:block;transform:translateY(-5px)"><g transform="translate(0,-6120.5381)"><path fill="rgba(255,255,255,0.92)" d="m 1901.08,6120.51 c -1168.45,0 -1908.34,857.11 -1901.02,2003.58 3.66,816.82 490.83,1527.41 1483.46,1882.71 32.97,14.64 69.59,-3.67 84.25,-32.97 l 150.18,-304.02 c 10.99,-29.3 -3.66,-62.27 -32.96,-76.92 C 831.54,9285.22 487.23,8662.52 479.9,8124.09 468.92,7182.74 1007.35,6582.03 1890.11,6582.03 c 879.08,0 1377.23,571.4 1377.23,1318.63 0,450.53 -161.17,805.83 -395.59,805.83 -117.21,0 -139.18,-80.58 -142.85,-168.49 V 7190.08 c 0,-32.97 -29.31,-62.27 -62.27,-62.27 h -212.44 c -36.62,0 -69.59,25.63 -84.25,58.6 l -21.98,69.59 c -153.84,-117.22 -322.33,-157.5 -501.81,-157.5 -717.92,0 -937.69,575.08 -937.69,985.31 0,406.58 219.77,985.3 937.69,985.3 183.14,0 362.63,-51.28 516.46,-172.15 91.57,161.16 256.4,249.07 450.53,249.07 699.6,0 941.36,-706.93 941.36,-1263.68 0,-999.97 -714.26,-1761.84 -1853.42,-1761.84 z m 336.99,2325.92 c -69.59,106.23 -190.47,194.13 -373.61,194.13 -402.92,0 -468.84,-410.24 -468.84,-553.09 0,-142.85 62.27,-560.41 468.84,-560.41 168.49,0 300.35,98.89 373.61,194.12 z M 4611.6,6710.24 c -10.99,-32.98 -43.95,-54.95 -80.59,-54.95 h -424.88 c -29.31,0 -47.62,29.31 -32.98,54.95 l 948.69,2076.83 c 10.98,21.97 32.96,36.63 58.6,36.63 25.64,0 47.62,-14.66 58.6,-36.63 l 527.45,-1175.78 523.79,1175.78 c 11,21.97 32.97,36.63 58.6,36.63 25.64,0 47.62,-14.66 58.61,-36.63 l 952.34,-2076.83 c 10.98,-25.64 -7.34,-54.95 -32.96,-54.95 h -424.9 c -36.62,0 -69.59,21.97 -84.25,54.95 L 6241.55,7816.42 5732.4,6651.61 c -10.98,-25.62 -36.62,-43.95 -65.93,-43.95 -29.3,0 -54.94,18.33 -65.93,43.95 L 5091.4,7816.42 4611.57,6710.24 Z m 2889.99,2080.49 c 36.62,0 65.93,-21.98 80.58,-54.94 L 7747,8325.54 h 586.06 l 168.48,410.25 c 14.65,32.96 43.96,54.94 80.58,54.94 h 417.56 c 25.64,0 43.96,-29.3 32.98,-54.94 l -930.37,-2062.2 c -10.99,-25.63 -36.63,-40.29 -62.27,-40.29 -25.64,0 -51.29,14.65 -62.28,40.29 l -926.7,2062.2 c -14.65,25.64 3.66,54.94 32.97,54.94 h 417.56 z m 538.44,-1186.77 153.84,377.28 h -307.69 z m 1857.06,-355.3 c 7.33,-109.89 87.91,-142.85 197.8,-142.85 58.6,0 329.65,51.28 549.43,135.52 29.3,10.99 65.93,0 76.91,-32.96 l 142.85,-315.01 c 14.66,-29.31 0,-65.93 -29.3,-80.58 -351.64,-153.84 -619.03,-183.15 -736.23,-183.15 -406.58,0 -699.61,230.76 -699.61,630.01 0,439.54 358.96,567.75 666.64,662.99 219.78,65.93 391.93,124.53 391.93,263.72 -7.33,102.56 -146.51,164.83 -300.35,164.83 -179.47,0 -355.3,-47.62 -553.1,-142.85 -29.3,-14.65 -62.27,-3.66 -76.91,25.64 l -150.19,296.69 c -14.64,29.3 -3.66,65.92 25.64,80.58 260.07,139.18 490.83,205.12 772.87,205.12 465.19,0 780.19,-311.34 780.19,-648.32 0,-754.55 -1040.25,-611.7 -1058.58,-919.38 z m 2062.2,809.49 h 219.76 l 300.36,681.29 c 10.98,32.96 43.95,54.94 80.58,54.94 h 421.23 c 25.63,0 43.95,-29.31 32.96,-51.29 l -362.62,-765.53 c 219.77,-113.55 391.93,-336.99 391.93,-626.34 0,-285.7 -172.16,-695.95 -765.54,-695.95 h -750.89 c -32.96,0 -58.6,25.64 -58.6,58.6 v 2021.9 c 0,32.96 25.64,58.6 58.6,58.6 h 373.61 c 32.97,0 58.61,-25.64 58.61,-58.6 v -677.63 z m 0,-461.52 v -487.16 h 336.97 c 208.79,0 260.07,157.5 260.07,241.75 0,73.25 -51.28,245.4 -249.07,245.4 h -347.97 z m 2369.86,761.88 c -282.04,0 -351.63,-285.71 -351.63,-391.92 V 6713.88 c 0,-32.96 -25.64,-58.6 -58.6,-58.6 h -377.28 c -32.97,0 -58.61,25.64 -58.61,58.6 v 1252.71 c 0,358.95 219.78,849.78 846.12,849.78 630.02,0 849.78,-490.83 849.78,-849.78 V 6713.88 c 0,-32.96 -25.63,-58.6 -58.6,-58.6 h -384.59 c -32.97,0 -58.61,25.64 -58.61,58.6 v 1252.71 c 0,106.21 -65.92,391.92 -347.97,391.92 z m 1835.09,-1109.85 c 7.33,-109.89 87.91,-142.85 197.8,-142.85 58.6,0 329.65,51.28 549.43,135.52 29.3,10.99 65.93,0 76.91,-32.96 l 142.85,-315.01 c 14.66,-29.31 0,-65.93 -29.3,-80.58 -351.64,-153.84 -619.03,-183.15 -736.23,-183.15 -406.58,0 -699.61,230.76 -699.61,630.01 0,439.54 358.96,567.75 666.64,662.99 219.77,65.93 391.93,124.53 391.93,263.72 -7.33,102.56 -146.51,164.83 -300.35,164.83 -179.47,0 -355.3,-47.62 -553.1,-142.85 -29.3,-14.65 -62.27,-3.66 -76.92,25.64 l -150.18,296.69 c -14.64,29.3 -3.66,65.92 25.64,80.58 260.07,139.18 490.83,205.12 772.87,205.12 465.19,0 780.18,-311.34 780.18,-648.32 0,-754.55 -1040.24,-611.7 -1058.57,-919.38 z m 2835.05,816.82 -3.66,223.43 c -80.58,40.29 -194.14,69.59 -293.03,69.59 -479.83,0 -549.43,-476.17 -549.43,-633.68 0,-157.49 69.6,-633.67 549.43,-633.67 146.51,0 325.99,84.24 446.86,194.13 25.64,21.98 62.27,21.98 84.25,0 l 234.42,-238.09 c 21.98,-21.97 21.98,-58.6 0,-84.24 -208.78,-212.44 -439.54,-336.98 -765.53,-336.98 -802.17,0 -1040.26,662.97 -1040.26,1098.85 0,450.54 238.09,1102.52 1040.26,1102.52 315.01,0 549.43,-117.21 743.55,-285.7 29.32,-25.64 43.96,-62.27 43.96,-98.89 l 3.66,-754.55 c 0,-32.97 -25.64,-58.6 -58.6,-58.6 h -772.86 c -32.98,0 -58.6,25.63 -58.6,58.6 v 318.67 c 0,32.96 25.62,58.6 58.6,58.6 h 336.98 z m 2212.36,-106.23 c 32.97,0 58.6,-25.64 58.6,-58.6 v -344.31 c 0,-32.97 -25.63,-58.6 -58.6,-58.6 h -699.6 v -384.61 h 912.04 c 32.96,0 58.6,-25.62 58.6,-58.6 v -340.64 c 0,-32.96 -25.64,-58.6 -58.6,-58.6 h -1344.27 c -32.96,0 -58.6,25.64 -58.6,58.6 v 2021.9 c 0,32.96 25.64,58.6 58.6,58.6 h 1344.27 c 32.96,0 58.6,-25.64 58.6,-58.6 v -344.31 c 0,-32.96 -25.64,-58.6 -58.6,-58.6 h -912.04 v -373.61 h 699.6 z m 1219.74,835.13 c 32.97,0 58.6,-25.64 58.6,-58.6 V 7655.23 l 1161.13,1128.17 c 14.64,18.31 36.62,25.62 58.6,25.62 21.97,0 36.62,-14.64 36.62,-32.96 V 6710.22 c 0,-32.98 -25.63,-58.62 -58.6,-58.62 h -380.94 c -32.96,0 -58.6,25.64 -58.6,58.62 V 7743.14 L 22090.73,6640.62 c -18.31,-18.31 -36.62,-25.64 -62.27,-25.64 -18.32,0 -32.96,14.65 -32.96,36.62 v 2084.18 c 0,32.96 25.64,58.6 58.6,58.6 h 377.28 z m 2805.75,-2421.15 c 0,-32.97 -29.31,-62.27 -62.27,-62.27 h -146.51 c -40.29,0 -80.58,14.64 -109.89,36.62 l -684.95,531.12 c -25.64,21.97 -32.98,58.6 -14.66,87.9 l 146.51,230.76 c 18.33,29.31 54.95,36.64 87.91,21.98 l 285.71,-157.49 v 1670.26 c 0,32.96 29.3,62.27 62.27,62.27 h 373.61 c 32.96,0 62.27,-29.31 62.27,-62.27 z"/></g></svg>
+    </div>
+    <div style="width:2px;height:52px;background:rgba(255,255,255,0.25);margin:0 22px;flex-shrink:0"></div>
+    <span style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:73px;line-height:1;letter-spacing:3px;color:rgba(255,255,255,0.9);text-transform:uppercase">ЗАЩИТА</span>
+  </div>
+
+  <h1 class="cover-h1">Руководство по фирменному стилю</h1>
+  <p class="cover-sub">Юридическая экспертиза и сопровождение сделок · Версия 2026</p>
+
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <strong>Продукт</strong>
+      @wasrusgen1 | ЗАЩИТА
+    </div>
+    <div class="cover-meta-item">
+      <strong>Платформа</strong>
+      Юр-кабинет в CRM
+    </div>
+    <div class="cover-meta-item">
+      <strong>Акцент</strong>
+      Бордо #9F1239
+    </div>
+    <div class="cover-meta-item">
+      <strong>Зонтичный бренд</strong>
+      РАДАР
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════ 01 ЛОГОТИП ═══════════ -->
+<section class="section" id="logo">
+  <div class="section-num">01</div>
+  <h2 class="section-title">Логотип</h2>
+  <p class="section-sub">Логотип ЗАЩИТА — знак @WASRUSGEN1 плюс суббренд на Montserrat 700. Выравнивание — по кэп-хейту знака. Символы @ и 1 допустимо выводить за границы.</p>
+
+  <!-- Основные версии -->
+  <div class="rule-label" style="margin-bottom:20px">Основные версии</div>
+  <div class="logo-demos" style="margin-bottom:48px">
+
+    <div class="logo-demo">
+      <div class="logo-demo-bg light">
+        <div class="wg wg-light">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="logo-demo-label">Светлый фон — основная версия</div>
+    </div>
+
+    <div class="logo-demo">
+      <div class="logo-demo-bg dark">
+        <div class="wg wg-dark">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="logo-demo-label">Тёмный фон — инвертированная версия</div>
+    </div>
+
+    <div class="logo-demo">
+      <div class="logo-demo-bg burgundy">
+        <div class="wg wg-dark">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="logo-demo-label">Фирменный градиент Бордо — обложки документов и КП</div>
+    </div>
+
+  </div>
+
+  <!-- Суббренды -->
+  <div class="rule-label">Суббренды — одна система, четыре продукта</div>
+  <div class="subbrands">
+    <div>
+      <div style="font-size:11px;color:var(--n-400);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700">РАДАР · #4338CA</div>
+      <div class="wg wg-light" style="transform:scale(0.55);transform-origin:left top;height:57px">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <span class="wg-label">РАДАР</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--n-400);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700">CRM · #003E7E</div>
+      <div class="wg wg-light" style="transform:scale(0.55);transform-origin:left top;height:57px">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <span class="wg-label">CRM</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--n-400);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700">ЭКСПЕРТ · #0891B2</div>
+      <div class="wg wg-light" style="transform:scale(0.55);transform-origin:left top;height:57px">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <span class="wg-label">ЭКСПЕРТ</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--p-600);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700">ЗАЩИТА · #9F1239 · НОВЫЙ</div>
+      <div class="wg wg-light" style="transform:scale(0.55);transform-origin:left top;height:57px">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Охранная зона -->
+  <div class="rule-label" style="margin-bottom:16px">Охранная зона — минимальный отступ = кэп-хейт знака</div>
+  <div style="margin-bottom:48px">
+    <div class="clearspace-wrap">
+      <div class="clearspace-inner">
+        <div class="wg wg-light" style="transform:scale(0.6);transform-origin:left top;height:62px">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--n-500)">Жёлтая зона — запретная область для любых других элементов.</p>
+  </div>
+
+  <!-- Правила -->
+  <div class="rule-label">Правила использования</div>
+  <div class="rules-grid">
+    <div class="rule-card do">
+      <div class="rule-card__demo">
+        <div class="wg wg-light" style="transform:scale(0.30);transform-origin:center">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="do-label">✓ МОЖНО</span>На белом или светлом фоне</div>
+    </div>
+    <div class="rule-card do">
+      <div class="rule-card__demo" style="background:#111827">
+        <div class="wg wg-dark" style="transform:scale(0.30);transform-origin:center">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="do-label">✓ МОЖНО</span>На тёмном фоне с инверсией</div>
+    </div>
+    <div class="rule-card do">
+      <div class="rule-card__demo" style="background:linear-gradient(135deg,#3B0212,#9F1239)">
+        <div class="wg wg-dark" style="transform:scale(0.30);transform-origin:center">
+          <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div class="wg-sep"></div>
+          <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="do-label">✓ МОЖНО</span>На фирменном градиенте Бордо</div>
+    </div>
+    <div class="rule-card no">
+      <div class="rule-card__demo">
+        <div style="display:inline-flex;align-items:flex-start;opacity:0.3;transform:scale(0.62);transform-origin:center">
+          <img style="height:46px" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div style="width:1.5px;height:28px;background:#b0b0b0;margin:7px 12px 0"></div>
+          <span style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:40px;line-height:1;letter-spacing:2px;color:#5B5B5B;text-transform:uppercase;margin-top:-3px">ЗАЩИТА</span>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="no-label">✗ НЕЛЬЗЯ</span>Прозрачность / opacity менее 1</div>
+    </div>
+    <div class="rule-card no">
+      <div class="rule-card__demo">
+        <div style="display:inline-flex;align-items:flex-start;transform:scale(0.62);transform-origin:center">
+          <img style="height:46px" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div style="width:1.5px;height:28px;background:#b0b0b0;margin:7px 12px 0"></div>
+          <span style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:40px;line-height:1;letter-spacing:2px;color:#e05050;text-transform:uppercase;margin-top:-3px">ЗАЩИТА</span>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="no-label">✗ НЕЛЬЗЯ</span>Произвольные цвета суббренда</div>
+    </div>
+    <div class="rule-card no">
+      <div class="rule-card__demo">
+        <div style="display:inline-flex;align-items:flex-start;transform:scale(0.55) rotate(-5deg);transform-origin:center">
+          <img style="height:46px" src="logos/logo-wasrusgen1-real.svg" alt="">
+          <div style="width:1.5px;height:28px;background:#b0b0b0;margin:7px 12px 0"></div>
+          <span style="font-family:'Arial',sans-serif;font-weight:700;font-size:32px;line-height:1;letter-spacing:2px;color:#5B5B5B;text-transform:uppercase;margin-top:-2px">ЗАЩИТА</span>
+        </div>
+      </div>
+      <div class="rule-card__desc"><span class="no-label">✗ НЕЛЬЗЯ</span>Наклон, другой шрифт или деформация</div>
+    </div>
+  </div>
+
+  <!-- Min size -->
+  <div class="rule-label">Минимальный размер</div>
+  <div style="display:flex;gap:48px;align-items:flex-end;margin-top:16px">
+    <div style="width:300px;overflow:hidden">
+      <div class="wg wg-light" style="transform:scale(0.25);transform-origin:top left">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+      </div>
+      <div style="font-size:11px;color:var(--n-500);margin-top:4px">26px — минимум для экрана</div>
+    </div>
+    <div style="width:420px;overflow:hidden">
+      <div class="wg wg-light" style="transform:scale(0.35);transform-origin:top left">
+        <img class="wg-img" src="logos/logo-wasrusgen1-real.svg" alt="">
+        <div class="wg-sep"></div>
+        <svg class="wg-label" xmlns="http://www.w3.org/2000/svg" viewBox="0 -16 5010.54 862" fill="currentColor" preserveAspectRatio="xMinYMid meet"><g transform="matrix(1 0 0 -1 0 700.00)"><path transform="translate(0.00 0)" d="M615 196Q615 132 573.0 85.0Q531 38 459.5 13.0Q388 -12 303 -12Q231 -12 159.5 6.0Q88 24 24 61L74 177Q120 149 175.5 134.5Q231 120 284 120Q356 120 403.5 146.0Q451 172 451 219Q451 258 418.5 278.0Q386 298 330 298H159V420H318Q367 420 394.5 440.0Q422 460 422 495Q422 536 382.5 559.0Q343 582 281 582Q235 582 186.0 569.5Q137 557 93 532L44 658Q155 715 284 715Q366 715 435.0 691.0Q504 667 545.0 621.0Q586 575 586 514Q586 464 559.0 425.0Q532 386 485 365Q546 344 580.5 299.5Q615 255 615 196Z"/><path transform="translate(689.71 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/><path transform="translate(1522.42 0)" d="M1011 700V0H87V700H248V132H469V700H630V132H850V700ZM1106 132V-145H956V0H847V132Z"/><path transform="translate(2686.12 0)" d="M87 700H248V244L582 700H734V0H574V455L240 0H87Z"/><path transform="translate(3540.83 0)" d="M622 568H398V0H238V568H15V700H622Z"/><path transform="translate(4211.54 0)" d="M561 150H236L174 0H8L320 700H480L793 0H623ZM510 273 399 541 288 273Z"/></g></svg>
+      </div>
+      <div style="font-size:11px;color:var(--n-500);margin-top:4px">36px — минимум для печати</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 02 ЦВЕТА ═══════════ -->
+<section class="section" id="colors">
+  <div class="section-num">02</div>
+  <h2 class="section-title">Цветовая палитра</h2>
+  <p class="section-sub">Акцентный якорь ЗАЩИТА — Бордо (#9F1239). Глубокий #3B0212 создаёт ощущение надёжности и правовой солидности. Семантические цвета размечают уровни риска в документах.</p>
+
+  <!-- PRIMARY SCALE STRIP -->
+  <div class="palette-group">
+    <div class="palette-group-title">Primary — Burgundy (Бордо) Scale (950 → 50)</div>
+    <div class="palette-row">
+      <div class="swatch" style="background:#3B0212"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#3B0212<br>950</div></div>
+      <div class="swatch" style="background:#7A0E2E"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#7A0E2E<br>900</div></div>
+      <div class="swatch" style="background:#8C1033"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#8C1033<br>800</div></div>
+      <div class="swatch" style="background:#9F1239"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#9F1239<br>700</div></div>
+      <div class="swatch" style="background:#B5163F"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#B5163F<br>600</div></div>
+      <div class="swatch" style="background:#C81E4E"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#C81E4E<br>500</div></div>
+      <div class="swatch" style="background:#E8909F"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#E8909F<br>400</div></div>
+      <div class="swatch" style="background:#FDA4AF"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#FDA4AF<br>300</div></div>
+      <div class="swatch" style="background:#FECDD3"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#FECDD3<br>200</div></div>
+      <div class="swatch" style="background:#FFE4E6;border:1px solid #FECDD3"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#FFE4E6<br>100</div></div>
+      <div class="swatch" style="background:#FFF1F2;border:1px solid #FECDD3"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#FFF1F2<br>50</div></div>
+    </div>
+  </div>
+
+  <!-- NEUTRAL SCALE STRIP -->
+  <div class="palette-group">
+    <div class="palette-group-title">Neutral — общая шкала зонтичного бренда</div>
+    <div class="palette-row">
+      <div class="swatch" style="background:#030712"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#030712<br>950</div></div>
+      <div class="swatch" style="background:#111827"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#111827<br>900</div></div>
+      <div class="swatch" style="background:#1F2937"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#1F2937<br>800</div></div>
+      <div class="swatch" style="background:#374151"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#374151<br>700</div></div>
+      <div class="swatch" style="background:#4B5563"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#4B5563<br>600</div></div>
+      <div class="swatch" style="background:#6B7280"><div class="swatch-label" style="color:rgba(255,255,255,0.9)">#6B7280<br>500</div></div>
+      <div class="swatch" style="background:#9CA3AF"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#9CA3AF<br>400</div></div>
+      <div class="swatch" style="background:#D1D5DB"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#D1D5DB<br>300</div></div>
+      <div class="swatch" style="background:#E5E7EB"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#E5E7EB<br>200</div></div>
+      <div class="swatch" style="background:#F3F4F6;border:1px solid #e0e0e0"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#F3F4F6<br>100</div></div>
+      <div class="swatch" style="background:#F9FAFB;border:1px solid #e0e0e0"><div class="swatch-label" style="color:rgba(0,0,0,0.75)">#F9FAFB<br>50</div></div>
+    </div>
+  </div>
+
+  <!-- KEY COLOR CARDS -->
+  <div class="rule-label" style="margin-bottom:16px">Ключевые токены — 6 цветов продукта</div>
+  <div class="palette-cards" style="margin-bottom:48px">
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#3B0212"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Brand Dark</div>
+        <div class="palette-card__hex">#3B0212</div>
+        <div class="palette-card__use">Обложки отчётов, заголовки</div>
+      </div>
+    </div>
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#9F1239"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Бордо 700</div>
+        <div class="palette-card__hex">#9F1239</div>
+        <div class="palette-card__use">Кнопки, активные элементы</div>
+      </div>
+    </div>
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#9F1239;box-shadow:0 0 0 3px rgba(159,18,57,0.2)"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Primary Action</div>
+        <div class="palette-card__hex">#9F1239</div>
+        <div class="palette-card__use">CTA, акценты, ссылки</div>
+      </div>
+    </div>
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#C81E4E"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Бордо 500</div>
+        <div class="palette-card__hex">#C81E4E</div>
+        <div class="palette-card__use">Hover, иконки, декор</div>
+      </div>
+    </div>
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#FFE4E6;border:1px solid #FECDD3"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Бордо 100</div>
+        <div class="palette-card__hex">#FFE4E6</div>
+        <div class="palette-card__use">Фоны карточек, тинты</div>
+      </div>
+    </div>
+    <div class="palette-card">
+      <div class="palette-card__color" style="background:#FFF1F2;border:1px solid #FECDD3"></div>
+      <div class="palette-card__info">
+        <div class="palette-card__name">Бордо 50</div>
+        <div class="palette-card__hex">#FFF1F2</div>
+        <div class="palette-card__use">Страничный фон, подложки</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEMANTIC -->
+  <div class="rule-label" style="margin-bottom:16px">Семантические цвета — уровни риска в документах</div>
+  <div class="semantic-grid">
+    <div class="sem-card">
+      <div class="sem-card__bar" style="background:var(--s-success)"></div>
+      <div class="sem-card__body">
+        <div class="sem-card__name" style="color:var(--s-success)">Success</div>
+        <div class="sem-card__hex">#10B981 · #ECFDF5</div>
+        <div class="sem-card__chip" style="background:var(--s-success-bg);color:var(--s-success)">✓ Риск не выявлен</div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-card__bar" style="background:var(--s-warning)"></div>
+      <div class="sem-card__body">
+        <div class="sem-card__name" style="color:#92400E">Warning</div>
+        <div class="sem-card__hex">#F59E0B · #FFFBEB</div>
+        <div class="sem-card__chip" style="background:var(--s-warning-bg);color:#92400E">⚠ Требует внимания</div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-card__bar" style="background:var(--s-danger)"></div>
+      <div class="sem-card__body">
+        <div class="sem-card__name" style="color:var(--s-danger)">Danger</div>
+        <div class="sem-card__hex">#EF4444 · #FEF2F2</div>
+        <div class="sem-card__chip" style="background:var(--s-danger-bg);color:var(--s-danger)">✕ Критичный риск</div>
+      </div>
+    </div>
+    <div class="sem-card">
+      <div class="sem-card__bar" style="background:var(--s-info)"></div>
+      <div class="sem-card__body">
+        <div class="sem-card__name" style="color:#1E40AF">Info</div>
+        <div class="sem-card__hex">#3B82F6 · #EFF6FF</div>
+        <div class="sem-card__chip" style="background:var(--s-info-bg);color:#1E40AF">ℹ Аналитическая заметка</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRADIENTS -->
+  <div class="rule-label" style="margin-bottom:16px">Фирменные градиенты ЗАЩИТА</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px">
+    <div style="border-radius:14px;overflow:hidden;border:1px solid var(--n-200)">
+      <div style="height:100px;background:linear-gradient(135deg,#3B0212,#9F1239)"></div>
+      <div style="padding:14px 16px;background:#fff">
+        <div style="font-size:12px;font-weight:700;color:var(--n-800)">Brand Cover</div>
+        <div style="font-size:11px;color:var(--n-400);font-family:'Inter',sans-serif;margin-top:2px">#3B0212 → #9F1239 · 135°</div>
+        <div style="font-size:10px;color:var(--n-500);margin-top:4px">Обложки отчётов, hero-блоки</div>
+      </div>
+    </div>
+    <div style="border-radius:14px;overflow:hidden;border:1px solid var(--n-200)">
+      <div style="height:100px;background:linear-gradient(135deg,#9F1239,#9F1239)"></div>
+      <div style="padding:14px 16px;background:#fff">
+        <div style="font-size:12px;font-weight:700;color:var(--n-800)">Brand Mid</div>
+        <div style="font-size:11px;color:var(--n-400);font-family:'Inter',sans-serif;margin-top:2px">#9F1239 → #9F1239 · 135°</div>
+        <div style="font-size:10px;color:var(--n-500);margin-top:4px">Карточки KPI, акценты</div>
+      </div>
+    </div>
+    <div style="border-radius:14px;overflow:hidden;border:1px solid var(--n-200)">
+      <div style="height:100px;background:linear-gradient(135deg,#9F1239,#FDA4AF)"></div>
+      <div style="padding:14px 16px;background:#fff">
+        <div style="font-size:12px;font-weight:700;color:var(--n-800)">Brand Light</div>
+        <div style="font-size:11px;color:var(--n-400);font-family:'Inter',sans-serif;margin-top:2px">#9F1239 → #FDA4AF · 135°</div>
+        <div style="font-size:10px;color:var(--n-500);margin-top:4px">Иконки, визуализации данных</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USAGE MATRIX -->
+  <div class="rule-label" style="margin-bottom:16px">Матрица применения цветов</div>
+  <div class="usage-matrix">
+    <table>
+      <thead>
+        <tr>
+          <th>Цвет</th>
+          <th>Применение</th>
+          <th>Текст на цвете</th>
+          <th>Контраст WCAG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="dot" style="background:#9F1239"></span><strong>#9F1239</strong> Бордо 700</td>
+          <td>Кнопки, CTA, навигационные акценты</td>
+          <td><span style="color:#fff;background:#9F1239;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block">Белый</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AA ✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="dot" style="background:#9F1239"></span><strong>#9F1239</strong> Primary</td>
+          <td>Ссылки, иконки, hover-акценты</td>
+          <td><span style="color:#fff;background:#9F1239;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block">Белый</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AA ✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="dot" style="background:#3B0212"></span><strong>#3B0212</strong> Brand Dark</td>
+          <td>Заголовки, обложки, тёмные поверхности</td>
+          <td><span style="color:#fff;background:#3B0212;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block">Белый</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AAA ✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="dot" style="background:#FFF1F2;border:1px solid #FECDD3"></span><strong>#FFF1F2</strong> Бордо 50</td>
+          <td>Фон страниц в Бордо-теме, карточки</td>
+          <td><span style="color:#9F1239;background:#FFF1F2;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block;border:1px solid #FECDD3">Бордо 700</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AA ✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="dot" style="background:#10B981"></span><strong>#10B981</strong> Success</td>
+          <td>Рост индексов, позитивные delta</td>
+          <td><span style="color:#fff;background:#10B981;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block">Белый</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AA ✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="dot" style="background:#EF4444"></span><strong>#EF4444</strong> Danger</td>
+          <td>Критичный риск, срыв срока</td>
+          <td><span style="color:#fff;background:#EF4444;border-radius:4px;padding:2px 8px;font-size:12px;display:inline-block">Белый</span></td>
+          <td><span style="color:var(--s-success);font-weight:700">AA ✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ 03 ТИПОГРАФИКА ═══════════ -->
+<section class="section" id="type">
+  <div class="section-num">03</div>
+  <h2 class="section-title">Типографика</h2>
+  <p class="section-sub">Montserrat — только для логотипа. Inter — весь UI, таблицы, отчёты. Смешивать нельзя.</p>
+
+  <!-- Montserrat -->
+  <div class="font-hero">
+    <div class="font-hero__demo" style="background:linear-gradient(135deg,#3B0212,#9F1239)">ЗАЩИТА</div>
+    <div class="font-hero__info">
+      <div>
+        <div class="font-meta__label">Шрифт</div>
+        <div class="font-meta__val">Montserrat</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Вес</div>
+        <div class="font-meta__val">700 Bold</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Применение</div>
+        <div class="font-meta__val">Только логотип и суббренды</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Трекинг</div>
+        <div class="font-meta__val">letter-spacing: 3–4px</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:16px 20px;background:var(--p-50);border:1px solid var(--p-200);border-radius:10px;margin-bottom:32px;font-size:13px;color:var(--p-700);font-weight:600">
+    Montserrat — только для логотипа. В UI использовать Inter.
+  </div>
+
+  <!-- Inter -->
+  <div class="font-hero" style="margin-bottom:48px">
+    <div class="font-hero__demo" style="background:var(--n-50);color:var(--n-900);font-family:'Inter',sans-serif;font-weight:800;letter-spacing:-0.04em;font-size:72px">
+      Данные решают
+    </div>
+    <div class="font-hero__info">
+      <div>
+        <div class="font-meta__label">Шрифт</div>
+        <div class="font-meta__val">Inter</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Веса</div>
+        <div class="font-meta__val">300 / 400 / 500 / 600 / 700 / 800</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Применение</div>
+        <div class="font-meta__val">Весь UI — заголовки, текст, таблицы</div>
+      </div>
+      <div>
+        <div class="font-meta__label">Fallback</div>
+        <div class="font-meta__val">system-ui, sans-serif</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Type scale -->
+  <div class="rule-label">Шкала размеров — Inter</div>
+  <div class="type-scale">
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">Display</div>
+        <div class="type-row__spec">48px / 800 / −4%</div>
+      </div>
+      <div class="type-row__sample" style="font-size:48px;font-weight:800;letter-spacing:-0.04em;line-height:1;color:var(--p-700)">ЗАЩИТА</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">H1</div>
+        <div class="type-row__spec">36px / 700 / −3%</div>
+      </div>
+      <div class="type-row__sample" style="font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1.1">Защита в каждой сделке</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">H2</div>
+        <div class="type-row__spec">24px / 700 / −2%</div>
+      </div>
+      <div class="type-row__sample" style="font-size:24px;font-weight:700;letter-spacing:-0.02em;line-height:1.2">Ценовой индекс по категориям</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">H3</div>
+        <div class="type-row__spec">18px / 700 / −1%</div>
+      </div>
+      <div class="type-row__sample" style="font-size:18px;font-weight:700;letter-spacing:-0.01em">Динамика цен за период</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">Body Large</div>
+        <div class="type-row__spec">16px / 400 / normal</div>
+      </div>
+      <div class="type-row__sample" style="font-size:16px;font-weight:400;line-height:1.6">Кабинет проверяет договор, выявляет риски и контролирует сроки — до того, как вы подпишете.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">Body</div>
+        <div class="type-row__spec">14px / 400 / normal</div>
+      </div>
+      <div class="type-row__sample" style="font-size:14px;font-weight:400;line-height:1.6;color:var(--n-600)">Вспомогательный текст, пояснения к рискам, метаинформация карточек документов.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">Caption</div>
+        <div class="type-row__spec">12px / 400 / normal</div>
+      </div>
+      <div class="type-row__sample" style="font-size:12px;font-weight:400;color:var(--n-500)">Метки рисков · Сроки · Статусы документов</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__meta">
+        <div class="type-row__label">Label</div>
+        <div class="type-row__spec">11px / 700 / +1.5px</div>
+      </div>
+      <div class="type-row__sample" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--n-400)">МЕТКИ РАЗДЕЛОВ · ИНДЕКСЫ · СТАТУСЫ</div>
+    </div>
+  </div>
+
+  <!-- Font pairs -->
+  <div style="margin-top:48px">
+    <div class="rule-label">Пары шрифтов в интерфейсе</div>
+    <div class="pair-grid">
+      <div class="pair-card">
+        <div class="pair-card__role">Логотип</div>
+        <div class="pair-card__name" style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px">Montserrat 700</div>
+        <div class="pair-card__use">Исключительно для суббрендов: РАДАР, CRM, ЗАЩИТА. Больше нигде не используется.</div>
+      </div>
+      <div class="pair-card">
+        <div class="pair-card__role">UI / Content</div>
+        <div class="pair-card__name" style="font-family:'Inter',sans-serif;font-weight:700">Inter 300–800</div>
+        <div class="pair-card__use">Весь текст продукта. Оптимизирован для документов, таблиц рисков и карточек договоров.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 04 UI КОМПОНЕНТЫ ═══════════ -->
+<section class="section" id="ui">
+  <div class="section-num">04</div>
+  <h2 class="section-title">UI-компоненты</h2>
+  <p class="section-sub">Компоненты ЗАЩИТА используют Бордо-токены. Не хардкодить HEX — только через CSS-переменные. Светлая и тёмная версии входят в поставку.</p>
+
+  <div class="comp-grid">
+
+    <!-- Buttons light -->
+    <div class="comp-card">
+      <div class="comp-card__demo">
+        <div class="btns-row" style="margin-bottom:12px">
+          <button class="btn btn-primary">Проверить договор</button>
+          <button class="btn btn-secondary">Настроить</button>
+          <button class="btn btn-outline">Экспорт</button>
+        </div>
+        <div class="btns-row" style="margin-bottom:12px">
+          <button class="btn btn-ghost">Отмена</button>
+          <button class="btn btn-danger">Удалить</button>
+        </div>
+        <div class="btns-row">
+          <button class="btn btn-primary btn-sm">Малый</button>
+          <button class="btn btn-primary">Стандарт</button>
+          <button class="btn btn-primary btn-lg">Большой</button>
+        </div>
+      </div>
+      <div class="comp-card__label">Кнопки — 5 вариантов · 3 размера · Light</div>
+    </div>
+
+    <!-- Badges -->
+    <div class="comp-card">
+      <div class="comp-card__demo">
+        <div class="badges-row" style="margin-bottom:12px">
+          <span class="badge badge-cyan">ЗАЩИТА</span>
+          <span class="badge badge-success">▲ Рост 12%</span>
+          <span class="badge badge-danger">▼ −0.08</span>
+          <span class="badge badge-warning">⚠ Контроль</span>
+          <span class="badge badge-neutral">Нейтрально</span>
+        </div>
+        <div class="badges-row" style="margin-bottom:12px">
+          <span class="badge badge-cyan">Ценовой индекс</span>
+          <span class="badge badge-success">В норме</span>
+          <span class="badge badge-danger">Тревога</span>
+          <span class="badge badge-warning">На проверке</span>
+          <span class="badge badge-dark">Premium</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge" style="background:rgba(159,18,57,0.1);color:#9F1239;border:1px solid rgba(159,18,57,0.2)">Outline Бордо</span>
+          <span class="badge" style="background:rgba(159,18,57,0.08);color:#9F1239;border:1px solid rgba(159,18,57,0.25)">Ghost Бордо</span>
+        </div>
+      </div>
+      <div class="comp-card__label">Бейджи и статусы</div>
+    </div>
+
+    <!-- KPI Cards — analytic metrics -->
+    <div class="comp-card">
+      <div class="comp-card__demo">
+        <div class="cards-row">
+          <div class="ui-card" style="border-top:3px solid #9F1239">
+            <div class="ui-card__title">Ценовой индекс</div>
+            <div class="ui-card__sub">vs. конкуренты</div>
+            <div class="ui-card__num" style="color:#9F1239">0.94</div>
+            <div class="ui-card__delta delta-neg">▼ −0.03 за неделю</div>
+          </div>
+          <div class="ui-card" style="border-top:3px solid #10B981">
+            <div class="ui-card__title">Покрытие</div>
+            <div class="ui-card__sub">Товаров отслежено</div>
+            <div class="ui-card__num">1 247</div>
+            <div class="ui-card__delta delta-pos">▲ +18%</div>
+          </div>
+          <div class="ui-card" style="border-top:3px solid #F59E0B">
+            <div class="ui-card__title">Аномалии</div>
+            <div class="ui-card__sub">Скачки цен</div>
+            <div class="ui-card__num">7</div>
+            <div class="ui-card__delta delta-neg">▼ высокий риск</div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card__label">KPI-карточки — статус документов (Бордо акцент)</div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="comp-card">
+      <div class="comp-card__demo">
+        <div class="alerts-col">
+          <div class="ui-alert" style="background:var(--p-50);color:var(--p-700)">
+            <div class="ui-alert-icon">📊</div>
+            <div class="ui-alert__body">
+              <div class="ui-alert__title">Отчёт готов</div>
+              <div class="ui-alert__text">Недельный анализ конкурентов сформирован — 1 247 позиций</div>
+            </div>
+          </div>
+          <div class="ui-alert alert-warning">
+            <div class="ui-alert-icon">⚠</div>
+            <div class="ui-alert__body">
+              <div class="ui-alert__title">Ценовой индекс снизился</div>
+              <div class="ui-alert__text">−0.03 за 7 дней — рекомендуется пересмотр позиций</div>
+            </div>
+          </div>
+          <div class="ui-alert alert-danger">
+            <div class="ui-alert-icon">⚡</div>
+            <div class="ui-alert__body">
+              <div class="ui-alert__title">Аномальный скачок цены</div>
+              <div class="ui-alert__text">Конкурент снизил цену на 34% — требует реакции</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card__label">Уведомления и контроль сроков</div>
+    </div>
+
+    <!-- Analytics Table -->
+    <div class="comp-card" style="grid-column:1/-1">
+      <div class="comp-card__demo" style="padding:24px;background:#fff">
+        <table class="ui-table">
+          <thead>
+            <tr>
+              <th>Конкурент</th>
+              <th>Категория</th>
+              <th>Ценовой индекс</th>
+              <th>Δ нед.</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Наш магазин</strong> <span class="badge badge-cyan" style="margin-left:6px">Наши</span></td>
+              <td>Кухни</td>
+              <td style="font-weight:700;font-family:'Inter',sans-serif;color:#9F1239">0.94</td>
+              <td><span style="color:var(--s-danger);font-weight:600">▼ −0.03</span></td>
+              <td><span class="badge badge-warning">Контроль</span></td>
+            </tr>
+            <tr>
+              <td>Мебель Комфорт</td>
+              <td>Кухни</td>
+              <td style="font-weight:700;font-family:'Inter',sans-serif">1.02</td>
+              <td><span style="color:var(--s-success);font-weight:600">▲ +0.01</span></td>
+              <td><span class="badge badge-neutral">Стабильно</span></td>
+            </tr>
+            <tr>
+              <td>КухниПрофи</td>
+              <td>Кухни</td>
+              <td style="font-weight:700;font-family:'Inter',sans-serif;color:var(--s-danger)">0.78</td>
+              <td><span style="color:var(--s-danger);font-weight:600">▼ −0.16</span></td>
+              <td><span class="badge badge-danger">Демпинг</span></td>
+            </tr>
+            <tr>
+              <td>Стиль Интерьер</td>
+              <td>Кухни</td>
+              <td style="font-weight:700;font-family:'Inter',sans-serif">1.08</td>
+              <td><span style="color:var(--s-success);font-weight:600">▲ +0.04</span></td>
+              <td><span class="badge badge-success">Растёт</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="comp-card__label">Таблица документов — кабинет ЗАЩИТА</div>
+    </div>
+
+    <!-- Dark mode preview -->
+    <div class="comp-card" style="grid-column:1/-1">
+      <div class="comp-card__demo dark" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+        <!-- Dark KPI -->
+        <div style="background:rgba(159,18,57,0.1);border:1px solid rgba(159,18,57,0.2);border-radius:14px;padding:20px;min-width:180px;flex:1">
+          <div style="font-size:11px;color:rgba(159,18,57,0.7);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:8px">ЦЕНОВОЙ ИНДЕКС</div>
+          <div style="font-size:40px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.04em">0.94</div>
+          <div style="font-size:12px;color:#FCA5A5;margin-top:8px;font-weight:600">▼ −0.03 за неделю</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;min-width:180px;flex:1">
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:8px">ПОКРЫТИЕ</div>
+          <div style="font-size:40px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.04em">1 247</div>
+          <div style="font-size:12px;color:#6EE7B7;margin-top:8px;font-weight:600">▲ +18% товаров</div>
+        </div>
+        <div style="flex:2;min-width:260px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <span class="badge" style="background:rgba(159,18,57,0.2);color:#E8909F">ЗАЩИТА</span>
+            <span class="badge" style="background:rgba(16,185,129,0.15);color:#6EE7B7">▲ Рост</span>
+            <span class="badge" style="background:rgba(239,68,68,0.15);color:#FCA5A5">⚡ Демпинг</span>
+            <span class="badge" style="background:rgba(245,158,11,0.15);color:#FCD34D">⚠ Контроль</span>
+          </div>
+          <div class="btns-row">
+            <button class="btn" style="background:#9F1239;color:#fff;font-size:13px">Открыть документ</button>
+            <button class="btn" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.65);font-size:13px;border:1px solid rgba(255,255,255,0.1)">Настройки</button>
+            <button class="btn" style="background:transparent;color:rgba(159,18,57,0.8);font-size:13px">Экспорт CSV</button>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card__label">Dark mode — ЗАЩИТА на тёмной поверхности (#0C1929)</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ 05 ТОКЕНЫ ═══════════ -->
+<section class="section" id="tokens">
+  <div class="section-num">05</div>
+  <h2 class="section-title">Дизайн-токены</h2>
+  <p class="section-sub">CSS-переменные для подключения к любому фреймворку. Используй токены — не хардкодь цвета напрямую в компонентах.</p>
+
+  <div class="rule-label" style="margin-bottom:16px">Ключевые переменные продукта</div>
+  <div class="token-grid" style="margin-bottom:48px">
+
+    <div class="token-row">
+      <div class="token-color" style="background:#9F1239"></div>
+      <div>
+        <div class="token-name">--brand-cyan</div>
+        <div class="token-hex">#9F1239 · Primary action (Бордо 600)</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#3B0212"></div>
+      <div>
+        <div class="token-name">--brand-dark</div>
+        <div class="token-hex">#3B0212 · Dark surface (Бордо 950)</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#9F1239"></div>
+      <div>
+        <div class="token-name">--brand-cyan-l</div>
+        <div class="token-hex">#9F1239 · Hover / accent (Бордо 500)</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#5B5B5B"></div>
+      <div>
+        <div class="token-name">--brand-logo</div>
+        <div class="token-hex">#5B5B5B · Logo label on light bg</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#3B0212"></div>
+      <div>
+        <div class="token-name">--p-950</div>
+        <div class="token-hex">#3B0212 · Gradient start, deep dark</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#9F1239"></div>
+      <div>
+        <div class="token-name">--p-700</div>
+        <div class="token-hex">#9F1239 · Button bg, nav active</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#B5163F"></div>
+      <div>
+        <div class="token-name">--p-600</div>
+        <div class="token-hex">#B5163F · Бордо 600</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#C81E4E"></div>
+      <div>
+        <div class="token-name">--p-500</div>
+        <div class="token-hex">#C81E4E · Section numbers, accents</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#FFF1F2;border:1px solid #FECDD3"></div>
+      <div>
+        <div class="token-name">--p-50</div>
+        <div class="token-hex">#FFF1F2 · Бордо tint bg, rules box</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#F9FAFB;border:1px solid #E5E7EB"></div>
+      <div>
+        <div class="token-name">--n-50</div>
+        <div class="token-hex">#F9FAFB · Page background</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#E5E7EB"></div>
+      <div>
+        <div class="token-name">--n-200</div>
+        <div class="token-hex">#E5E7EB · Borders default</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#6B7280"></div>
+      <div>
+        <div class="token-name">--n-500</div>
+        <div class="token-hex">#6B7280 · Muted / helper text</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#10B981"></div>
+      <div>
+        <div class="token-name">--s-success</div>
+        <div class="token-hex">#10B981 · Positive metric, growth</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#EF4444"></div>
+      <div>
+        <div class="token-name">--s-danger</div>
+        <div class="token-hex">#EF4444 · Alert / decline / threat</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#F59E0B"></div>
+      <div>
+        <div class="token-name">--s-warning</div>
+        <div class="token-hex">#F59E0B · Attention needed</div>
+      </div>
+    </div>
+    <div class="token-row">
+      <div class="token-color" style="background:#0C1929"></div>
+      <div>
+        <div class="token-name">--sidebar-bg</div>
+        <div class="token-hex">#0C1929 · Sidebar / dark panel bg</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CSS Root block -->
+  <div class="rule-label" style="margin-bottom:12px">CSS :root — подключение токенов ЗАЩИТА</div>
+  <div style="background:#0C1929;border-radius:14px;padding:28px 32px;font-family:'Inter',sans-serif;font-size:12px;line-height:2;color:rgba(255,255,255,0.7);overflow-x:auto;border:1px solid rgba(159,18,57,0.15)">
+    <span style="color:#E8909F">:root</span> {<br>
+    &nbsp;&nbsp;<span style="color:#818CF8">/* ── BRAND (ЗАЩИТА / Бордо) ── */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--brand-cyan</span>: &nbsp;&nbsp;&nbsp;<span style="color:#FECDD3">#9F1239</span>; &nbsp;<span style="color:rgba(255,255,255,0.25)">/* Primary action */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--brand-dark</span>: &nbsp;&nbsp;&nbsp;<span style="color:#FECDD3">#3B0212</span>; &nbsp;<span style="color:rgba(255,255,255,0.25)">/* Dark surface */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--brand-cyan-l</span>: &nbsp;<span style="color:#FECDD3">#9F1239</span>; &nbsp;<span style="color:rgba(255,255,255,0.25)">/* Hover / accent */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--brand-logo</span>: &nbsp;&nbsp;&nbsp;<span style="color:#FECDD3">#5B5B5B</span>; &nbsp;<span style="color:rgba(255,255,255,0.25)">/* Logo label on light */</span><br>
+    <br>
+    &nbsp;&nbsp;<span style="color:#818CF8">/* ── PRIMARY SCALE (Бордо) ── */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--p-950</span>: <span style="color:#FECDD3">#3B0212</span>; &nbsp;<span style="color:#FDA4AF">--p-900</span>: <span style="color:#FECDD3">#7A0E2E</span>; &nbsp;<span style="color:#FDA4AF">--p-800</span>: <span style="color:#FECDD3">#8C1033</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--p-700</span>: <span style="color:#FECDD3">#9F1239</span>; &nbsp;<span style="color:#FDA4AF">--p-600</span>: <span style="color:#FECDD3">#B5163F</span>; &nbsp;<span style="color:#FDA4AF">--p-500</span>: <span style="color:#FECDD3">#C81E4E</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--p-400</span>: <span style="color:#FECDD3">#E8909F</span>; &nbsp;<span style="color:#FDA4AF">--p-300</span>: <span style="color:#FECDD3">#FDA4AF</span>; &nbsp;<span style="color:#FDA4AF">--p-200</span>: <span style="color:#FECDD3">#FECDD3</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--p-100</span>: <span style="color:#FECDD3">#FFE4E6</span>; &nbsp;<span style="color:#FDA4AF">--p-50</span>:  <span style="color:#FECDD3">#FFF1F2</span>;<br>
+    <br>
+    &nbsp;&nbsp;<span style="color:#818CF8">/* ── NEUTRAL SCALE (shared) ── */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--n-900</span>: <span style="color:#FECDD3">#111827</span>; &nbsp;<span style="color:#FDA4AF">--n-800</span>: <span style="color:#FECDD3">#1F2937</span>; &nbsp;<span style="color:#FDA4AF">--n-700</span>: <span style="color:#FECDD3">#374151</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--n-500</span>: <span style="color:#FECDD3">#6B7280</span>; &nbsp;<span style="color:#FDA4AF">--n-400</span>: <span style="color:#FECDD3">#9CA3AF</span>; &nbsp;<span style="color:#FDA4AF">--n-200</span>: <span style="color:#FECDD3">#E5E7EB</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--n-100</span>: <span style="color:#FECDD3">#F3F4F6</span>; &nbsp;<span style="color:#FDA4AF">--n-50</span>:  <span style="color:#FECDD3">#F9FAFB</span>;<br>
+    <br>
+    &nbsp;&nbsp;<span style="color:#818CF8">/* ── SEMANTIC ── */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--s-success</span>: <span style="color:#FECDD3">#10B981</span>; &nbsp;<span style="color:#FDA4AF">--s-success-bg</span>: <span style="color:#FECDD3">#ECFDF5</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--s-warning</span>: <span style="color:#FECDD3">#F59E0B</span>; &nbsp;<span style="color:#FDA4AF">--s-warning-bg</span>: <span style="color:#FECDD3">#FFFBEB</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--s-danger</span>:  <span style="color:#FECDD3">#EF4444</span>; &nbsp;<span style="color:#FDA4AF">--s-danger-bg</span>:  <span style="color:#FECDD3">#FEF2F2</span>;<br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--s-info</span>:    <span style="color:#FECDD3">#3B82F6</span>; &nbsp;<span style="color:#FDA4AF">--s-info-bg</span>:    <span style="color:#FECDD3">#EFF6FF</span>;<br>
+    <br>
+    &nbsp;&nbsp;<span style="color:#818CF8">/* ── UI SURFACES ── */</span><br>
+    &nbsp;&nbsp;<span style="color:#FDA4AF">--sidebar-bg</span>: <span style="color:#FECDD3">#0C1929</span>; &nbsp;<span style="color:rgba(255,255,255,0.25)">/* Dark cyan-tinted sidebar */</span><br>
+    }
+  </div>
+
+  <div style="margin-top:48px;padding:28px;background:var(--p-50);border:1px solid var(--p-200);border-radius:14px">
+    <div style="font-size:13px;font-weight:700;color:var(--p-700);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span style="display:inline-block;width:16px;height:16px;background:#9F1239;border-radius:4px"></span>
+      Важные правила ЗАЩИТА
+    </div>
+    <div style="font-size:13px;color:var(--n-700);line-height:2">
+      1. Montserrat 700 — только для логотипа. В UI не применять.<br>
+      2. Суббренд ЗАЩИТА — юридический кабинет: экспертиза договоров, контроль сроков, сопровождение сделок. РАДАР — мониторинг. CRM — кабинет. ЭКСПЕРТ — аналитика цен.<br>
+      3. Logo gray <strong>#5B5B5B</strong> — цвет суббренда на светлом. На тёмном фоне — <strong>rgba(255,255,255,0.92)</strong>.<br>
+      4. Все цвета — только через токены. Не хардкодить HEX в компонентах.<br>
+      5. Sidebar ЗАЩИТА: <strong>#0C1929</strong> (Бордо-dark tint), не чистый чёрный. Active nav border: <strong>#9F1239</strong>.
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<script>
+// Scroll-spy: IntersectionObserver on section[id]
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.25, rootMargin: '-60px 0px -40% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
