@@ -127,6 +127,8 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .deliv-highlighted{border-color:var(--bg)!important;background:linear-gradient(135deg,#fff 0%,rgba(159,18,57,.06) 100%)!important;box-shadow:0 0 0 2px rgba(159,18,57,.15)!important}
 .deliv-highlighted .dn{color:var(--bg)!important}
 .ctype-note{display:block;font-size:13px;color:var(--mut);line-height:1.5;margin-bottom:6px;padding:8px 10px;background:var(--surf);border-radius:8px;border-left:3px solid var(--bg)}
+.sample-link{display:inline-block;margin-top:7px;font-size:11px;font-weight:600;color:var(--bg);text-decoration:none;border:1px solid rgba(159,18,57,.3);border-radius:5px;padding:2px 9px;transition:background .15s}
+.sample-link:hover{background:var(--tint)}
 /* ── план после выбора ── */
 .plan-what{background:var(--surf);border-radius:12px;padding:14px 16px;margin:16px 0;max-width:600px}
 .plan-what-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:10px}
@@ -381,19 +383,19 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <div class="deliverables">
         <div id="deliv-protocol" class="deliv" onclick="selectDeliv('protocol')">
           <span class="di">📋</span>
-          <div><div class="dn">Протокол разногласий</div><div class="dd2" id="dd2-protocol">Список спорных пунктов + зачем менять каждый</div></div>
+          <div><div class="dn">Протокол разногласий</div><div class="dd2" id="dd2-protocol">Список спорных пунктов + зачем менять каждый</div><a class="sample-link" href="sample-protocol.html" target="_blank" onclick="event.stopPropagation()">📄 Образец →</a></div>
         </div>
         <div id="deliv-redact" class="deliv" onclick="selectDeliv('redact')">
           <span class="di">✏️</span>
-          <div><div class="dn">Переработка с комментариями</div><div class="dd2" id="dd2-redact">Новая редакция каждого пункта + пояснение изменений</div></div>
+          <div><div class="dn">Переработка с комментариями</div><div class="dd2" id="dd2-redact">Новая редакция каждого пункта + пояснение изменений</div><a class="sample-link" href="sample-redact.html" target="_blank" onclick="event.stopPropagation()">📄 Образец →</a></div>
         </div>
         <div id="deliv-clean" class="deliv" onclick="selectDeliv('clean')">
           <span class="di">✅</span>
-          <div><div class="dn">Чистая редакция</div><div class="dd2" id="dd2-clean">Договор готов к подписанию — без лишних пояснений</div></div>
+          <div><div class="dn">Чистая редакция</div><div class="dd2" id="dd2-clean">Договор готов к подписанию — без лишних пояснений</div><a class="sample-link" href="sample-clean.html" target="_blank" onclick="event.stopPropagation()">📄 Образец →</a></div>
         </div>
         <div id="deliv-partner" class="deliv deliv-top" onclick="selectDeliv('partner')">
           <span class="di">🤝</span>
-          <div><div class="dn">Партнёрская редакция</div><div class="dd2" id="dd2-partner">Вариант, который устроит обе стороны — без конфликта</div></div>
+          <div><div class="dn">Партнёрская редакция</div><div class="dd2" id="dd2-partner">Вариант, который устроит обе стороны — без конфликта</div><a class="sample-link" href="sample-partner.html" target="_blank" onclick="event.stopPropagation()">📄 Образец →</a></div>
           <span class="deliv-badge" id="deliv-rec-badge">Рекомендуем</span>
         </div>
       </div>
