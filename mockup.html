@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ЗАЩИТА — прототип (весь путь)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-height:1.5}
+.screen{display:none;min-height:100vh}
+.screen.on{display:block}
+.brand{font-family:var(--font-logo);font-weight:700;letter-spacing:2px}
+.btn{border:none;border-radius:11px;padding:13px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-p{background:var(--bg);color:#fff} .btn-p:hover{background:var(--bghv)}
+.btn-o{background:#fff;color:var(--bg);border:1.5px solid var(--bg)}
+.chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.chip.d{background:var(--dngbg);color:var(--dng)} .chip.w{background:var(--warnbg);color:var(--warn)} .chip.n{background:var(--surf);color:var(--mut)} .chip.ok{background:var(--okbg);color:var(--ok)}
+
+/* ── 1. СТАРТ ── */
+#start{background:linear-gradient(150deg,#2A020D,var(--bg));color:#fff;display:none;align-items:center}
+#start.on{display:flex}
+.hero{max-width:1000px;margin:0 auto;padding:50px 32px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+.hero .top{display:flex;align-items:center;gap:10px;margin-bottom:30px}
+.hero .top .w{font-size:18px;color:#fff}
+.hero h1{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:16px}
+.hero p{font-size:17px;color:rgba(255,255,255,.75);margin-bottom:28px;max-width:460px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero .priv{margin-top:20px;font-size:12px;color:rgba(255,255,255,.5)}
+.hero .face img{width:100%;height:440px;object-fit:cover;object-position:center 18%;border-radius:20px;display:block;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.hero .face .cap{text-align:center;font-size:13px;color:rgba(255,255,255,.7);margin-top:10px}
+
+/* ── общий чат (Елена) ── */
+.topbar{background:linear-gradient(90deg,var(--shell),var(--shell2));color:#fff;display:flex;align-items:center;gap:12px;padding:12px 22px}
+.topbar .w{font-size:14px;color:#fff} .topbar .sep{width:1.5px;height:16px;background:rgba(255,255,255,.3)}
+.topbar .ttl{font-size:13px;color:rgba(255,255,255,.8);margin-left:6px}
+.back{margin-left:auto;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer}
+.chatwrap{max-width:660px;margin:0 auto;padding:24px 18px 120px}
+.msg{display:flex;gap:11px;margin-bottom:16px;align-items:flex-start}
+.av{width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid var(--line)}
+.av img{width:100%;height:100%;object-fit:cover;object-position:center 16%}
+.bubble{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 16px;font-size:14px;max-width:80%;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.bubble .nm{font-size:11px;font-weight:700;color:var(--bg);margin-bottom:4px}
+.bubble b{color:var(--bg)}
+.risk-mini{border-top:1px dashed var(--line);padding:8px 0 0;margin-top:8px;font-size:12.5px}
+.risk-mini .rn{color:var(--bg);font-weight:600;font-size:11px}
+.lock{background:var(--tint);border:1px dashed var(--bg);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12.5px;color:var(--dark)}
+.forks{display:flex;gap:10px;margin:4px 0 4px 51px;flex-wrap:wrap}
+.fork{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;flex:1;min-width:180px}
+.fork:hover{border-color:var(--bg);transform:translateY(-1px)} .fork .ds{font-weight:400;color:var(--mut);font-size:12px;margin-top:3px}
+.actbar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,var(--surf) 30%);padding:18px;display:flex;justify-content:center}
+.actbar .inner{max-width:660px;width:100%;display:flex;gap:10px}
+
+/* ── 3. ОПЛАТА ── */
+.pay{max-width:560px;margin:0 auto;padding:40px 22px}
+.pay h2{font-size:24px;font-weight:800;margin-bottom:6px} .pay .s{color:var(--mut);font-size:14px;margin-bottom:24px}
+.plan{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.plan.sel{border-color:var(--bg);box-shadow:0 4px 16px rgba(159,18,57,.12)}
+.plan .pn{font-weight:800;font-size:16px} .plan .pp{font-weight:800;font-size:20px;color:var(--bg);float:right}
+.plan .pd{font-size:13px;color:var(--mut);margin-top:4px}
+.field{margin:14px 0}.field label{font-size:12px;font-weight:600;display:block;margin-bottom:5px}
+.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit}
+.pdn{font-size:11px;color:var(--mut);margin:10px 0 16px}.pdn a{color:var(--bg)}
+
+/* ── кабинет (общий каркас) ── */
+.app{display:flex;min-height:100vh}
+.side{width:210px;background:#0C0608;color:#cbb;display:flex;flex-direction:column;padding:16px 0;flex-shrink:0}
+.side .lg{display:flex;align-items:center;gap:8px;padding:0 18px 14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:8px}
+.side .lg .w{color:#fff;font-size:14px}
+.side a{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;border-left:2px solid transparent}
+.side a.on{color:#fff;background:rgba(159,18,57,.28);border-left-color:var(--bg)}
+.side .prof{margin-top:auto;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;align-items:center}
+.side .prof .pa{width:32px;height:32px;border-radius:9px;background:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.side .prof .pn{font-size:12px;color:#fff;font-weight:600} .side .prof .pt{font-size:10px;color:rgba(255,255,255,.45)}
+.main{flex:1;padding:24px 30px;min-width:0}
+.main h1{font-size:22px;font-weight:800;margin-bottom:4px}.main .crumb{font-size:12px;color:var(--mut)}
+.enote{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--bg);border-radius:12px;padding:12px 14px;max-width:760px;margin:14px 0 16px}
+.enote img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:center 16%}
+.enote .et{font-size:13px}
+.cases{display:flex;flex-direction:column;gap:11px;max-width:760px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.case:hover{border-color:var(--bg);transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.case .ci{width:44px;height:44px;border-radius:11px;background:var(--tint);display:flex;align-items:center;justify-content:center;font-size:21px}
+.case .cb{flex:1}.case .ct{font-weight:700;font-size:14px}.case .cs{font-size:12px;color:var(--mut);margin-top:2px}
+.case .cm{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.case .cg{color:var(--bg);font-weight:700;font-size:13px}
+.tabpane{display:none}.tabpane.on{display:block}
+.docrow{display:flex;align-items:center;gap:9px;font-size:13px;padding:9px 0;border-top:1px dashed var(--line);max-width:760px}
+.docrow:first-of-type{border-top:none}.docrow .ver{font-size:10px;font-weight:700;color:var(--bg);background:var(--tint);border-radius:6px;padding:2px 6px;margin-left:auto}
+.dlx{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 15px;display:flex;align-items:center;gap:13px;max-width:760px;margin-bottom:9px}
+.dlx .dd{min-width:50px;height:50px;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800}
+.dd.dd{background:var(--dngbg);color:var(--dng)}.dd.dw{background:var(--warnbg);color:var(--warn)}.dd.dn{background:var(--surf);color:var(--mut)}
+.dlx .n{font-size:18px;line-height:1}.dlx .u{font-size:9px}
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;max-width:760px}
+.tpl{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;cursor:pointer}.tpl:hover{border-color:var(--bg)}
+.tpl .ti{font-size:22px}.tpl .tn{font-weight:700;font-size:13.5px;margin:7px 0 3px}.tpl .td{font-size:12px;color:var(--mut)}
+.steps{font-size:12px;color:var(--mut);margin:24px 0;display:flex;gap:8px;flex-wrap:wrap}
+.steps b{color:var(--bg)}
+/* ── выбор deliverable ── */
+.deliverables{display:flex;flex-direction:column;gap:9px;margin:4px 0 4px 51px;max-width:520px}
+.deliv{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s,box-shadow .15s}
+.deliv:hover{border-color:var(--bg);box-shadow:0 4px 14px rgba(159,18,57,.1)}
+.deliv .di{font-size:20px;flex-shrink:0}
+.deliv .dn{font-size:13.5px;font-weight:700}
+.deliv .dd2{font-size:12px;color:var(--mut);margin-top:2px}
+.deliv-top{border-color:rgba(159,18,57,.3);background:var(--tint)}
+.deliv-top .dn{color:var(--bg)}
+.deliv-badge{font-size:10px;font-weight:700;background:var(--bg);color:#fff;border-radius:6px;padding:2px 7px;margin-left:auto;flex-shrink:0}
+/* ── план после выбора ── */
+.plan-what{background:var(--surf);border-radius:12px;padding:14px 16px;margin:16px 0;max-width:600px}
+.plan-what-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:10px}
+.plan-what li{font-size:13px;color:var(--dark);padding:4px 0;list-style:none;display:flex;gap:8px;align-items:flex-start}
+.plan-what li::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0}
+.plan-pitch{background:var(--tint);border:1.5px solid rgba(159,18,57,.2);border-radius:13px;padding:14px 16px;margin:20px 0;display:flex;gap:11px;align-items:flex-start;max-width:600px}
+.plan-pitch img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:center 16%;flex-shrink:0}
+.plan-pitch-body{font-size:13px;line-height:1.6}
+.plan-pitch-body b{color:var(--bg)}
+
+/* ── intake-вопрос ── */
+.intake{display:flex;flex-direction:column;gap:9px;margin:4px 0 4px 51px}
+.intake-opt{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:12px 16px;cursor:pointer;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;transition:border-color .15s,box-shadow .15s}
+.intake-opt:hover{border-color:var(--bg);box-shadow:0 4px 14px rgba(159,18,57,.1)}
+.intake-opt .io{font-size:18px;pointer-events:none}
+.intake-opt .id{font-weight:400;color:var(--mut);font-size:12px;margin-top:2px;pointer-events:none}
+.intake-opt>div{pointer-events:none}
+.intake-other{display:flex;gap:8px;margin-top:2px}
+.intake-other input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none}
+.intake-other input:focus{border-color:var(--bg)}
+/* цитата из договора */
+.risk-quote{background:var(--surf);border-left:3px solid var(--bg);border-radius:0 8px 8px 0;padding:7px 10px;font-size:12px;color:var(--mut);font-style:italic;margin:6px 0 5px;line-height:1.5}
+.intake-other button{background:var(--bg);color:#fff;border:none;border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+/* режим — полоска под topbar */
+.mode-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:0 0 10px 10px;display:inline-block;margin-left:22px;letter-spacing:.5px}
+.mode-novice{background:rgba(159,18,57,.1);color:var(--bg)}
+.mode-mid{background:rgba(245,158,11,.12);color:#92400E}
+.mode-pro{background:rgba(16,185,129,.1);color:#065F46}
+/* stats dev-panel */
+.stats-pill{position:fixed;bottom:70px;right:18px;background:#0C0608;color:#fff;border-radius:12px;padding:10px 14px;font-size:11px;z-index:9999;cursor:pointer;line-height:1.6;min-width:160px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.stats-pill b{color:#FECDD3}
+
+/* тост-подтверждение действий без отдельного экрана */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#0C0608;color:#fff;padding:13px 20px;border-radius:13px;font-size:13.5px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .25s;z-index:999;max-width:min(90vw,520px);display:flex;align-items:center;gap:9px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .tk{color:#FECDD3}
+.docrow{cursor:pointer}.docrow:hover{color:var(--bg)}
+
+/* ── дедлайн-виджет / следующий шаг ── */
+.next-step{background:var(--tint);border:1.5px solid rgba(159,18,57,.25);border-radius:13px;padding:13px 16px;display:flex;align-items:center;gap:13px;max-width:760px;margin:14px 0 16px;cursor:pointer}
+.next-step:hover{border-color:var(--bg);box-shadow:0 4px 14px rgba(159,18,57,.12)}
+.ns-icon{font-size:22px;flex-shrink:0}
+.ns-body{flex:1}
+.ns-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--bg);margin-bottom:2px}
+.ns-text{font-size:13.5px;font-weight:600;color:var(--dark)}
+.ns-sub{font-size:12px;color:var(--mut);margin-top:1px}
+.ns-btn{background:var(--bg);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit}
+.ns-btn:hover{background:var(--bghv)}
+
+/* ── таймлайн дела ── */
+.tl-section{max-width:760px;margin:22px 0 0}
+.tl-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:14px}
+.tl{display:flex;flex-direction:column;gap:0;position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;padding:0 0 18px 18px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-8px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--line);border:2px solid #fff;z-index:1;box-sizing:border-box}
+.tl-item.done .tl-dot{background:var(--ok);border-color:#fff}
+.tl-item.active .tl-dot{background:var(--bg);border-color:#fff;box-shadow:0 0 0 3px rgba(159,18,57,.18)}
+.tl-item.pending .tl-dot{background:#fff;border:2px solid var(--line)}
+.tl-date{font-size:11px;color:var(--mut);font-weight:600;margin-bottom:1px}
+.tl-title{font-size:13px;font-weight:700;color:var(--dark)}
+.tl-item.active .tl-title{color:var(--bg)}
+.tl-item.pending .tl-title{color:var(--mut)}
+.tl-ev{font-size:12px;color:var(--mut);margin-top:2px}
+</style></head>
+<body>
+
+<!-- ═ 1. СТАРТ / ОФФЕР ═ -->
+<section class="screen on" id="start">
+  <div class="hero">
+    <div>
+      <div class="top"><span class="brand w">@WASRUSGEN1 · ЗАЩИТА</span></div>
+      <h1>Проверим ваш договор за 2 минуты — покажем, где вас обманут</h1>
+      <p>Первые 3 риска — бесплатно. Дальше решаете вы: защита или нападение. Данные не покидают ваш компьютер.</p>
+      <div class="cta"><button class="btn btn-p" onclick="go('elena')">📄 Загрузить договор</button></div>
+      <div class="priv">🔒 Обработка на вашем устройстве · мы про закон</div>
+    </div>
+    <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — ваш референт</div></div>
+  </div>
+</section>
+
+<!-- ═ 2. ЕЛЕНА / ТИЗЕР ═ -->
+<section class="screen" id="elena">
+  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="sep"></span><span class="ttl" id="elena-ttl">Знакомство · Елена</span><span class="back" onclick="go('start')">← в начало</span></div>
+  <div id="elena-mode-badge"></div>
+  <div class="chatwrap">
+
+    <!-- ШАГ 1: приветствие + intake -->
+    <div id="el-step1">
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте! Я Елена 💛 Давайте разберёмся вместе, спокойно. Ваши данные останутся на вашем устройстве — я их никуда не передаю.</div></div>
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Чтобы объяснять так, как вам удобно — скажите, как вы обычно работаете с договорами?</div></div>
+      <div class="intake">
+        <div class="intake-opt" onclick="setMode('novice')"><span class="io">🙋</span><div><div>Впервые разбираюсь</div><div class="id">Хочу понять простым языком, без терминов</div></div></div>
+        <div class="intake-opt" onclick="setMode('mid')"><span class="io">📖</span><div><div>Читаю договоры, но не юрист</div><div class="id">Знаком с основами, нужны конкретные риски</div></div></div>
+        <div class="intake-opt" onclick="setMode('pro')"><span class="io">⚖️</span><div><div>Юрист / разбираюсь хорошо</div><div class="id">Нужны нормы, формулировки, аргументация</div></div></div>
+        <div class="intake-other">
+          <input id="intake-custom" placeholder="Другое — напишите своими словами..." onkeydown="if(event.key==='Enter')setMode('custom')">
+          <button onclick="setMode('custom')">→</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ШАГ 2: адаптированный разбор (скрыт до выбора) -->
+    <div id="el-step2" style="display:none">
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div><span id="el-ack"></span></div></div>
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>
+        Прочитала ваш договор 📄 Это <b>агентский договор на сборку мебели</b> (ЗОВ ↔ Агент).<br>
+        Нашла <b>12 моментов</b>, из них <b>5 критичных</b>. <span id="el-intro-tail"></span> Показываю 3:
+        <div class="risk-mini">
+          <div class="rn">п.1.1 · ст. 4–29 ЗоЗПП</div>
+          <div id="r1-quote" class="risk-quote"></div>
+          <span id="r1-text"></span>
+        </div>
+        <div class="risk-mini">
+          <div class="rn">п.4.6 · ст. 330 ГК</div>
+          <div id="r2-quote" class="risk-quote"></div>
+          <span id="r2-text"></span>
+        </div>
+        <div class="risk-mini">
+          <div class="rn">ст. 19.1 ТК</div>
+          <div id="r3-quote" class="risk-quote"></div>
+          <span id="r3-text"></span>
+        </div>
+        <div class="lock" id="el-lock"></div>
+      </div></div>
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div><span id="el-fork-q"></span></div></div>
+      <div class="deliverables">
+        <div class="deliv" onclick="selectDeliv('protocol')">
+          <span class="di">📋</span>
+          <div><div class="dn">Протокол разногласий</div><div class="dd2">Список спорных пунктов + зачем менять каждый</div></div>
+        </div>
+        <div class="deliv" onclick="selectDeliv('redact')">
+          <span class="di">✏️</span>
+          <div><div class="dn">Переработка с комментариями</div><div class="dd2">Новая редакция каждого пункта + пояснение изменений</div></div>
+        </div>
+        <div class="deliv" onclick="selectDeliv('clean')">
+          <span class="di">✅</span>
+          <div><div class="dn">Чистая редакция</div><div class="dd2">Договор готов к подписанию — без лишних пояснений</div></div>
+        </div>
+        <div class="deliv deliv-top" onclick="selectDeliv('partner')">
+          <span class="di">🤝</span>
+          <div><div class="dn">Партнёрская редакция</div><div class="dd2">Вариант, который устроит обе стороны — без конфликта</div></div>
+          <span class="deliv-badge">Рекомендуем</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="actbar" id="el-actbar" style="display:none"><div class="inner"><button class="btn btn-p" style="flex:1" onclick="go('pay')">Получить полный разбор</button></div></div>
+</section>
+
+<!-- ═ 3. ОПЛАТА ═ -->
+<section class="screen" id="pay">
+  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="ttl" id="pay-ttl">Выбор варианта</span><span class="back" onclick="go('elena')">← назад</span></div>
+  <div class="pay">
+    <h2 id="pay-h2">Что сделаем по вашему договору</h2>
+    <div class="s" id="pay-sub">Агентский договор · риск 4/5 · 12 пунктов · цена под ваш случай</div>
+
+    <!-- Что конкретно делаем -->
+    <div class="plan-what">
+      <div class="plan-what-title">Что войдёт в работу по вашему договору</div>
+      <ul id="pay-what-list">
+        <li>п.1.1 — снять личную ответственность перед потребителем (ст. 4–29 ЗоЗПП)</li>
+        <li>п.4.6 — установить потолок ответственности = сумма вознаграждения</li>
+        <li>п.п. о режиме работы — переформулировать признаки самостоятельности (ст. 19.1 ТК)</li>
+        <li>+ ещё 9 пунктов из полного заключения</li>
+      </ul>
+    </div>
+
+    <!-- 3 плана -->
+    <div id="pay-plan-1" class="plan" onclick="this.classList.add('sel');document.getElementById('pay-plan-2').classList.remove('sel');document.getElementById('pay-plan-3').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+      <span class="pp" id="p1-price">1 490 ₽</span>
+      <div class="pn" id="p1-name">Без комментариев</div>
+      <div class="pd" id="p1-desc">Все спорные пункты — готовый список изменений без пояснений</div>
+    </div>
+    <div id="pay-plan-2" class="plan sel" onclick="this.classList.add('sel');document.getElementById('pay-plan-1').classList.remove('sel');document.getElementById('pay-plan-3').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+      <span class="pp" id="p2-price">2 480 ₽</span>
+      <div class="pn" id="p2-name">С комментариями</div>
+      <div class="pd" id="p2-desc">Все 12 пунктов + пояснение зачем каждое изменение. Контрагент понимает логику — меньше споров.</div>
+    </div>
+    <div id="pay-plan-3" class="plan" onclick="this.classList.add('sel');document.getElementById('pay-plan-1').classList.remove('sel');document.getElementById('pay-plan-2').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+      <span class="pp" id="p3-price">от 3 900 ₽</span>
+      <div class="pn" id="p3-name">Партнёрская редакция</div>
+      <div class="pd" id="p3-desc">Чистый договор, учитывающий интересы обеих сторон. Контрагент подпишет без лишних раундов переговоров + Елена сопровождает до подписания.</div>
+    </div>
+
+    <!-- Аргументация Елены за 2 дорогих -->
+    <div class="plan-pitch">
+      <img src="logos/elena-photo.jpg">
+      <div class="plan-pitch-body" id="pay-pitch">
+        Протокол без обоснования — это список требований. Контрагент вправе просто отказать: ему не нужно объяснять почему.<br><br>
+        <b>С обоснованием</b> каждое требование опирается на закон или стандарт отрасли. Это не ваш каприз — это норма. По опыту, такие протоколы принимают в первом же раунде.<br><br>
+        <b>Партнёрская версия</b> идёт дальше: мы формулируем так, чтобы контрагенту тоже было выгодно согласиться. Договор, который хочется выполнять 💛
+      </div>
+    </div>
+
+    <div class="field"><label>Куда прислать результат</label><input placeholder="Telegram или телефон"></div>
+    <div class="pdn">Нажимая «Оплатить», вы соглашаетесь с <a href="oferta.html" target="_blank">офертой</a> и <a href="privacy.html" target="_blank">обработкой ПДн</a>. Данные договора остаются на вашем устройстве.</div>
+    <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="go('cabinet')">Оплатить 2 480 ₽</button>
+  </div>
+</section>
+
+<!-- ═ 4–7. КАБИНЕТ (вкладки) ═ -->
+<section class="screen" id="cabinet">
+  <div class="app">
+    <aside class="side">
+      <div class="lg"><span class="brand w">ЗАЩИТА</span></div>
+      <a id="t-cases" class="on" onclick="tab('cases')">🗂️ Мои дела</a>
+      <a id="t-case" onclick="tab('case')">📄 Дело: Кухня</a>
+      <a id="t-sroki" onclick="tab('sroki')">⏱️ Сроки</a>
+      <a id="t-shab" onclick="tab('shab')">📋 Шаблоны</a>
+      <a onclick="go('start')">↩ Выйти (в начало)</a>
+      <div class="prof"><div class="pa">РВ</div><div><div class="pn">Руслан Васильев</div><div class="pt">Тариф: Старт</div></div></div>
+    </aside>
+    <main class="main">
+      <!-- Мои дела -->
+      <div class="tabpane on" id="p-cases">
+        <div class="crumb">Кабинет</div><h1>Мои дела</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Здравствуйте, Руслан!</b> Я веду все ваши дела и слежу за сроками. Новый договор — просто загрузите. Что-то непонятно — напишите мне 💛</div></div>
+        <div class="cases">
+          <div class="case" onclick="tab('case')"><div class="ci">🍽️</div><div class="cb"><div class="ct">Кухня — агентский договор (ЗОВ)</div><div class="cs">23.05 · 12 рисков</div><div class="cm"><span class="chip d">⚠ Высокий</span><span class="chip w">срок 3 дня</span><span class="chip n">протокол готовится</span></div></div><div class="cg">Открыть →</div></div>
+          <div class="case" onclick="tab('case')"><div class="ci">💼</div><div class="cb"><div class="ct">Трудовой договор</div><div class="cs">21.05 · 6 моментов</div><div class="cm"><span class="chip w">Средний</span><span class="chip n">на проверке</span></div></div><div class="cg">Открыть →</div></div>
+          <div class="case" onclick="tab('case')"><div class="ci">🏠</div><div class="cb"><div class="ct">Квартира — ДДУ (новая редакция)</div><div class="cs">19.05 · ждёт сверки</div><div class="cm"><span class="chip n">🔍 сверка версий</span></div></div><div class="cg">Открыть →</div></div>
+        </div>
+      </div>
+      <!-- Внутри дела -->
+      <div class="tabpane" id="p-case">
+        <div class="crumb">Кабинет / Мои дела</div><h1>Дело «Кухня — агентский договор»</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et">По этому делу я слежу за всем. Ближайший срок — через 3 дня, я напомню. Что нужно — скажите 💛</div></div>
+
+        <!-- Следующий шаг -->
+        <div class="next-step" onclick="tab('shab')">
+          <div class="ns-icon">⏰</div>
+          <div class="ns-body">
+            <div class="ns-title">Следующий шаг</div>
+            <div class="ns-text">Отправить протокол разногласий контрагенту</div>
+            <div class="ns-sub">Срок — до 26.05 (осталось 3 дня) · ст. 22 ЗоЗПП</div>
+          </div>
+          <button class="ns-btn" onclick="event.stopPropagation();toast('📋 Готовлю протокол разногласий — проверю все 5 критичных пунктов и добавлю в документы дела')">Подготовить →</button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:16px"><span class="chip d">⚠ Высокий риск · 3/5</span><span class="chip n">12 рисков</span><span class="chip w">срок 3 дня</span></div>
+
+        <b style="font-size:13px">Документы дела</b>
+        <div style="max-width:760px;margin-top:8px">
+          <div class="docrow" onclick="toast('Открываю исходный договор (v1) — данные на вашем устройстве')">📄 Исходный договор <span class="ver">v1</span></div>
+          <div class="docrow" onclick="toast('Открываю новую редакцию (v2) — рядом со сверкой версий')">📝 Новая редакция <span class="ver">v2</span></div>
+          <div class="docrow" onclick="toast('Открываю заключение экспертизы — 12 рисков со ссылками на нормы')">🔍 Заключение экспертизы <span class="ver">готово</span></div>
+          <div class="docrow" onclick="toast('Открываю протокол разногласий (черновик)')">📋 Протокол разногласий <span class="ver">черновик</span></div>
+          <div class="docrow" onclick="toast('Открываю ответ контрагента (входящее)')">⬇️ Ответ контрагента <span class="ver">входящее</span></div>
+        </div>
+
+        <!-- Таймлайн -->
+        <div class="tl-section">
+          <div class="tl-label">История дела</div>
+          <div class="tl">
+            <div class="tl-item done">
+              <div class="tl-dot"></div>
+              <div class="tl-date">23.05</div>
+              <div class="tl-title">Договор загружен</div>
+              <div class="tl-ev">Агентский договор ЗОВ — v1</div>
+            </div>
+            <div class="tl-item done">
+              <div class="tl-dot"></div>
+              <div class="tl-date">23.05</div>
+              <div class="tl-title">Экспертиза завершена</div>
+              <div class="tl-ev">12 рисков, 5 критичных — заключение готово</div>
+            </div>
+            <div class="tl-item done">
+              <div class="tl-dot"></div>
+              <div class="tl-date">24.05</div>
+              <div class="tl-title">Получена новая редакция</div>
+              <div class="tl-ev">Контрагент прислал v2 — сверка выполнена</div>
+            </div>
+            <div class="tl-item active">
+              <div class="tl-dot"></div>
+              <div class="tl-date">сейчас</div>
+              <div class="tl-title">Протокол разногласий</div>
+              <div class="tl-ev">Черновик готов · ждёт вашего согласования</div>
+            </div>
+            <div class="tl-item pending">
+              <div class="tl-dot"></div>
+              <div class="tl-date">до 26.05</div>
+              <div class="tl-title">Ответ контрагенту</div>
+              <div class="tl-ev">Направить протокол разногласий</div>
+            </div>
+            <div class="tl-item pending">
+              <div class="tl-dot"></div>
+              <div class="tl-date">—</div>
+              <div class="tl-title">Итоговое подписание</div>
+              <div class="tl-ev">После согласования всех пунктов</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="toast('📋 Готовлю протокол разногласий по критичным пунктам — добавлю в документы дела')">Сформировать протокол</button>
+          <button class="btn btn-o" onclick="toast('⬇️ Заключение экспортируется в PDF (с колонтитулом и парафированием)')">Скачать PDF</button>
+          <button class="btn btn-o" onclick="tab('shab')">+ Доп. услуга</button>
+        </div>
+      </div>
+      <!-- Сроки -->
+      <div class="tabpane" id="p-sroki">
+        <div class="crumb">Кабинет</div><h1>Сроки</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за всеми вашими сроками</b> и напомню заранее — ничего не пропустите 💛</div></div>
+        <div class="dlx" style="cursor:pointer" onclick="tab('shab')"><div class="dd dd"><span class="n">3</span><span class="u">дня</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Ответ на претензию</div><div style="font-size:12px;color:var(--mut)">Кухня · ст. 22 ЗоЗПП · до 26.05</div></div><span class="cg" style="color:var(--bg);font-weight:700;font-size:13px">Подготовить →</span></div>
+        <div class="dlx" style="cursor:pointer" onclick="tab('shab')"><div class="dd dw"><span class="n">7</span><span class="u">дней</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Допсоглашение (испыт. срок)</div><div style="font-size:12px;color:var(--mut)">Трудовой · до 30.05</div></div><span class="cg" style="color:var(--bg);font-weight:700;font-size:13px">Подготовить →</span></div>
+        <div class="dlx" style="cursor:pointer" onclick="toast('🔔 Напомню заранее — до 22.06 ещё есть время')"><div class="dd dn"><span class="n">30</span><span class="u">дней</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Передача квартиры по ДДУ</div><div style="font-size:12px;color:var(--mut)">Квартира · 214-ФЗ · до 22.06</div></div><span class="cg" style="color:var(--mut);font-weight:700;font-size:13px">Слежу →</span></div>
+      </div>
+      <!-- Шаблоны -->
+      <div class="tabpane" id="p-shab">
+        <div class="crumb">Кабинет</div><h1>Шаблоны</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Готовые документы — заполню под ваш случай.</b> Составлять с нуля не нужно 💛</div></div>
+        <div class="tpls">
+          <div class="tpl" onclick="toast('✍️ Заполняю «Протокол разногласий» под ваш договор — Елена рядом')"><div class="ti">📝</div><div class="tn">Протокол разногласий</div><div class="td">убрать невыгодные пункты</div></div>
+          <div class="tpl" onclick="toast('✍️ Заполняю «Претензию» под ваш случай — оплата / неустойка')"><div class="ti">✉️</div><div class="tn">Претензия</div><div class="td">оплата / неустойка</div></div>
+          <div class="tpl" onclick="toast('✍️ Заполняю «Ответ на претензию» — отобьём требование по закону')"><div class="ti">🛡️</div><div class="tn">Ответ на претензию</div><div class="td">отбить требование</div></div>
+          <div class="tpl" onclick="toast('✍️ Заполняю «Расторжение» — выйдем без потерь')"><div class="ti">🚪</div><div class="tn">Расторжение</div><div class="td">выйти без потерь</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+/* ── СТАТИСТИКА ── */
+function statTrack(mode, custom) {
+  const key = 'zashita_intake_stats';
+  const stats = JSON.parse(localStorage.getItem(key) || '[]');
+  stats.push({ mode, custom: custom||null, ts: new Date().toISOString() });
+  localStorage.setItem(key, JSON.stringify(stats));
+  renderStats();
+}
+function statGet() {
+  const raw = JSON.parse(localStorage.getItem('zashita_intake_stats') || '[]');
+  const counts = { novice:0, mid:0, pro:0, custom:0 };
+  raw.forEach(r => { if(counts[r.mode]!==undefined) counts[r.mode]++; else counts.custom++; });
+  return { counts, total: raw.length, customs: raw.filter(r=>r.mode==='custom').map(r=>r.custom) };
+}
+function renderStats() {
+  let el = document.getElementById('stats-pill');
+  if (!el) { el = document.createElement('div'); el.id='stats-pill'; el.className='stats-pill'; el.title='Нажать — очистить'; el.onclick=()=>{localStorage.removeItem('zashita_intake_stats');renderStats();}; document.body.appendChild(el); }
+  const s = statGet();
+  if (!s.total) { el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = `<b>Intake-статистика</b> (${s.total})<br>`
+    + `🙋 Новичок: ${s.counts.novice} · 📖 Средний: ${s.counts.mid}<br>`
+    + `⚖️ Юрист: ${s.counts.pro} · ✏️ Другое: ${s.counts.custom}`
+    + (s.customs.length ? `<br><span style="color:rgba(255,255,255,.5);font-size:10px">${s.customs.slice(-2).join(' / ')}</span>` : '');
+}
+
+/* ── КОНТЕНТ ПО РЕЖИМУ ── */
+const MODES = {
+  novice: {
+    badge: '🙋 Режим: объясняем с нуля',
+    badgeCls: 'mode-novice',
+    ack: 'Отлично — буду объяснять просто, без юридических дебрей. Если что непонятно — спрашивайте, я рядом 💛',
+    introTail: 'Не пугайтесь —',
+    r1q: '«Агент несёт полную ответственность за качество выполненных работ перед конечным потребителем»',
+    r1: 'Смотрите: это значит, что если у клиента сломается мебель или он пожалуется — по этому пункту отвечаете <b>вы лично</b>, а не компания-заказчик. То есть возвраты и штрафы могут прийти на ваш карман. Это типовая ловушка — не переживайте, мы её аккуратно перепишем.',
+    r2q: '«Агент обязуется возместить Принципалу все финансовые потери, возникшие вследствие ненадлежащего исполнения обязательств»',
+    r2: 'О чём это говорит: вы соглашаетесь покрыть «все финансовые потери компании» — и <b>без верхней границы суммы</b>. По сути это открытый кошелёк. Звучит пугающе, понимаю — но от этого защититься просто, я покажу как.',
+    r3q: '«Агент выполняет работы лично, в установленные часы, на оборудовании Принципала, по его инструкциям»',
+    r3: 'Это значит что: договор назван агентским, но по описанию работы — он похож на трудовой. Налоговая вправе это заметить и <b>доначислить НДФЛ и взносы задним числом</b>. Звучит тревожно — но от этого реально защититься.',
+    lock: '🔒 Это только 3 момента из 12. В полном разборе я спокойно объясню каждый простым языком, дам ссылки на статьи и <b>пошаговый план, как закрыть все риски</b>. Доведу вас за руку до спокойной подписи 💛',
+    forkQ: 'Чего бы вам хотелось? Объясню каждый путь — выберем вместе:'
+  },
+  mid: {
+    badge: '📖 Режим: по делу, без лишнего',
+    badgeCls: 'mode-mid',
+    ack: 'Понял — буду чётко: цитата, риск, что делать. Без лишних слов.',
+    introTail: 'Фиксируем критичные.',
+    r1q: '«Агент несёт полную ответственность за качество выполненных работ перед конечным потребителем»',
+    r1: '<b>Риск:</b> ответственность перед конечным потребителем переложена на вас. По ЗоЗПП ст. 4–29 — это влечёт прямые претензии и штрафы в ваш адрес, минуя Принципала. <b>Решение:</b> ограничить ответственность агента пределами вознаграждения.',
+    r2q: '«Агент обязуется возместить Принципалу все финансовые потери, возникшие вследствие ненадлежащего исполнения»',
+    r2: '<b>Риск:</b> неограниченная финансовая ответственность — ст. 330 ГК не требует устанавливать потолок, но без него сумма ничем не ограничена. <b>Решение:</b> добавить cap = сумма вознаграждения по договору.',
+    r3q: '«Агент выполняет работы лично, в установленные часы, на оборудовании Принципала, по его инструкциям»',
+    r3: '<b>Риск:</b> признаки трудовых отношений по ст. 19.1 ТК. При налоговой проверке — переквалификация и доначисление НДФЛ + взносов. <b>Решение:</b> переформулировать признаки самостоятельности.',
+    lock: '🔒 Ещё 9 рисков, из них 2 критичных — в полном заключении с нормами и готовыми формулировками.',
+    forkQ: 'Как будем действовать?'
+  },
+  pro: {
+    badge: '⚖️ Профессиональный режим',
+    badgeCls: 'mode-pro',
+    ack: 'Принял. Профрежим: цитата → норма → квалификация → рекомендация. Без лирики.',
+    introTail: 'Выявлено 5 критических.',
+    r1q: '«Агент несёт полную ответственность за качество выполненных работ перед конечным потребителем»',
+    r1: '<b>Квалификация:</b> прямое возложение ответственности исполнителя перед третьим лицом (потребителем) в нарушение ст. 4, 18, 29 ЗоЗПП — ответственность принципала не исключается, а дублируется. <b>Рекомендация:</b> п.1.1 изложить в редакции: «Агент несёт ответственность перед Принципалом в пределах суммы агентского вознаграждения».',
+    r2q: '«Агент обязуется возместить Принципалу все финансовые потери, возникшие вследствие ненадлежащего исполнения»',
+    r2: '<b>Квалификация:</b> неограниченная договорная ответственность, ст. 330–333 ГК РФ. Судебная практика: без cap суд снижает по ст. 333 ГК, но только по заявлению. <b>Рекомендация:</b> установить cap = агентское вознаграждение × 2.',
+    r3q: '«Агент выполняет работы лично, в установленные часы, на оборудовании Принципала, по его инструкциям»',
+    r3: '<b>Квалификация:</b> признаки трудовых отношений по ст. 15, 19.1 ТК РФ: личное исполнение, режим рабочего времени, инструктаж, материально-техническое обеспечение. Риск: переквалификация + ст. 122 НК РФ (недоимка + пени + штраф 20%). <b>Рекомендация:</b> исключить нормы п.п. о личном исполнении и режиме.',
+    lock: '📋 Полное заключение: 12 рисков, нормативная база, альтернативные формулировки, протокол разногласий.',
+    forkQ: 'Стратегия:'
+  }
+};
+
+function setMode(mode) {
+  const custom = mode === 'custom' ? (document.getElementById('intake-custom').value.trim() || 'не указано') : null;
+  if (mode === 'custom' && !custom) { document.getElementById('intake-custom').focus(); return; }
+  statTrack(mode, custom);
+
+  const cfg = MODES[mode] || MODES.mid;
+  // badge
+  const badge = document.getElementById('elena-mode-badge');
+  badge.innerHTML = `<span class="mode-badge ${cfg.badgeCls}">${cfg.badge}</span>`;
+  // step2 content
+  document.getElementById('el-ack').innerHTML = custom
+    ? `Понял: «${custom}». Подстроюсь под вас — буду объяснять по ходу.`
+    : cfg.ack;
+  document.getElementById('el-intro-tail').textContent = cfg.introTail;
+  document.getElementById('r1-quote').textContent = cfg.r1q;
+  document.getElementById('r1-text').innerHTML = cfg.r1;
+  document.getElementById('r2-quote').textContent = cfg.r2q;
+  document.getElementById('r2-text').innerHTML = cfg.r2;
+  document.getElementById('r3-quote').textContent = cfg.r3q;
+  document.getElementById('r3-text').innerHTML = cfg.r3;
+  document.getElementById('el-lock').innerHTML = cfg.lock;
+  document.getElementById('el-fork-q').textContent = cfg.forkQ;
+  // show step2
+  document.getElementById('el-step1').style.display = 'none';
+  document.getElementById('el-step2').style.display = 'block';
+  document.getElementById('el-actbar').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+
+/* ── ВЫБОР DELIVERABLE ── */
+const DELIVS = {
+  protocol: {
+    ttl:'Протокол разногласий', h2:'Протокол разногласий по вашему договору',
+    p1:['1 490 ₽','Без комментариев','Все спорные пункты — готовый список изменений без пояснений'],
+    p2:['2 190 ₽','С обоснованием','Те же пункты + правовое обоснование каждого требования'],
+    p3:['от 3 490 ₽','Партнёрская версия','Протокол с формулировками, выгодными обеим сторонам + Елена сопровождает'],
+    pitch:'Протокол без обоснования — это список требований. Контрагент вправе просто отказать: ему не нужно объяснять почему.<br><br><b>С обоснованием</b> каждое требование опирается на закон или стандарт отрасли. Это не ваш каприз — это норма. По опыту, такие протоколы принимают в первом же раунде.<br><br><b>Партнёрская версия</b> идёт дальше: мы формулируем так, чтобы контрагенту тоже было выгодно согласиться. Договор, который хочется выполнять 💛',
+    def:'2 190 ₽'
+  },
+  redact: {
+    ttl:'Переработка с комментариями', h2:'Переработанный договор по вашему случаю',
+    p1:['1 990 ₽','Без комментариев','Новая редакция всех спорных пунктов — чистый текст без объяснений'],
+    p2:['2 990 ₽','С комментариями','Та же редакция + пояснение что изменено и зачем по каждому пункту'],
+    p3:['от 4 490 ₽','Партнёрская редакция','Договор учитывает интересы обеих сторон + Елена сопровождает до подписи'],
+    pitch:'Переработка без комментариев даёт контрагенту чистый текст — но не даёт ему понять логику. Часто он возвращает правки обратно, просто потому что не видит аргументов.<br><br><b>С комментариями</b> — это диалог на бумаге. Вы объясняете, он видит правовое основание, соглашается быстрее. Меньше переговорных раундов.<br><br><b>Партнёрская редакция</b> — мы пишем текст так, чтобы обеим сторонам было понятно и выгодно. Один раунд согласования вместо трёх 💛',
+    def:'2 990 ₽'
+  },
+  clean: {
+    ttl:'Чистая редакция', h2:'Договор готов к подписанию',
+    p1:['1 790 ₽','Чистая редакция','Все пункты переписаны — договор готов к подписанию, без пояснений'],
+    p2:['2 690 ₽','Редакция с пояснениями','Тот же результат + объяснение каждого изменения для вас и контрагента'],
+    p3:['от 3 990 ₽','Партнёрская редакция','Чистый договор с балансом интересов + Елена рядом на переговорах'],
+    pitch:'Чистая редакция — это самый быстрый путь к подписанию. Но если контрагент увидит незнакомые формулировки — он попросит объяснений, и раунд переговоров всё равно случится.<br><br><b>Редакция с пояснениями</b> снимает вопросы заранее: контрагент получает текст и понимает логику сразу. Быстрее к подписи.<br><br><b>Партнёрская редакция</b> — текст написан так, что контрагент видит: вы ищете баланс, а не давите. Такие договоры подписывают быстро и выполняют добросовестно 💛',
+    def:'2 690 ₽'
+  },
+  partner: {
+    ttl:'Партнёрская редакция', h2:'Договор, который устроит обе стороны',
+    p1:['2 990 ₽','Партнёрская редакция','Все пункты переработаны с учётом интересов обеих сторон, без сопровождения'],
+    p2:['3 990 ₽','Редакция с обоснованием','Тот же результат + аргументы для переговоров по каждому пункту'],
+    p3:['от 5 900 ₽','Полное сопровождение','Договор + Елена ведёт переписку и переговоры до финальной подписи'],
+    pitch:'Партнёрский подход — это не уступки. Это когда текст уже содержит аргументы, почему условия выгодны обеим сторонам. Контрагенту не нужно торговаться — ему уже выгодно согласиться.<br><br><b>С обоснованием</b> вы получаете не только договор, но и готовые аргументы для переговоров на случай если что-то пойдёт не так.<br><br><b>С полным сопровождением</b> — Елена участвует в переписке, держит вашу позицию и доводит до подписи. Вы просто получаете подписанный договор 💛',
+    def:'3 990 ₽'
+  }
+};
+
+function selectDeliv(key) {
+  const d = DELIVS[key];
+  document.getElementById('pay-ttl').textContent = d.ttl;
+  document.getElementById('pay-h2').textContent = d.h2;
+  document.getElementById('p1-price').textContent = d.p1[0];
+  document.getElementById('p1-name').textContent = d.p1[1];
+  document.getElementById('p1-desc').textContent = d.p1[2];
+  document.getElementById('p2-price').textContent = d.p2[0];
+  document.getElementById('p2-name').textContent = d.p2[1];
+  document.getElementById('p2-desc').textContent = d.p2[2];
+  document.getElementById('p3-price').textContent = d.p3[0];
+  document.getElementById('p3-name').textContent = d.p3[1];
+  document.getElementById('p3-desc').textContent = d.p3[2];
+  document.getElementById('pay-pitch').innerHTML = d.pitch;
+  document.getElementById('pay-price-btn').textContent = 'Оплатить ' + d.def;
+  // сбросить выбор на средний план
+  ['pay-plan-1','pay-plan-2','pay-plan-3'].forEach((id,i) => document.getElementById(id).classList.toggle('sel', i===1));
+  go('pay');
+}
+
+/* ── ТОСТ ── */
+let _toastT;
+function toast(msg){
+  let el=document.getElementById('toast');
+  if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el);}
+  el.innerHTML='<span class="tk">✓</span>'+msg;
+  el.classList.add('show'); clearTimeout(_toastT);
+  _toastT=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);}
+window.addEventListener('DOMContentLoaded', renderStats);
+function tab(name){
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
+  document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
+  const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab'};
+  const el=document.getElementById(map[name]); if(el) el.classList.add('on');
+  window.scrollTo(0,0);
+}
+</script>
+</body></html>
