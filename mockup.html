@@ -2,6 +2,22 @@
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ЗАЩИТА — прототип (весь путь)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function(){
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if(tg){
+    tg.ready();
+    tg.expand();
+    document.documentElement.classList.add('tma');
+    // Нативная кнопка «назад» TG
+    tg.BackButton.onClick(function(){
+      var screens = document.querySelectorAll('.screen.on');
+      if(screens.length && screens[0].id !== 'start'){ window.go('start'); }
+    });
+  }
+})();
+</script>
 <link rel="stylesheet" href="tokens.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -168,6 +184,60 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .tl-item.active .tl-title{color:var(--bg)}
 .tl-item.pending .tl-title{color:var(--mut)}
 .tl-ev{font-size:12px;color:var(--mut);margin-top:2px}
+
+/* ── RESPONSIVE · MOBILE / TELEGRAM MINIAPP ── */
+@media (max-width:600px){
+  /* HERO — одна колонка, фото убираем */
+  .hero{grid-template-columns:1fr;padding:28px 18px 36px;gap:0}
+  .hero .face{display:none}
+  .hero h1{font-size:28px;letter-spacing:-.5px}
+  .hero p{font-size:15px;margin-bottom:22px}
+  .hero .top{margin-bottom:20px}
+  .hero .cta{flex-direction:column}
+  .hero .cta .btn{width:100%;text-align:center}
+
+  /* TOPBAR */
+  .topbar{padding:10px 14px}
+  .topbar .ttl{font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar a{font-size:12px}
+
+  /* CHAT — убираем левый отступ под аватар на мобиле */
+  .chatwrap{padding:14px 12px 100px}
+  .intake{margin:4px 0 4px 0}
+  .deliverables{margin:4px 0 4px 0;max-width:100%}
+  .mode-badge{margin-left:0}
+
+  /* TOUCH TARGETS ≥ 48px */
+  .intake-opt{padding:14px 14px;min-height:52px}
+  .deliv{padding:14px 14px;min-height:56px}
+  .btn{min-height:48px}
+
+  /* ACTBAR — кнопки в колонку */
+  .actbar .inner{flex-direction:column;gap:8px}
+  .actbar .inner .btn{width:100%;text-align:center}
+
+  /* NEXT-STEP WIDGET — стек на мобиле */
+  .next-step{flex-wrap:wrap;gap:10px}
+  .ns-btn{width:100%;text-align:center}
+  .ns-body{min-width:0;width:100%}
+
+  /* PAY */
+  .pay{padding:20px 14px}
+  .pay h2{font-size:20px}
+  .plan-what{padding:12px 13px}
+  .plan-pitch{padding:12px 13px;flex-direction:row;align-items:flex-start}
+
+  /* STAT PILL — не перекрывает actbar */
+  .stats-pill{bottom:100px;right:10px;font-size:10px;min-width:140px}
+
+  /* ДОКУМЕНТЫ / КЕЙСЫ */
+  .tab-content{padding:14px 0}
+}
+
+/* ── TELEGRAM MINIAPP ── */
+/* Класс .tma навешивается JS-слоем ниже если запущен внутри TG */
+.tma .actbar{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.tma .topbar a.back-link{display:none} /* кнопка «назад» — нативная TG BackButton */
 </style></head>
 <body>
 
@@ -187,7 +257,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 <!-- ═ 2. ЕЛЕНА / ТИЗЕР ═ -->
 <section class="screen" id="elena">
-  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="sep"></span><span class="ttl" id="elena-ttl">Знакомство · Елена</span><span class="back" onclick="go('start')">← в начало</span></div>
+  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="sep"></span><span class="ttl" id="elena-ttl">Знакомство · Елена</span><span class="back back-link" onclick="go('start')">← в начало</span></div>
   <div id="elena-mode-badge"></div>
   <div class="chatwrap">
 
@@ -257,7 +327,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 <!-- ═ 3. ОПЛАТА ═ -->
 <section class="screen" id="pay">
-  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="ttl" id="pay-ttl">Выбор варианта</span><span class="back" onclick="go('elena')">← назад</span></div>
+  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="ttl" id="pay-ttl">Выбор варианта</span><span class="back back-link" onclick="go('elena')">← назад</span></div>
   <div class="pay">
     <h2 id="pay-h2">Что сделаем по вашему договору</h2>
     <div class="s" id="pay-sub">Агентский договор · риск 4/5 · 12 пунктов · цена под ваш случай</div>
