@@ -187,12 +187,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 /* ── RESPONSIVE · MOBILE / TELEGRAM MINIAPP ── */
 @media (max-width:600px){
-  /* HERO — одна колонка, фото убираем */
-  .hero{grid-template-columns:1fr;padding:28px 18px 36px;gap:0}
-  .hero .face{display:none}
-  .hero h1{font-size:28px;letter-spacing:-.5px}
-  .hero p{font-size:15px;margin-bottom:22px}
-  .hero .top{margin-bottom:20px}
+  /* HERO — одна колонка, фото сверху компактно */
+  .hero{grid-template-columns:1fr;padding:0 0 32px;gap:0;align-items:start}
+  .hero .face{order:-1;margin-bottom:0}
+  .hero .face img{height:240px;border-radius:0 0 20px 20px;object-position:center 12%}
+  .hero .face .cap{color:rgba(255,255,255,.6);margin-top:6px;padding:0 18px}
+  .hero>div:not(.face){padding:20px 18px 0}
+  .hero h1{font-size:26px;letter-spacing:-.5px}
+  .hero p{font-size:14px;margin-bottom:20px}
+  .hero .top{margin-bottom:16px}
   .hero .cta{flex-direction:column}
   .hero .cta .btn{width:100%;text-align:center}
 
