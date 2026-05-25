@@ -35,8 +35,10 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 #start{background:linear-gradient(150deg,#2A020D,var(--bg));color:#fff;display:none;align-items:center}
 #start.on{display:flex}
 .hero{max-width:1000px;margin:0 auto;padding:50px 32px;display:grid;grid-template-columns:1.2fr .8fr;grid-template-rows:auto 1fr;gap:0 40px;align-items:start}
-.hero-logo{grid-column:1;grid-row:1;display:flex;align-items:center;gap:10px;margin-bottom:28px}
-.hero-logo .w{font-size:18px;color:#fff}
+.hero-logo{grid-column:1;grid-row:1;display:flex;align-items:center;gap:0;margin-bottom:28px}
+.hero-logomark{height:34px;filter:brightness(0) invert(1);flex-shrink:0}
+.hero-logo-sep{width:1.5px;height:26px;background:rgba(255,255,255,.35);margin:0 16px;flex-shrink:0}
+.hero-wordmark{height:17px;filter:brightness(0) invert(1);flex-shrink:0}
 .hero-body{grid-column:1;grid-row:2}
 .hero .face{grid-column:2;grid-row:1/3;align-self:stretch}
 .hero h1{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:16px}
@@ -49,6 +51,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 /* ── общий чат (Елена) ── */
 .topbar{background:linear-gradient(90deg,var(--shell),var(--shell2));color:#fff;display:flex;align-items:center;gap:12px;padding:12px 22px}
 .topbar .w{font-size:14px;color:#fff} .topbar .sep{width:1.5px;height:16px;background:rgba(255,255,255,.3)}
+.topbar-wm{height:13px;filter:brightness(0) invert(1);vertical-align:middle;flex-shrink:0}
 .topbar .ttl{font-size:13px;color:rgba(255,255,255,.8);margin-left:6px}
 .back{margin-left:auto;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer}
 .chatwrap{max-width:660px;margin:0 auto;padding:24px 18px 120px}
@@ -249,7 +252,11 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 <!-- ═ 1. СТАРТ / ОФФЕР ═ -->
 <section class="screen on" id="start">
   <div class="hero">
-    <div class="hero-logo"><span class="brand w">@WASRUSGEN1 · ЗАЩИТА</span></div>
+    <div class="hero-logo">
+      <img class="hero-logomark" src="logos/logo-wasrusgen1-real.svg" alt="@wasrusgen1">
+      <div class="hero-logo-sep"></div>
+      <img class="hero-wordmark" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА">
+    </div>
     <div class="hero-body">
       <h1>Договор пишут юристы другой стороны. Кто защищает вас?</h1>
       <p>Елена разберёт каждый пункт простым языком — как друг-юрист рядом. Первые 3 риска бесплатно, без регистрации.</p>
@@ -262,7 +269,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 <!-- ═ 2. ЕЛЕНА / ТИЗЕР ═ -->
 <section class="screen" id="elena">
-  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="sep"></span><span class="ttl" id="elena-ttl">Знакомство · Елена</span><span class="back back-link" onclick="go('start')">← в начало</span></div>
+  <div class="topbar"><img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА"><span class="sep"></span><span class="ttl" id="elena-ttl">Знакомство · Елена</span><span class="back back-link" onclick="go('start')">← в начало</span></div>
   <div id="elena-mode-badge"></div>
   <div class="chatwrap">
 
@@ -332,7 +339,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 <!-- ═ 3. ОПЛАТА ═ -->
 <section class="screen" id="pay">
-  <div class="topbar"><span class="brand w">ЗАЩИТА</span><span class="ttl" id="pay-ttl">Выбор варианта</span><span class="back back-link" onclick="go('elena')">← назад</span></div>
+  <div class="topbar"><img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА"><span class="ttl" id="pay-ttl">Выбор варианта</span><span class="back back-link" onclick="go('elena')">← назад</span></div>
   <div class="pay">
     <h2 id="pay-h2">Что сделаем по вашему договору</h2>
     <div class="s" id="pay-sub">Агентский договор · риск 4/5 · 12 пунктов · цена под ваш случай</div>
@@ -385,7 +392,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 <section class="screen" id="cabinet">
   <div class="app">
     <aside class="side">
-      <div class="lg"><span class="brand w">ЗАЩИТА</span></div>
+      <div class="lg"><img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА"></div>
       <a id="t-cases" class="on" onclick="tab('cases')">🗂️ Мои дела</a>
       <a id="t-case" onclick="tab('case')">📄 Дело: Кухня</a>
       <a id="t-sroki" onclick="tab('sroki')">⏱️ Сроки</a>
