@@ -246,6 +246,34 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 /* Класс .tma навешивается JS-слоем ниже если запущен внутри TG */
 .tma .actbar{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 .tma .topbar a.back-link{display:none} /* кнопка «назад» — нативная TG BackButton */
+
+/* ── UPLOAD STEP ── */
+.upload-zone{border:2px dashed rgba(159,18,57,.25);border-radius:16px;padding:28px 20px;text-align:center;background:var(--card);cursor:pointer;transition:border-color .2s,background .2s;margin:12px 0}
+.upload-zone:hover{border-color:var(--bg);background:var(--tint)}
+.uz-icon{font-size:32px;margin-bottom:10px}
+.uz-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.uz-sub{font-size:12px;color:var(--mut)}
+.upload-paste{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;font-family:inherit;font-size:14px;color:var(--ink);background:var(--card);resize:vertical;min-height:90px;margin:8px 0;display:block}
+.upload-paste:focus{outline:none;border-color:var(--bg)}
+.upload-or{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:12px;margin:4px 0}
+.upload-or::before,.upload-or::after{content:'';flex:1;height:1px;background:var(--line)}
+.upload-box{max-width:560px;margin:0 auto;padding:0 0 24px}
+
+/* ── SCAN ANIMATION ── */
+.scan-wrap{display:flex;flex-direction:column;align-items:center;padding:52px 24px 60px;text-align:center}
+.scan-doc-outer{position:relative;width:86px;height:112px;margin:0 auto 36px}
+.scan-doc-card{width:86px;height:112px;background:var(--card);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;position:relative;box-shadow:0 8px 28px rgba(0,0,0,.09)}
+.scan-doc-card::before{content:'';position:absolute;left:12px;right:12px;top:16px;height:6px;background:var(--line);border-radius:3px;box-shadow:0 13px 0 var(--line),0 23px 0 var(--line),0 33px 0 var(--line),0 43px 0 var(--line),0 53px 0 var(--line),0 63px 0 rgba(159,18,57,.12)}
+.scan-beam{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(159,18,57,.25) 15%,var(--bg) 50%,rgba(159,18,57,.25) 85%,transparent 100%);box-shadow:0 0 10px 4px rgba(159,18,57,.3);animation:beamDown 1.7s ease-in-out infinite}
+@keyframes beamDown{0%{top:-2px;opacity:0}7%{opacity:1}93%{opacity:1}100%{top:114px;opacity:0}}
+.scan-av{position:absolute;bottom:-16px;right:-16px;width:40px;height:40px;border-radius:50%;border:3px solid var(--surf);object-fit:cover;object-position:center 14%;animation:avPulse 2s ease-in-out infinite}
+@keyframes avPulse{0%,100%{box-shadow:0 0 0 0 rgba(159,18,57,.45)}60%{box-shadow:0 0 0 8px rgba(159,18,57,0)}}
+.scan-label{font-size:18px;font-weight:700;color:var(--dark);min-height:28px;margin-bottom:7px}
+.scan-hint{font-size:13px;color:var(--mut);margin-bottom:20px}
+.scan-dots{display:flex;gap:8px;justify-content:center}
+.scan-dot{width:7px;height:7px;border-radius:50%;background:var(--bg);opacity:.3;animation:dotB 1.4s ease-in-out infinite}
+.scan-dot:nth-child(2){animation-delay:.22s}.scan-dot:nth-child(3){animation-delay:.44s}
+@keyframes dotB{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
 </style></head>
 <body>
 
@@ -288,9 +316,41 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </div>
     </div>
 
-    <!-- ШАГ 2: адаптированный разбор (скрыт до выбора) -->
-    <div id="el-step2" style="display:none">
+    <!-- ШАГ 1б: загрузка договора -->
+    <div id="el-step-upload" style="display:none">
       <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div><span id="el-ack"></span></div></div>
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>
+        Отлично. Загрузите договор или вставьте текст — посмотрю и сразу скажу с чем имеем дело 📄
+      </div></div>
+      <div class="upload-box">
+        <div class="upload-zone" onclick="document.getElementById('el-paste').focus()">
+          <div class="uz-icon">📂</div>
+          <div class="uz-title">Перетащите файл сюда</div>
+          <div class="uz-sub">PDF · DOCX · TXT · данные остаются на вашем устройстве 🔒</div>
+        </div>
+        <div class="upload-or">или вставьте текст</div>
+        <textarea class="upload-paste" id="el-paste" placeholder="Вставьте текст договора..."></textarea>
+        <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="startScan()">Проанализировать →</button>
+      </div>
+    </div>
+
+    <!-- ШАГ 1в: анимация сканирования -->
+    <div id="el-step-scan" style="display:none">
+      <div class="scan-wrap">
+        <div class="scan-doc-outer">
+          <div class="scan-doc-card"><div class="scan-beam"></div></div>
+          <img class="scan-av" src="logos/elena-photo.jpg" alt="Елена">
+        </div>
+        <div class="scan-label" id="scan-label">Читаю договор...</div>
+        <div class="scan-hint">Ищу риски и спорные условия</div>
+        <div class="scan-dots">
+          <div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ШАГ 2: результаты анализа (скрыт до сканирования) -->
+    <div id="el-step2" style="display:none">
       <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>
         Прочитала ваш договор 📄 Это <b>агентский договор на сборку мебели</b> (ЗОВ ↔ Агент).<br>
         Нашла <b>12 моментов</b>, из них <b>5 критичных</b>. <span id="el-intro-tail"></span> Показываю 3:
@@ -605,11 +665,45 @@ function setMode(mode) {
   document.getElementById('r3-text').innerHTML = cfg.r3;
   document.getElementById('el-lock').innerHTML = cfg.lock;
   document.getElementById('el-fork-q').textContent = cfg.forkQ;
-  // show step2
+  // show upload step
   document.getElementById('el-step1').style.display = 'none';
-  document.getElementById('el-step2').style.display = 'block';
-  document.getElementById('el-actbar').style.display = 'flex';
+  document.getElementById('el-step-upload').style.display = 'block';
   window.scrollTo(0, 0);
+}
+
+/* ── СКАНИРОВАНИЕ ── */
+const SCAN_PHRASES = [
+  'Читаю договор...',
+  'Проверяю условия сторон...',
+  'Ищу скрытые риски...',
+  'Анализирую ответственность...',
+  'Оцениваю сроки и санкции...',
+  'Формирую заключение...'
+];
+
+function startScan() {
+  document.getElementById('el-step-upload').style.display = 'none';
+  document.getElementById('el-step-scan').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  let i = 0;
+  const lbl = document.getElementById('scan-label');
+  const interval = setInterval(() => {
+    i = (i + 1) % SCAN_PHRASES.length;
+    lbl.style.opacity = '0';
+    setTimeout(() => { lbl.textContent = SCAN_PHRASES[i]; lbl.style.opacity = '1'; }, 180);
+  }, 800);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    lbl.style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('el-step-scan').style.display = 'none';
+      document.getElementById('el-step2').style.display = 'block';
+      document.getElementById('el-actbar').style.display = 'flex';
+      document.getElementById('el-step2').scrollIntoView({ behavior: 'smooth' });
+    }, 200);
+  }, 4000);
 }
 
 /* ── ВЫБОР DELIVERABLE ── */
