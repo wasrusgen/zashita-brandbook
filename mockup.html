@@ -34,14 +34,16 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 /* ── 1. СТАРТ ── */
 #start{background:linear-gradient(150deg,#2A020D,var(--bg));color:#fff;display:none;align-items:center}
 #start.on{display:flex}
-.hero{max-width:1000px;margin:0 auto;padding:50px 32px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
-.hero .top{display:flex;align-items:center;gap:10px;margin-bottom:30px}
-.hero .top .w{font-size:18px;color:#fff}
+.hero{max-width:1000px;margin:0 auto;padding:50px 32px;display:grid;grid-template-columns:1.2fr .8fr;grid-template-rows:auto 1fr;gap:0 40px;align-items:start}
+.hero-logo{grid-column:1;grid-row:1;display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.hero-logo .w{font-size:18px;color:#fff}
+.hero-body{grid-column:1;grid-row:2}
+.hero .face{grid-column:2;grid-row:1/3;align-self:stretch}
 .hero h1{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:16px}
 .hero p{font-size:17px;color:rgba(255,255,255,.75);margin-bottom:28px;max-width:460px}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
 .hero .priv{margin-top:20px;font-size:12px;color:rgba(255,255,255,.5)}
-.hero .face img{width:100%;height:440px;object-fit:cover;object-position:center 18%;border-radius:20px;display:block;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.hero .face img{width:100%;height:100%;min-height:380px;object-fit:cover;object-position:center 18%;border-radius:20px;display:block;box-shadow:0 20px 50px rgba(0,0,0,.4)}
 .hero .face .cap{text-align:center;font-size:13px;color:rgba(255,255,255,.7);margin-top:10px}
 
 /* ── общий чат (Елена) ── */
@@ -187,15 +189,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 /* ── RESPONSIVE · MOBILE / TELEGRAM MINIAPP ── */
 @media (max-width:600px){
-  /* HERO — одна колонка, фото сверху компактно */
-  .hero{grid-template-columns:1fr;padding:0 0 32px;gap:0;align-items:start}
-  .hero .face{order:-1;margin-bottom:0}
-  .hero .face img{height:240px;border-radius:0 0 20px 20px;object-position:center 12%}
-  .hero .face .cap{color:rgba(255,255,255,.6);margin-top:6px;padding:0 18px}
-  .hero>div:not(.face){padding:20px 18px 0}
+  /* HERO — мобиль: лого → фото → текст */
+  .hero{grid-template-columns:1fr;grid-template-rows:auto auto auto;padding:0 0 32px;gap:0;align-items:start}
+  .hero-logo{grid-column:1;grid-row:1;padding:20px 18px 0;margin-bottom:0}
+  .hero .face{grid-column:1;grid-row:2;margin:14px 0 0}
+  .hero-body{grid-column:1;grid-row:3;padding:20px 18px 0}
+  .hero .face img{height:240px;min-height:unset;border-radius:0;object-position:center 12%}
+  .hero .face .cap{padding:0 18px;color:rgba(255,255,255,.6)}
   .hero h1{font-size:26px;letter-spacing:-.5px}
   .hero p{font-size:14px;margin-bottom:20px}
-  .hero .top{margin-bottom:16px}
   .hero .cta{flex-direction:column}
   .hero .cta .btn{width:100%;text-align:center}
 
@@ -247,8 +249,8 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 <!-- ═ 1. СТАРТ / ОФФЕР ═ -->
 <section class="screen on" id="start">
   <div class="hero">
-    <div>
-      <div class="top"><span class="brand w">@WASRUSGEN1 · ЗАЩИТА</span></div>
+    <div class="hero-logo"><span class="brand w">@WASRUSGEN1 · ЗАЩИТА</span></div>
+    <div class="hero-body">
       <h1>Проверим ваш договор за 2 минуты — покажем, где вас обманут</h1>
       <p>Первые 3 риска — бесплатно. Дальше решаете вы: защита или нападение. Данные не покидают ваш компьютер.</p>
       <div class="cta"><button class="btn btn-p" onclick="go('elena')">📄 Загрузить договор</button></div>
