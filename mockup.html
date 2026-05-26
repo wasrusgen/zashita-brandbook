@@ -129,6 +129,19 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ctype-note{display:block;font-size:13px;color:var(--mut);line-height:1.5;margin-bottom:6px;padding:8px 10px;background:var(--surf);border-radius:8px;border-left:3px solid var(--bg)}
 .sample-link{display:inline-block;margin-top:7px;font-size:11px;font-weight:600;color:var(--bg);text-decoration:none;border:1px solid rgba(159,18,57,.3);border-radius:5px;padding:2px 9px;transition:background .15s}
 .sample-link:hover{background:var(--tint)}
+/* ── свой запрос ── */
+.custom-req-row{margin:14px 0 0 51px}
+.custom-req-toggle{background:none;border:1.5px dashed var(--line);border-radius:11px;padding:9px 14px;font-size:13px;color:var(--mut);cursor:pointer;font-family:inherit;transition:all .15s;width:100%;max-width:520px;text-align:left}
+.custom-req-toggle:hover{border-color:var(--bg);color:var(--bg);background:var(--tint)}
+.custom-req-area{margin-top:4px}
+.custom-input-block{margin:0 0 12px 51px;max-width:520px}
+.custom-input-block textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--ink);resize:none;background:var(--card);transition:border .15s;line-height:1.5}
+.custom-input-block textarea:focus{outline:none;border-color:var(--bg)}
+.custom-input-btns{display:flex;gap:8px;margin-top:8px;align-items:stretch}
+.custom-voice-btn{background:var(--surf);border:1.5px solid var(--line);border-radius:11px;width:46px;height:46px;font-size:20px;cursor:pointer;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.custom-voice-btn:hover{border-color:var(--bg);background:var(--tint)}
+.custom-voice-btn.recording{background:#fee2e2;border-color:#ef4444;animation:crpulse 1s infinite}
+@keyframes crpulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
 /* ── план после выбора ── */
 .plan-what{background:var(--surf);border-radius:12px;padding:14px 16px;margin:16px 0;max-width:600px}
 .plan-what-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:10px}
@@ -397,6 +410,28 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <span class="di">🤝</span>
           <div><div class="dn">Партнёрская редакция</div><div class="dd2" id="dd2-partner">Вариант, который устроит обе стороны — без конфликта</div><a class="sample-link" href="sample-partner.html" target="_blank" onclick="event.stopPropagation()">📄 Образец →</a></div>
           <span class="deliv-badge" id="deliv-rec-badge">Рекомендуем</span>
+        </div>
+      </div>
+
+      <!-- ── СВОЙ ЗАПРОС ── -->
+      <div class="custom-req-row">
+        <button class="custom-req-toggle" id="custom-req-btn" onclick="toggleCustomReq()">✏️ Нужен другой формат? Опишите задачу →</button>
+      </div>
+      <div id="custom-req-area" class="custom-req-area" style="display:none">
+        <div class="msg" style="margin-top:10px">
+          <div class="av"><img src="logos/elena-photo.jpg"></div>
+          <div class="bubble"><div class="nm">Елена</div>Опишите что нужно — голосом или текстом. Я передам юристу и мы свяжемся с вами в течение 24 часов.</div>
+        </div>
+        <div class="custom-input-block">
+          <textarea id="custom-text" placeholder="Например: мне нужна только таблица рисков без переработки текста, или нужен разбор одного конкретного пункта…" rows="3"></textarea>
+          <div class="custom-input-btns">
+            <button class="custom-voice-btn" id="custom-voice-btn" onclick="toggleVoice()" title="Диктовать голосом">🎤</button>
+            <button class="btn btn-p" onclick="submitCustomReq()" style="flex:1;font-size:14px">Отправить запрос</button>
+          </div>
+        </div>
+        <div id="custom-confirm" class="msg" style="display:none">
+          <div class="av"><img src="logos/elena-photo.jpg"></div>
+          <div class="bubble"><div class="nm">Елена</div><span id="custom-confirm-text"></span></div>
         </div>
       </div>
     </div>
@@ -979,7 +1014,93 @@ function toast(msg){
   _toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
 function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);}
+/* ── СВОЙ ЗАПРОС ── */
+let _customOpen = false;
+let _voiceRec = null;
+
+function toggleCustomReq() {
+  _customOpen = !_customOpen;
+  const area = document.getElementById('custom-req-area');
+  const btn = document.getElementById('custom-req-btn');
+  area.style.display = _customOpen ? 'block' : 'none';
+  btn.textContent = _customOpen ? '✕ Закрыть' : '✏️ Нужен другой формат? Опишите задачу →';
+  if (_customOpen) {
+    area.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => document.getElementById('custom-text').focus(), 350);
+  }
+}
+
+function toggleVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('custom-voice-btn');
+  if (!SR) { btn.title='Не поддерживается — введите текстом'; btn.style.opacity='.4'; return; }
+  if (_voiceRec) { _voiceRec.stop(); return; }
+  _voiceRec = new SR();
+  _voiceRec.lang = 'ru-RU';
+  _voiceRec.continuous = true;
+  _voiceRec.interimResults = true;
+  const ta = document.getElementById('custom-text');
+  const base = ta.value;
+  _voiceRec.onresult = e => {
+    let t = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+    ta.value = (base ? base + ' ' : '') + t;
+  };
+  _voiceRec.onerror = _voiceRec.onend = () => {
+    _voiceRec = null;
+    btn.classList.remove('recording');
+    btn.innerHTML = '🎤';
+  };
+  _voiceRec.start();
+  btn.classList.add('recording');
+  btn.innerHTML = '⏹';
+}
+
+function submitCustomReq() {
+  const text = (document.getElementById('custom-text').value || '').trim();
+  if (!text) { document.getElementById('custom-text').focus(); return; }
+  if (_voiceRec) { _voiceRec.stop(); }
+  // Сохраняем в localStorage для анализа
+  const key = 'zashita_custom_delivs';
+  const arr = JSON.parse(localStorage.getItem(key) || '[]');
+  arr.push({
+    ts: new Date().toISOString(),
+    ctype: (document.getElementById('el-scan-type') || {}).textContent || '',
+    text: text
+  });
+  localStorage.setItem(key, JSON.stringify(arr));
+  renderCustomStats();
+  // Скрываем форму, показываем подтверждение
+  document.querySelector('.custom-input-block').style.display = 'none';
+  document.getElementById('custom-req-btn').style.display = 'none';
+  const short = text.length > 90 ? text.slice(0, 90) + '…' : text;
+  document.getElementById('custom-confirm-text').innerHTML =
+    `Записала! Передам юристу:<br><b>«${short}»</b><br><br>Свяжемся с вами в течение 24 часов. Обычно — быстрее 🙂`;
+  const conf = document.getElementById('custom-confirm');
+  conf.style.display = 'flex';
+  conf.scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderCustomStats() {
+  const arr = JSON.parse(localStorage.getItem('zashita_custom_delivs') || '[]');
+  let el = document.getElementById('custom-stats-pill');
+  if (!arr.length) { if (el) el.style.display = 'none'; return; }
+  if (!el) {
+    el = document.createElement('div'); el.id = 'custom-stats-pill';
+    el.className = 'stats-pill'; el.style.bottom = '52px';
+    el.title = 'Нажать — очистить';
+    el.onclick = () => { localStorage.removeItem('zashita_custom_delivs'); renderCustomStats(); };
+    document.body.appendChild(el);
+  }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Свои запросы (${arr.length})</b><br>`
+    + arr.slice(-3).map(r =>
+        `<span style="color:rgba(255,255,255,.6);font-size:10px">· ${(r.ctype||'').trim().slice(0,20)} — ${(r.text||'').slice(0,38)}</span>`
+      ).join('<br>');
+}
+
 window.addEventListener('DOMContentLoaded', renderStats);
+window.addEventListener('DOMContentLoaded', renderCustomStats);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
