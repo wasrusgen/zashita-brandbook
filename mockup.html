@@ -329,6 +329,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
   /* ДОКУМЕНТЫ / КЕЙСЫ */
   .tab-content{padding:14px 0}
+
+  /* КАБИНЕТ — мобиль: сайдбар скрыть, контент на всю ширину */
+  .app{flex-direction:column}
+  .side{width:100%;flex-direction:row;flex-wrap:wrap;padding:8px 0 0;gap:0;min-height:unset}
+  .side .lg{display:none}
+  .side .prof{display:none}
+  .side a{padding:8px 12px;font-size:12px;flex-direction:column;gap:2px;border-left:none;border-bottom:2px solid transparent;text-align:center;flex:1}
+  .side a.on{background:rgba(159,18,57,.2);border-left:none;border-bottom-color:var(--bg)}
+  .main{padding:16px 14px}
 }
 
 /* ── TELEGRAM MINIAPP ── */
