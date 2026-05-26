@@ -380,6 +380,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <p>Елена разберёт каждый пункт простым языком — как друг-юрист рядом. Первые 3 риска бесплатно, без регистрации.</p>
       <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить мой договор</button></div>
       <div class="priv">🔒 Без регистрации · данные у вас · 3 риска бесплатно</div>
+      <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Мои дела (кабинет)</button></div>
     </div>
     <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — ваш референт</div></div>
   </div>
@@ -568,7 +569,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
     <div class="field"><label>Куда прислать результат</label><input placeholder="Telegram или телефон"></div>
     <div class="pdn">Нажимая «Оплатить», вы соглашаетесь с <a href="oferta.html" target="_blank">офертой</a> и <a href="privacy.html" target="_blank">обработкой ПДн</a>. Данные договора остаются на вашем устройстве.</div>
-    <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="go('cabinet')">Оплатить 2 480 ₽</button>
+    <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="showOrderStatus();go('order-status')">Оплатить 2 480 ₽</button>
   </div>
 </section>
 
