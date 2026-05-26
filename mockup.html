@@ -151,6 +151,11 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .plan-pitch img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:center 16%;flex-shrink:0}
 .plan-pitch-body{font-size:13px;line-height:1.6}
 .plan-pitch-body b{color:var(--bg)}
+.plan-pitch-body .pi-step{display:flex;gap:10px;margin:5px 0;align-items:flex-start;font-size:13px;line-height:1.6}
+.plan-pitch-body .pi-n{background:var(--bg);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.plan-pitch-body .pi-meta{font-size:11.5px;color:var(--mut);background:var(--surf);border-radius:7px;padding:5px 10px;margin-top:8px;line-height:1.5}
+.plan-pitch-body .pi-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-right:5px;margin-top:2px}
+.plan-pitch-body .pi-incl{background:var(--okbg);color:var(--ok)}.plan-pitch-body .pi-warn{background:var(--warnbg);color:var(--warn)}
 
 /* ── intake-вопрос ── */
 .intake{display:flex;flex-direction:column;gap:9px;margin:4px 0 4px 51px}
@@ -459,17 +464,17 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
     </div>
 
     <!-- 3 плана -->
-    <div id="pay-plan-1" class="plan" onclick="this.classList.add('sel');document.getElementById('pay-plan-2').classList.remove('sel');document.getElementById('pay-plan-3').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+    <div id="pay-plan-1" class="plan" onclick="selectPlan(1)">
       <span class="pp" id="p1-price">1 490 ₽</span>
       <div class="pn" id="p1-name">Без комментариев</div>
       <div class="pd" id="p1-desc">Все спорные пункты — готовый список изменений без пояснений</div>
     </div>
-    <div id="pay-plan-2" class="plan sel" onclick="this.classList.add('sel');document.getElementById('pay-plan-1').classList.remove('sel');document.getElementById('pay-plan-3').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+    <div id="pay-plan-2" class="plan sel" onclick="selectPlan(2)">
       <span class="pp" id="p2-price">2 480 ₽</span>
       <div class="pn" id="p2-name">С комментариями</div>
       <div class="pd" id="p2-desc">Все 12 пунктов + пояснение зачем каждое изменение. Контрагент понимает логику — меньше споров.</div>
     </div>
-    <div id="pay-plan-3" class="plan" onclick="this.classList.add('sel');document.getElementById('pay-plan-1').classList.remove('sel');document.getElementById('pay-plan-2').classList.remove('sel');document.getElementById('pay-price-btn').textContent=this.querySelector('.pp').textContent.replace('от ','Оплатить ')">
+    <div id="pay-plan-3" class="plan" onclick="selectPlan(3)">
       <span class="pp" id="p3-price">от 3 900 ₽</span>
       <div class="pn" id="p3-name">Партнёрская редакция</div>
       <div class="pd" id="p3-desc">Чистый договор, учитывающий интересы обеих сторон. Контрагент подпишет без лишних раундов переговоров + Елена сопровождает до подписания.</div>
@@ -985,6 +990,7 @@ const DELIVS = {
 };
 
 function selectDeliv(key) {
+  _selDeliv = key;
   const d = DELIVS[key];
   document.getElementById('pay-ttl').textContent = d.ttl;
   document.getElementById('pay-h2').textContent = d.h2;
@@ -998,9 +1004,8 @@ function selectDeliv(key) {
   document.getElementById('p3-name').textContent = d.p3[1];
   document.getElementById('p3-desc').textContent = d.p3[2];
   document.getElementById('pay-pitch').innerHTML = d.pitch;
-  document.getElementById('pay-price-btn').textContent = 'Оплатить ' + d.def;
-  // сбросить выбор на средний план
-  ['pay-plan-1','pay-plan-2','pay-plan-3'].forEach((id,i) => document.getElementById(id).classList.toggle('sel', i===1));
+  // сбросить выбор на средний план и показать инструкции
+  selectPlan(2);
   go('pay');
 }
 
@@ -1097,6 +1102,66 @@ function renderCustomStats() {
     + arr.slice(-3).map(r =>
         `<span style="color:rgba(255,255,255,.6);font-size:10px">· ${(r.ctype||'').trim().slice(0,20)} — ${(r.text||'').slice(0,38)}</span>`
       ).join('<br>');
+}
+
+
+/* ── ПОДРОБНЫЕ ИНСТРУКЦИИ ПО ПЛАНУ ── */
+let _selDeliv = 'protocol';
+let _selPlan  = 2;
+
+const PLAN_PITCH = {
+  protocol: {
+    1: `<b>Что вы получите</b><br>Готовый протокол разногласий — наши формулировки вместо ваших проблемных пунктов. Чистый файл, без пояснений.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Отправьте файл контрагенту — мессенджер, e-mail или распечатка.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Добавьте текст: <i>«Направляю протокол разногласий к договору. Прошу подтвердить принятие или предоставить мотивированный отказ в течение 5 рабочих дней».</i></span></div><div class="pi-step"><span class="pi-n">3</span><span>Если откажут без обоснования — потребуйте письменный мотивированный ответ. Чаще всего его не дают, и переговоры возобновляются на ваших условиях.</span></div><div class="pi-meta">⏱ Готово через 24 часа · При вопросах пишите Елене в чат</div>`,
+
+    2: `<b>Что вы получите</b><br>Протокол разногласий + к каждому пункту — ссылка на норму закона. Это превращает ваши требования из «хотелок» в правовые обязанности.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Отправьте протокол с сопроводительным текстом: <i>«Каждая позиция основана на нормах действующего законодательства, указанных в документе».</i></span></div><div class="pi-step"><span class="pi-n">2</span><span>Если возражают — один вопрос: <i>«Укажите норму права, на основании которой вы отклоняете это требование».</i> Практически никто не отвечает — это уже победа.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Если сложный ответ всё же пришёл — пришлите Елене, она подготовит вашу следующую реплику.</span></div><div class="pi-meta">⏱ Готово через 24 часа · Поддержка по ответам контрагента включена</div>`,
+
+    3: `<b>Что вы получите</b><br>Протокол, сформулированный так, чтобы контрагент сам захотел согласиться — без ощущения давления с вашей стороны.<br><br><span class="pi-tag pi-incl">✓ Включено</span><b>Что входит:</b><div class="pi-step"><span class="pi-n">1</span><span>Протокол с формулировками win-win по всем спорным пунктам.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Готовое сопроводительное письмо от вашего имени.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Елена отвечает на любые встречные возражения контрагента — вы пересылаете их нам, мы готовим вашу реплику.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Помогаем зафиксировать итоговую редакцию — до финальной подписи.</span></div><div class="pi-meta">⏱ Первый ответ: 4 часа · Финал: 48–72 часа · Елена рядом на каждом шаге 💛</div>`
+  },
+
+  redact: {
+    1: `<b>Что вы получите</b><br>Новая редакция всех спорных пунктов договора — чистый текст, готовый заменить проблемные формулировки. Без пояснений.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Откройте оригинал договора. Замените помеченные пункты на наши формулировки.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Направьте обновлённый договор контрагенту: <i>«Прошу рассмотреть актуализированную редакцию договора и подтвердить согласие».</i></span></div><div class="pi-step"><span class="pi-n">3</span><span>Если контрагент запросит объяснения — закажите версию «С комментариями» или обратитесь к Елене отдельно.</span></div><div class="pi-meta">⏱ Готово через 24 часа · Подходит если контрагент уже готов к диалогу</div>`,
+
+    2: `<b>Что вы получите</b><br>Переработанный договор + к каждому изменённому пункту — короткое пояснение: что изменено, почему это справедливо, на какой закон опирается.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Отправьте документ контрагенту со словами: <i>«К каждому изменению приложено обоснование — это поможет нам быстрее прийти к согласию».</i></span></div><div class="pi-step"><span class="pi-n">2</span><span>Если контрагент не согласен с конкретным пунктом — пришлите его возражение Елене. Она подготовит контраргумент.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Комментарии снимают большинство вопросов до того, как они превращаются в споры — переписка сокращается в разы.</span></div><div class="pi-meta">⏱ Готово через 24 часа · По опыту: 70% договоров с комментариями подписывают с первого раунда</div>`,
+
+    3: `<b>Что вы получите</b><br>Договор, переработанный с учётом интересов обеих сторон — контрагент видит не давление, а честное предложение. Плюс Елена рядом до финала.<br><br><span class="pi-tag pi-incl">✓ Включено</span><b>Что входит:</b><div class="pi-step"><span class="pi-n">1</span><span>Полная переработка всех спорных пунктов — с балансом интересов.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Готовое сопроводительное письмо с нужной тональностью.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Елена держит вашу позицию при встречных возражениях — вы не теряете важное в процессе переговоров.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Финальная сверка перед подписанием: убеждаемся, что итоговая редакция вас защищает.</span></div><div class="pi-meta">⏱ Первый ответ: 4 часа · Поддержка до подписи включена 💛</div>`
+  },
+
+  clean: {
+    1: `<b>Что вы получите</b><br>Договор с переписанными спорными пунктами — готов к подписанию. Никаких пояснений, только чистый текст.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Получаете файл → сравниваете с оригиналом по выделенным пунктам → убеждаетесь, что всё устраивает.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Направляете контрагенту: <i>«Предлагаю подписать актуальную редакцию договора».</i></span></div><div class="pi-step"><span class="pi-n">3</span><span>Если контрагент спросит «почему изменено?» — вы можете дозаказать пояснения к уже готовому тексту. Или воспользоваться версией с обоснованием сразу.</span></div><div class="pi-meta">⏱ Готово через 24 часа · Подходит если контрагент уже согласен на изменения</div>`,
+
+    2: `<b>Что вы получите</b><br>Готовый к подписанию договор + пояснения к каждому изменению — для вас и для контрагента. Вы понимаете каждый пункт, контрагент понимает логику.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Изучите пояснения сами — убедитесь, что всё отражает ваши интересы.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Отправьте контрагенту договор вместе с пояснительной частью: <i>«К каждому изменению есть обоснование — посмотрите, это справедливо для обеих сторон».</i></span></div><div class="pi-step"><span class="pi-n">3</span><span>Вопросов по тексту практически не остаётся — путь к подписи короткий.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Если всё же есть спорный момент — напишите Елене, она поможет с ответом.</span></div><div class="pi-meta">⏱ Готово через 24 часа · Пояснения снимают 80% возражений на старте</div>`,
+
+    3: `<b>Что вы получите</b><br>Договор с балансом интересов, где контрагент видит свою выгоду — и соглашается без торга. Плюс Елена ведёт вас до подписи.<br><br><span class="pi-tag pi-incl">✓ Включено</span><b>Что входит:</b><div class="pi-step"><span class="pi-n">1</span><span>Договор переписан так, чтобы обе стороны видели: условия честные.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Сопроводительное письмо с нужной тональностью для переговоров.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Если контрагент возражает — Елена готовит ответ за вас. Вы только согласуете финальный текст.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Перед подписанием — финальная проверка: убеждаемся, что ничего важного не потеряно в процессе переговоров.</span></div><div class="pi-meta">⏱ Первый ответ: 4 часа · Договоры с балансом подписывают и выполняют честно 💛</div>`
+  },
+
+  partner: {
+    1: `<b>Что вы получите</b><br>Договор, переработанный с учётом интересов обеих сторон. Контрагент не чувствует давления — он видит предложение, от которого сложно отказаться.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Изучите договор — обратите внимание на пункты с пометкой «↔ обе стороны»: в них мы специально вписали выгоду для контрагента.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Отправьте с простым сопроводительным текстом: <i>«Подготовил(а) редакцию, которая учитывает интересы обеих сторон — посмотри».</i></span></div><div class="pi-step"><span class="pi-n">3</span><span>При возражениях — обратитесь к Елене отдельно или закажите версию с сопровождением.</span></div><div class="pi-meta">⏱ Готово через 24–48 часов · Партнёрские договоры подписывают без торга</div>`,
+
+    2: `<b>Что вы получите</b><br>Партнёрская редакция + к каждому пункту — аргумент, почему это выгодно для контрагента. У вас есть ответ на любое возражение ещё до того, как оно прозвучало.<br><br><b>Как использовать:</b><div class="pi-step"><span class="pi-n">1</span><span>Изучите аргументы — они написаны под вашу конкретную ситуацию, не шаблонные.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Отправьте договор контрагенту. Если он не согласен с каким-то пунктом — у вас уже готов ответ.</span></div><div class="pi-step"><span class="pi-n">3</span><span>Нестандартная реакция — пришлите Елене, она поможет с ответной позицией.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Вы входите в переговоры с полной картиной — спокойно и уверенно.</span></div><div class="pi-meta">⏱ Готово через 24–48 часов · Поддержка по возражениям включена</div>`,
+
+    3: `<b>Что вы получите</b><br>Елена ведёт переговоры вместе с вами — от отправки договора до финальной подписи. Ваша задача: согласовать итоговый текст.<br><br><span class="pi-tag pi-incl">✓ Включено</span><b>Полное сопровождение:</b><div class="pi-step"><span class="pi-n">1</span><span>Партнёрская редакция договора + сопроводительное письмо от вашего имени.</span></div><div class="pi-step"><span class="pi-n">2</span><span>Елена анализирует ответ контрагента и готовит вашу следующую реплику.</span></div><div class="pi-step"><span class="pi-n">3</span><span>При встречных правках — определяем, что можно уступить без потерь, а что держим твёрдо.</span></div><div class="pi-step"><span class="pi-n">4</span><span>Финальная проверка перед подписанием: убеждаемся, что ваша защита сохранена в итоговом тексте.</span></div><div class="pi-meta">⏱ Первый ответ: 4 часа · Ведём до подписи · Среднее время закрытия сделки: 3–5 дней 💛</div>`
+  }
+};
+
+function selectPlan(n) {
+  _selPlan = n;
+  // подсветка
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('pay-plan-' + i);
+    if (el) el.classList.toggle('sel', i === n);
+  });
+  // цена в кнопке
+  const priceEl = document.getElementById('p' + n + '-price');
+  if (priceEl) {
+    const priceText = priceEl.textContent;
+    const btn = document.getElementById('pay-price-btn');
+    if (btn) btn.textContent = 'Оплатить ' + priceText.replace('от ', '');
+  }
+  // инструкции Елены
+  const pitchEl = document.getElementById('pay-pitch');
+  if (pitchEl && PLAN_PITCH[_selDeliv] && PLAN_PITCH[_selDeliv][n]) {
+    pitchEl.innerHTML = PLAN_PITCH[_selDeliv][n];
+  }
 }
 
 window.addEventListener('DOMContentLoaded', renderStats);
