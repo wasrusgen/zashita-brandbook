@@ -922,6 +922,7 @@ function detectCtype(text) {
 }
 
 function showResults(ctypeKey) {
+  _curCtypeKey = ctypeKey || 'other';
   // спрятать предыдущие шаги на случай прямого вызова
   ['el-step-upload','el-step-scan','el-step1'].forEach(id => {
     const el = document.getElementById(id);
@@ -1082,6 +1083,10 @@ function selectDeliv(key) {
   document.getElementById('p3-name').textContent = d.p3[1];
   document.getElementById('p3-desc').textContent = d.p3[2];
   document.getElementById('pay-pitch').innerHTML = d.pitch;
+  // субтитр: тип договора из детекции
+  const ct = CTYPES[_curCtypeKey] || CTYPES.other;
+  const ctName = ct.name.charAt(0).toUpperCase() + ct.name.slice(1);
+  document.getElementById('pay-sub').textContent = ct.emoji + ' ' + ctName + ' · цена под ваш случай';
   // сбросить выбор на средний план и показать инструкции
   selectPlan(2);
   go('pay');
@@ -1184,8 +1189,9 @@ function renderCustomStats() {
 
 
 /* ── ПОДРОБНЫЕ ИНСТРУКЦИИ ПО ПЛАНУ ── */
-let _selDeliv = 'protocol';
-let _selPlan  = 2;
+let _selDeliv   = 'protocol';
+let _selPlan    = 2;
+let _curCtypeKey = 'other';
 
 const PLAN_PITCH = {
   protocol: {
