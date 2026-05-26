@@ -179,6 +179,39 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .stats-pill{position:fixed;bottom:70px;right:18px;background:#0C0608;color:#fff;border-radius:12px;padding:10px 14px;font-size:11px;z-index:9999;cursor:pointer;line-height:1.6;min-width:160px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .stats-pill b{color:#FECDD3}
 
+
+/* ── АНАЛИТИКА CUSTOM-ЗАПРОСОВ ── */
+#custom-admin{background:var(--surf)}
+.ca-wrap{max-width:780px;margin:0 auto;padding:28px 20px 60px}
+.ca-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.ca-sub{font-size:13px;color:var(--mut);margin-bottom:24px}
+.ca-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.ca-stat{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+.ca-stat .sv{font-size:26px;font-weight:800;color:var(--bg)}
+.ca-stat .sl{font-size:11px;color:var(--mut);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.ca-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin:20px 0 10px}
+.ca-words{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px}
+.ca-word{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:default}
+.ca-word .wc{background:var(--bg);color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;font-weight:700}
+.ca-word.w-top{border-color:rgba(159,18,57,.4);background:var(--tint)}
+.ca-card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-bottom:10px}
+.ca-card.ca-done{opacity:.5;border-style:dashed}
+.ca-card .cc-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ca-card .cc-ctype{font-size:11px;font-weight:700;background:var(--tint);color:var(--bg);padding:2px 8px;border-radius:8px}
+.ca-card .cc-ts{font-size:11px;color:var(--mut);margin-left:auto}
+.ca-card .cc-text{font-size:13.5px;line-height:1.6;color:var(--ink);margin-bottom:10px}
+.ca-card .cc-actions{display:flex;gap:8px}
+.ca-card .cc-add{background:var(--bg);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ca-card .cc-add:disabled{background:var(--ok);cursor:default}
+.ca-card .cc-copy{background:none;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.ca-card .cc-copy:hover{border-color:var(--bg);color:var(--bg)}
+.ca-export{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.ca-export button{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink)}
+.ca-export button:hover{border-color:var(--bg);color:var(--bg)}
+.ca-empty{text-align:center;padding:60px 20px;color:var(--mut);font-size:14px}
+.ca-empty .ce-icon{font-size:40px;margin-bottom:12px}
+@media(max-width:600px){.ca-stats{grid-template-columns:1fr 1fr}.ca-stat:last-child{grid-column:1/-1}}
+
 /* тост-подтверждение действий без отдельного экрана */
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#0C0608;color:#fff;padding:13px 20px;border-radius:13px;font-size:13.5px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .25s;z-index:999;max-width:min(90vw,520px);display:flex;align-items:center;gap:9px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -493,6 +526,21 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
     <div class="field"><label>Куда прислать результат</label><input placeholder="Telegram или телефон"></div>
     <div class="pdn">Нажимая «Оплатить», вы соглашаетесь с <a href="oferta.html" target="_blank">офертой</a> и <a href="privacy.html" target="_blank">обработкой ПДн</a>. Данные договора остаются на вашем устройстве.</div>
     <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="go('cabinet')">Оплатить 2 480 ₽</button>
+  </div>
+</section>
+
+
+<!-- ═ АНАЛИТИКА CUSTOM-ЗАПРОСОВ ═ -->
+<section class="screen" id="custom-admin">
+  <div class="topbar">
+    <img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА">
+    <span class="ttl">Аналитика: свои запросы</span>
+    <span class="back back-link" onclick="history.back();go('start')">← назад</span>
+  </div>
+  <div class="ca-wrap">
+    <div class="ca-title">Нестандартные запросы</div>
+    <div class="ca-sub">Что клиенты просят, чего нет в системе — основа для расширения CTYPES и deliverables</div>
+    <div id="ca-body"></div>
   </div>
 </section>
 
@@ -1093,8 +1141,8 @@ function renderCustomStats() {
   if (!el) {
     el = document.createElement('div'); el.id = 'custom-stats-pill';
     el.className = 'stats-pill'; el.style.bottom = '52px';
-    el.title = 'Нажать — очистить';
-    el.onclick = () => { localStorage.removeItem('zashita_custom_delivs'); renderCustomStats(); };
+    el.title = 'Открыть аналитику';
+    el.onclick = () => { renderCustomAdmin(); go('custom-admin'); };
     document.body.appendChild(el);
   }
   el.style.display = 'block';
@@ -1164,8 +1212,148 @@ function selectPlan(n) {
   }
 }
 
+
+/* ── АНАЛИТИКА CUSTOM-ЗАПРОСОВ ── */
+const CA_STOPWORDS = new Set(['и','в','на','с','по','для','что','это','как','не','а','но','из','к','о','от','за','до','при','без','под','над','со','об','же','бы','ли','ещё','уже','когда','если','мне','мы','я','вы','он','она','они','то','так','ну','ладно','просто','только','очень','нет','да','быть','есть','это','свой','мой','ваш','наш','его','её','их','все','всё','один','одна','других','другой','которые','который','можно','нужно','надо','хочу','хочется','нужна','нужен','нужно','получить','сделать','чтобы','также']);
+
+function caWordFreq(arr) {
+  const freq = {};
+  arr.forEach(r => {
+    const words = (r.text || '').toLowerCase()
+      .replace(/[^а-яёa-z\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 3 && !CA_STOPWORDS.has(w));
+    words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+  });
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15);
+}
+
+function caFmtDate(ts) {
+  try {
+    const d = new Date(ts);
+    return d.toLocaleDateString('ru-RU', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  } catch(e) { return ts; }
+}
+
+function caAddToSystem(idx) {
+  const arr = JSON.parse(localStorage.getItem('zashita_custom_delivs') || '[]');
+  if (arr[idx]) { arr[idx].added = true; localStorage.setItem('zashita_custom_delivs', JSON.stringify(arr)); }
+  renderCustomAdmin();
+}
+
+function caCopyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  showToast('Скопировано');
+}
+
+function caExportCSV() {
+  const arr = JSON.parse(localStorage.getItem('zashita_custom_delivs') || '[]');
+  if (!arr.length) return;
+  const rows = [['Дата','Тип договора','Запрос','Добавлено в систему']];
+  arr.forEach(r => rows.push([
+    r.ts || '', (r.ctype || '').replace(/,/g,''),
+    '"' + (r.text || '').replace(/"/g,'""') + '"',
+    r.added ? 'да' : 'нет'
+  ]));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('﻿' + csv);
+  a.download = 'zashita_custom_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function caExportJSON() {
+  const arr = JSON.parse(localStorage.getItem('zashita_custom_delivs') || '[]');
+  navigator.clipboard.writeText(JSON.stringify(arr, null, 2))
+    .then(() => showToast('JSON скопирован в буфер'))
+    .catch(() => showToast('Ошибка копирования'));
+}
+
+function caClearAll() {
+  if (!confirm('Удалить все custom-запросы?')) return;
+  localStorage.removeItem('zashita_custom_delivs');
+  renderCustomStats();
+  renderCustomAdmin();
+}
+
+function renderCustomAdmin() {
+  const arr = JSON.parse(localStorage.getItem('zashita_custom_delivs') || '[]');
+  const body = document.getElementById('ca-body');
+  if (!body) return;
+
+  if (!arr.length) {
+    body.innerHTML = '<div class="ca-empty"><div class="ce-icon">📭</div>Пока нет запросов.<br>Они появятся когда клиент нажмёт «Отправить запрос».</div>';
+    return;
+  }
+
+  const ctypes = [...new Set(arr.map(r => (r.ctype||'').trim()).filter(Boolean))];
+  const words = caWordFreq(arr);
+  const added = arr.filter(r => r.added).length;
+
+  // Статистика
+  let html = `<div class="ca-stats">
+    <div class="ca-stat"><div class="sv">${arr.length}</div><div class="sl">Всего запросов</div></div>
+    <div class="ca-stat"><div class="sv">${ctypes.length || '—'}</div><div class="sl">Типов договора</div></div>
+    <div class="ca-stat"><div class="sv">${added}</div><div class="sl">Добавлено в систему</div></div>
+  </div>`;
+
+  // Частотный анализ
+  if (words.length) {
+    html += '<div class="ca-section">Частые темы запросов</div><div class="ca-words">';
+    const maxCnt = words[0][1];
+    words.forEach(([w, c]) => {
+      const isTop = c === maxCnt;
+      html += `<div class="ca-word${isTop?' w-top':''}">${w}<span class="wc">${c}</span></div>`;
+    });
+    html += '</div>';
+  }
+
+  // Список запросов
+  html += '<div class="ca-section">Все запросы</div>';
+  arr.slice().reverse().forEach((r, i) => {
+    const realIdx = arr.length - 1 - i;
+    const ctypeLabel = (r.ctype||'').trim() || 'тип не определён';
+    html += `<div class="ca-card${r.added?' ca-done':''}">
+      <div class="cc-head">
+        <span class="cc-ctype">${ctypeLabel}</span>
+        <span class="cc-ts">${caFmtDate(r.ts)}</span>
+      </div>
+      <div class="cc-text">${r.text || ''}</div>
+      <div class="cc-actions">
+        <button class="cc-add" onclick="caAddToSystem(${realIdx})" ${r.added?'disabled':''}>
+          ${r.added ? '✓ Добавлено в систему' : '+ Добавить в систему'}
+        </button>
+        <button class="cc-copy" onclick="caCopyText(${JSON.stringify(r.text||'')})">Копировать</button>
+      </div>
+    </div>`;
+  });
+
+  // Экспорт
+  html += `<div class="ca-export">
+    <button onclick="caExportCSV()">⬇ Скачать CSV</button>
+    <button onclick="caExportJSON()">📋 Копировать JSON</button>
+    <button onclick="caClearAll()" style="color:#b91c1c;border-color:#fecaca">🗑 Очистить всё</button>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function showToast(msg) {
+  let t = document.getElementById('ca-toast');
+  if (!t) {
+    t = document.createElement('div'); t.id = 'ca-toast';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0C0608;color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;z-index:99999;pointer-events:none;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._to); t._to = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+
 window.addEventListener('DOMContentLoaded', renderStats);
 window.addEventListener('DOMContentLoaded', renderCustomStats);
+window.addEventListener('DOMContentLoaded', renderCustomAdmin);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
