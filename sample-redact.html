@@ -2,134 +2,137 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Образец — Переработка с комментариями</title>
+<title>Переработка с комментариями — образец</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#f5f4f2;color:#1a1a1a;padding:32px 16px;line-height:1.6}
-.doc{max-width:720px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.1)}
-.sample-bar{background:#9f1239;color:#fff;text-align:center;font-size:11px;font-weight:700;letter-spacing:3px;padding:7px;text-transform:uppercase}
-.doc-head{padding:32px 40px 24px;border-bottom:1px solid #e8e8e8}
-.doc-logo img{height:22px;filter:brightness(0) saturate(100%) invert(13%) sepia(79%) saturate(2476%) hue-rotate(323deg) brightness(90%) contrast(90%);margin-bottom:20px}
-.doc-type{font-size:11px;font-weight:700;color:#9f1239;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.doc-title{font-size:20px;font-weight:700;color:#111;margin-bottom:4px}
-.doc-sub{font-size:13px;color:#888}
-.doc-meta{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
-.doc-meta span{font-size:12px;color:#666}
-.doc-meta b{color:#111}
-.doc-body{padding:32px 40px}
-.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9f1239;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #fce7f3}
-.legend{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;padding:12px 16px;background:#fafafa;border-radius:8px;border:1px solid #e8e8e8}
+body{font-family:'Inter',sans-serif;background:#eee;color:#111;padding:32px 16px;line-height:1.6}
+.sample-bar{max-width:760px;margin:0 auto 8px;background:#92400e;color:#fff;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;padding:6px;border-radius:6px;text-transform:uppercase}
+.doc{max-width:760px;margin:0 auto;background:#fff;border-radius:4px;box-shadow:0 2px 16px rgba(0,0,0,.12);padding:56px 64px 40px}
+.doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #ccc}
+.company-block .company-name{font-size:15px;font-weight:700}
+.company-block .company-detail{font-size:12px;color:#666}
+.doc-version{text-align:right;font-size:12px;color:#555}
+.doc-version .ver-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:4px}
+.doc-version .ver-badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;border:1px solid #fde68a}
+.doc-title-block{text-align:center;margin-bottom:28px}
+.doc-title-block .doc-type{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:8px}
+.doc-title-block h1{font-size:18px;font-weight:700;color:#111;margin-bottom:6px}
+.doc-title-block .doc-ref{font-size:13px;color:#555}
+.legend{display:flex;gap:20px;flex-wrap:wrap;padding:10px 14px;background:#f9f9f9;border:1px solid #e8e8e8;border-radius:4px;margin-bottom:24px}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#555}
-.leg-del{background:#fee2e2;color:#dc2626;border-radius:3px;padding:1px 5px;text-decoration:line-through;font-size:11px}
-.leg-ins{background:#dcfce7;color:#16a34a;border-radius:3px;padding:1px 5px;font-size:11px}
-.clause{margin-bottom:28px;border:1px solid #e8e8e8;border-radius:10px;overflow:hidden}
-.clause-header{background:#fafafa;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e8}
-.clause-num{font-weight:700;font-size:13px;color:#333}
-.clause-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-.badge-crit{background:#fee2e2;color:#dc2626}
-.badge-mid{background:#fef3c7;color:#d97706}
-.clause-body{padding:16px}
-.clause-text{font-size:13px;line-height:1.7;margin-bottom:12px}
-del{background:#fee2e2;color:#dc2626;text-decoration:line-through;border-radius:3px;padding:0 3px}
-ins{background:#dcfce7;color:#16a34a;text-decoration:none;border-radius:3px;padding:0 3px;font-style:normal}
-.comment{background:#fdf2f8;border-left:3px solid #9f1239;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#555;margin-top:8px}
-.comment b{color:#9f1239}
-.norm-tag{font-size:11px;color:#9f1239;background:#fce7f3;border-radius:4px;padding:1px 6px;margin-left:4px}
-.footer{padding:20px 40px;background:#fafafa;border-top:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
-.footer-brand{font-size:11px;color:#aaa}
-.footer-brand b{color:#9f1239}
-.back-link{font-size:12px;color:#9f1239;text-decoration:none;border:1px solid #f3d4e2;border-radius:6px;padding:5px 12px}
-.back-link:hover{background:#fdf2f8}
-@media(max-width:600px){.doc-body,.doc-head{padding:20px}.legend{gap:8px}}
+del{background:#fee2e2;color:#b91c1c;text-decoration:line-through;border-radius:2px;padding:0 3px}
+ins{background:#dcfce7;color:#15803d;text-decoration:none;border-radius:2px;padding:0 3px;font-style:normal}
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:24px 0 14px;padding-bottom:6px;border-bottom:1.5px solid #e0e0e0}
+.clause-block{border:1px solid #e0e0e0;border-radius:4px;margin-bottom:16px;overflow:hidden}
+.clause-head{background:#f4f4f4;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0e0e0}
+.clause-ref{font-size:12.5px;font-weight:700;color:#333}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-crit{background:#fee2e2;color:#b91c1c}
+.badge-mid{background:#fef3c7;color:#92400e}
+.clause-body{padding:14px}
+.clause-text{font-size:13.5px;line-height:1.75;margin-bottom:12px;color:#222}
+.comment-block{background:#f9f9f9;border-left:3px solid #bbb;border-radius:0 4px 4px 0;padding:10px 14px;font-size:12px;color:#555}
+.comment-block b{color:#333}
+.norm-tag{display:inline-block;font-size:11px;background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 6px;margin-left:4px;color:#444}
+.doc-footer{margin-top:48px;padding-top:14px;border-top:1px dashed #ddd;text-align:center;font-size:11px;color:#aaa}
+.doc-footer span{color:#888}
+.back-link{display:inline-block;margin-top:16px;font-size:12px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:4px 12px}
+@media(max-width:600px){.doc{padding:24px 20px}.doc-header{flex-direction:column;gap:12px}.doc-version{text-align:left}.legend{gap:10px}}
 </style>
 </head>
 <body>
+<div class="sample-bar">⚠ Образец — демонстрационное содержание</div>
 <div class="doc">
-  <div class="sample-bar">⚠ Образец документа — содержание не является реальным заключением</div>
-  <div class="doc-head">
-    <div class="doc-logo"><img src="logos/logo-wasrusgen1-real.svg" alt="@wasrusgen1"></div>
+  <div class="doc-header">
+    <div class="company-block">
+      <div class="company-name">ООО «Название компании»</div>
+      <div class="company-detail">ИНН 0000000000 · ОГРН 0000000000000</div>
+      <div class="company-detail">г. Москва, ул. Примерная, д. 1</div>
+    </div>
+    <div class="doc-version">
+      <div class="ver-label">Статус документа</div>
+      <div class="ver-badge">Редакция с комментариями</div>
+    </div>
+  </div>
+
+  <div class="doc-title-block">
     <div class="doc-type">Переработка с комментариями</div>
-    <div class="doc-title">Агентский договор № А-2024/___</div>
-    <div class="doc-sub">Редакция с отмеченными изменениями · ЗАЩИТА</div>
-    <div class="doc-meta">
-      <span><b>Изменено пунктов:</b> 12 из 18</span>
-      <span><b>Критичных правок:</b> 5</span>
-      <span><b>Дата:</b> __.__.2025</span>
-    </div>
+    <h1>Агентский договор № А-2024/___</h1>
+    <div class="doc-ref">г. Москва &nbsp;·&nbsp; «___» __________ 2025 г. &nbsp;·&nbsp; Изменено пунктов: 12</div>
   </div>
-  <div class="doc-body">
-    <div class="legend">
-      <div class="leg-item"><span class="leg-del">удалено</span> — исходный текст</div>
-      <div class="leg-item"><span class="leg-ins">добавлено</span> — новая редакция</div>
-      <div class="leg-item">💬 — комментарий юриста</div>
+
+  <div class="legend">
+    <div class="leg-item"><del>зачёркнуто</del> — удалённый текст</div>
+    <div class="leg-item"><ins>подчёркнуто</ins> — новая редакция</div>
+    <div class="leg-item">💬 — комментарий юриста</div>
+  </div>
+
+  <div class="section-title">Изменённые пункты</div>
+
+  <div class="clause-block">
+    <div class="clause-head">
+      <span class="clause-ref">п. 1.1 — Ответственность агента</span>
+      <span class="badge badge-crit">● критичный</span>
     </div>
-
-    <div class="section-title">Изменённые пункты</div>
-
-    <div class="clause">
-      <div class="clause-header">
-        <span class="clause-num">п. 1.1 — Ответственность агента</span>
-        <span class="clause-badge badge-crit">● Критичный</span>
+    <div class="clause-body">
+      <div class="clause-text">
+        Агент <del>несёт полную ответственность за качество выполненных работ перед конечным потребителем</del> <ins>несёт ответственность перед Принципалом в пределах суммы агентского вознаграждения. Ответственность перед конечным потребителем несёт Принципал как продавец товара</ins>.
       </div>
-      <div class="clause-body">
-        <div class="clause-text">
-          Агент <del>несёт полную ответственность за качество выполненных работ перед конечным потребителем</del><ins>несёт ответственность перед Принципалом в пределах суммы агентского вознаграждения за конкретное поручение. Ответственность перед конечным потребителем несёт Принципал как продавец товара (ст. 4 ЗоЗПП)</ins>.
-        </div>
-        <div class="comment">
-          <b>Зачем это изменение:</b> исходная редакция возлагала на вас прямую ответственность перед покупателями — штрафы, возвраты, судебные претензии. По закону это обязанность продавца (Принципала), не агента. Новая формулировка восстанавливает законный порядок и ограничивает вашу ответственность суммой вознаграждения. <span class="norm-tag">ст. 4, 29 ЗоЗПП</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="clause">
-      <div class="clause-header">
-        <span class="clause-num">п. 4.6 — Финансовая ответственность</span>
-        <span class="clause-badge badge-crit">● Критичный</span>
-      </div>
-      <div class="clause-body">
-        <div class="clause-text">
-          Агент обязуется возместить Принципалу <del>все финансовые потери, возникшие вследствие ненадлежащего исполнения обязательств</del><ins>убытки, непосредственно вызванные виновными действиями Агента, в размере, не превышающем агентского вознаграждения по соответствующему поручению</ins>.
-        </div>
-        <div class="comment">
-          <b>Зачем это изменение:</b> «все финансовые потери» без ограничения — это открытый кошелёк. Новая редакция вводит cap: ваша ответственность не может превышать то, что вы заработали по конкретному поручению. Стандартная практика в агентских договорах. <span class="norm-tag">ст. 330–333 ГК РФ</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="clause">
-      <div class="clause-header">
-        <span class="clause-num">п. 2.3 — Режим работы</span>
-        <span class="clause-badge badge-crit">● Критичный</span>
-      </div>
-      <div class="clause-body">
-        <div class="clause-text">
-          Агент <del>выполняет работы лично, в установленные часы, на оборудовании Принципала, строго по его инструкциям</del><ins>самостоятельно определяет способы исполнения поручений, вправе привлекать субагентов, использовать собственный инструмент и определять режим работы</ins>.
-        </div>
-        <div class="comment">
-          <b>Зачем это изменение:</b> исходный пункт описывает трудовые отношения — личное исполнение, режим, оборудование работодателя. При налоговой проверке это основание переквалифицировать договор в трудовой и доначислить НДФЛ + взносы задним числом. Новая редакция закрепляет признаки самостоятельности. <span class="norm-tag">ст. 19.1 ТК РФ</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="clause">
-      <div class="clause-header">
-        <span class="clause-num">п. 6.2 — Изменение вознаграждения</span>
-        <span class="clause-badge badge-mid">● Средний</span>
-      </div>
-      <div class="clause-body">
-        <div class="clause-text">
-          Размер агентского вознаграждения <del>может быть изменён Принципалом в одностороннем порядке с уведомлением за 3 дня</del><ins>изменяется только по письменному соглашению Сторон. Одностороннее изменение не допускается</ins>.
-        </div>
-        <div class="comment">
-          <b>Зачем это изменение:</b> без этой правки Принципал мог снизить ваше вознаграждение за 3 дня без вашего согласия. Это прямое нарушение ст. 450 ГК. Новая редакция требует вашего письменного согласия на любое изменение. <span class="norm-tag">ст. 450 ГК РФ</span>
-        </div>
+      <div class="comment-block">
+        <b>Зачем это изменение:</b> исходная редакция возлагала на вас прямую ответственность перед покупателями — штрафы, возвраты, претензии. По закону это обязанность продавца (Принципала). Новая формулировка восстанавливает законный порядок и ограничивает вашу ответственность суммой вознаграждения. <span class="norm-tag">ст. 4, 29 ЗоЗПП</span>
       </div>
     </div>
   </div>
-  <div class="footer">
-    <div class="footer-brand">Подготовлено сервисом <b>ЗАЩИТА</b> · @wasrusgen1</div>
-    <a class="back-link" href="mockup.html">← Вернуться</a>
+
+  <div class="clause-block">
+    <div class="clause-head">
+      <span class="clause-ref">п. 4.6 — Финансовая ответственность</span>
+      <span class="badge badge-crit">● критичный</span>
+    </div>
+    <div class="clause-body">
+      <div class="clause-text">
+        Агент обязуется возместить Принципалу <del>все финансовые потери, возникшие вследствие ненадлежащего исполнения обязательств</del> <ins>убытки, непосредственно вызванные виновными действиями Агента, в размере, не превышающем агентского вознаграждения по соответствующему поручению</ins>.
+      </div>
+      <div class="comment-block">
+        <b>Зачем это изменение:</b> «все финансовые потери» без ограничения — открытый кошелёк. Новая редакция вводит cap: ваша ответственность не превышает то, что вы заработали по конкретному поручению. Стандартная практика в агентских договорах. <span class="norm-tag">ст. 330–333 ГК РФ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause-block">
+    <div class="clause-head">
+      <span class="clause-ref">п. 2.3 — Режим работы</span>
+      <span class="badge badge-crit">● критичный</span>
+    </div>
+    <div class="clause-body">
+      <div class="clause-text">
+        Агент <del>выполняет работы лично, в установленные часы, на оборудовании Принципала, строго по его инструкциям</del> <ins>самостоятельно определяет способы исполнения поручений, вправе привлекать субагентов, использовать собственный инструмент и определять режим работы</ins>.
+      </div>
+      <div class="comment-block">
+        <b>Зачем это изменение:</b> исходный пункт описывает трудовые отношения — личное исполнение, режим, оборудование работодателя. При налоговой проверке это основание переквалифицировать договор и доначислить НДФЛ + взносы задним числом. Новая редакция закрепляет признаки самостоятельности. <span class="norm-tag">ст. 19.1 ТК РФ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause-block">
+    <div class="clause-head">
+      <span class="clause-ref">п. 6.2 — Изменение вознаграждения</span>
+      <span class="badge badge-mid">● средний</span>
+    </div>
+    <div class="clause-body">
+      <div class="clause-text">
+        Размер агентского вознаграждения <del>может быть изменён Принципалом в одностороннем порядке с уведомлением за 3 дня</del> <ins>изменяется только по письменному соглашению Сторон. Одностороннее изменение не допускается</ins>.
+      </div>
+      <div class="comment-block">
+        <b>Зачем это изменение:</b> без этой правки Принципал мог снизить ваше вознаграждение за 3 дня без согласия. Новая редакция требует вашего письменного согласия на любое изменение. <span class="norm-tag">ст. 450 ГК РФ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    Подготовлено с использованием системы <span>@wasrusgen1 | ЗАЩИТА</span>
+    <br><a class="back-link" href="mockup.html">← К выбору варианта</a>
   </div>
 </div>
 </body>

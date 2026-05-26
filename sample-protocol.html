@@ -2,130 +2,140 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Образец — Протокол разногласий</title>
+<title>Протокол разногласий — образец</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#f5f4f2;color:#1a1a1a;padding:32px 16px;line-height:1.6}
-.doc{max-width:720px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.1)}
-.sample-bar{background:#9f1239;color:#fff;text-align:center;font-size:11px;font-weight:700;letter-spacing:3px;padding:7px;text-transform:uppercase}
-.doc-head{padding:32px 40px 24px;border-bottom:1px solid #e8e8e8}
-.doc-logo{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.doc-logo img{height:22px;filter:brightness(0) saturate(100%) invert(13%) sepia(79%) saturate(2476%) hue-rotate(323deg) brightness(90%) contrast(90%)}
-.doc-type{font-size:11px;font-weight:700;color:#9f1239;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.doc-title{font-size:20px;font-weight:700;color:#111;margin-bottom:4px}
-.doc-sub{font-size:13px;color:#888}
-.doc-meta{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
-.doc-meta span{font-size:12px;color:#666}
-.doc-meta b{color:#111}
-.doc-body{padding:32px 40px}
-.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9f1239;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #fce7f3}
-table{width:100%;border-collapse:collapse;margin-bottom:32px;font-size:13px}
-th{background:#fdf2f8;color:#9f1239;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;text-align:left;border:1px solid #f3d4e2}
-td{padding:12px 14px;border:1px solid #e8e8e8;vertical-align:top}
-td:first-child{font-weight:600;color:#444;white-space:nowrap;width:70px}
-.orig{color:#888;text-decoration:line-through;font-size:12px}
+body{font-family:'Inter',sans-serif;background:#eee;color:#111;padding:32px 16px;line-height:1.6}
+.sample-bar{max-width:760px;margin:0 auto 8px;background:#92400e;color:#fff;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;padding:6px;border-radius:6px;text-transform:uppercase}
+.doc{max-width:760px;margin:0 auto;background:#fff;border-radius:4px;box-shadow:0 2px 16px rgba(0,0,0,.12);padding:56px 64px 40px}
+/* шапка документа */
+.doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #ccc}
+.company-block .company-name{font-size:15px;font-weight:700;color:#111;margin-bottom:2px}
+.company-block .company-detail{font-size:12px;color:#666}
+.doc-stamp{text-align:right;font-size:12px;color:#555}
+.doc-stamp .stamp-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:4px}
+.doc-stamp .stamp-line{border-bottom:1px solid #999;margin:16px 0 4px;min-width:160px}
+/* заголовок */
+.doc-title-block{text-align:center;margin-bottom:32px}
+.doc-title-block .doc-type{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:8px}
+.doc-title-block h1{font-size:18px;font-weight:700;color:#111;margin-bottom:6px}
+.doc-title-block .doc-ref{font-size:13px;color:#555}
+/* тело */
+.intro{font-size:13px;color:#444;line-height:1.7;margin-bottom:28px;padding:14px 16px;background:#f9f9f9;border-left:3px solid #bbb;border-radius:0 4px 4px 0}
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:28px 0 14px;padding-bottom:6px;border-bottom:1.5px solid #e0e0e0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:28px}
+th{background:#f4f4f4;color:#333;font-weight:700;font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:9px 12px;text-align:left;border:1px solid #ddd}
+td{padding:11px 12px;border:1px solid #e0e0e0;vertical-align:top;line-height:1.6}
+td:first-child{font-weight:600;color:#444;white-space:nowrap;width:80px;background:#fafafa}
+.orig{color:#999;text-decoration:line-through;font-size:12px;display:block;margin-bottom:4px}
 .prop{color:#111;font-size:12px}
-.norm{font-size:11px;color:#9f1239;background:#fdf2f8;border-radius:4px;padding:2px 6px;display:inline-block;margin-top:4px}
-.risk-high{color:#dc2626;font-weight:700;font-size:11px}
-.risk-mid{color:#d97706;font-weight:700;font-size:11px}
-.intro{background:#fdf2f8;border-left:3px solid #9f1239;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:28px;font-size:13px;color:#444;line-height:1.6}
-.sign-block{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px;padding-top:24px;border-top:1px solid #e8e8e8}
-.sign-party{font-size:12px;color:#666}
-.sign-party .party-name{font-weight:700;color:#111;font-size:13px;margin-bottom:4px}
-.sign-line{border-top:1px solid #ccc;margin-top:32px;padding-top:6px;font-size:11px;color:#aaa}
-.footer{padding:20px 40px;background:#fafafa;border-top:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
-.footer-brand{font-size:11px;color:#aaa}
-.footer-brand b{color:#9f1239}
-.back-link{font-size:12px;color:#9f1239;text-decoration:none;border:1px solid #f3d4e2;border-radius:6px;padding:5px 12px}
-.back-link:hover{background:#fdf2f8}
-@media(max-width:600px){.doc-body,.doc-head{padding:20px}.sign-block{grid-template-columns:1fr}.doc-meta{gap:12px}}
+.norm{display:inline-block;font-size:11px;color:#555;background:#f0f0f0;border-radius:3px;padding:1px 6px;margin-top:4px;border:1px solid #e0e0e0}
+.risk-high{font-size:11px;font-weight:700;color:#b91c1c}
+.risk-mid{font-size:11px;font-weight:700;color:#b45309}
+/* подписи */
+.sign-section{margin-top:40px;padding-top:24px;border-top:1px solid #ccc}
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.sign-party .party-role{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:4px}
+.sign-party .party-name{font-weight:700;font-size:13px;margin-bottom:2px}
+.sign-party .party-detail{font-size:12px;color:#666;margin-bottom:12px}
+.sign-line{border-top:1px solid #999;margin-top:28px;padding-top:5px;font-size:11px;color:#888}
+/* нижний колонтитул */
+.doc-footer{margin-top:48px;padding-top:14px;border-top:1px dashed #ddd;text-align:center;font-size:11px;color:#aaa}
+.doc-footer span{color:#888}
+.back-link{display:inline-block;margin-top:16px;font-size:12px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:4px 12px}
+@media(max-width:600px){.doc{padding:24px 20px}.sign-grid{grid-template-columns:1fr}.doc-header{flex-direction:column;gap:12px}.doc-stamp{text-align:left}}
 </style>
 </head>
 <body>
+<div class="sample-bar">⚠ Образец — демонстрационное содержание</div>
 <div class="doc">
-  <div class="sample-bar">⚠ Образец документа — содержание не является реальным заключением</div>
-  <div class="doc-head">
-    <div class="doc-logo">
-      <img src="logos/logo-wasrusgen1-real.svg" alt="@wasrusgen1">
+  <div class="doc-header">
+    <div class="company-block">
+      <div class="company-name">ООО «Название компании»</div>
+      <div class="company-detail">ИНН 0000000000 · ОГРН 0000000000000</div>
+      <div class="company-detail">г. Москва, ул. Примерная, д. 1</div>
     </div>
+    <div class="doc-stamp">
+      <div class="stamp-label">СОГЛАСОВАНО</div>
+      <div class="stamp-line"></div>
+      <div>Подпись / Дата</div>
+    </div>
+  </div>
+
+  <div class="doc-title-block">
     <div class="doc-type">Протокол разногласий</div>
-    <div class="doc-title">к Агентскому договору № А-2024/___</div>
-    <div class="doc-sub">Составлено по результатам юридической экспертизы · ЗАЩИТА</div>
-    <div class="doc-meta">
-      <span><b>Договор:</b> Агентский (сборка мебели)</span>
-      <span><b>Выявлено рисков:</b> 12 (5 критичных)</span>
-      <span><b>Дата:</b> __.__.2025</span>
+    <h1>к Агентскому договору № А-2024/___</h1>
+    <div class="doc-ref">г. Москва &nbsp;·&nbsp; «___» __________ 2025 г.</div>
+  </div>
+
+  <div class="intro">
+    Настоящий протокол составлен по результатам юридической экспертизы договора и содержит предложения по изменению условий, нарушающих интересы Агента. По каждому пункту указана действующая редакция, предлагаемая замена и правовое основание. Принципал обязан принять предложенные формулировки либо представить мотивированный отказ со ссылкой на нормы права.
+  </div>
+
+  <div class="section-title">Предложения по изменению условий</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Пункт</th>
+        <th>Действующая редакция</th>
+        <th>Предлагаемая редакция</th>
+        <th>Основание</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>п. 1.1<br><span class="risk-high">● крит.</span></td>
+        <td><span class="orig">«Агент несёт полную ответственность за качество выполненных работ перед конечным потребителем»</span></td>
+        <td><span class="prop">«Агент несёт ответственность перед Принципалом в пределах суммы агентского вознаграждения. Ответственность перед конечным потребителем несёт Принципал как продавец товара»</span></td>
+        <td><span class="norm">ст. 4, 18, 29 ЗоЗПП</span><br><span class="norm">ст. 1005 ГК РФ</span></td>
+      </tr>
+      <tr>
+        <td>п. 4.6<br><span class="risk-high">● крит.</span></td>
+        <td><span class="orig">«Агент обязуется возместить Принципалу все финансовые потери, возникшие вследствие ненадлежащего исполнения»</span></td>
+        <td><span class="prop">«Ответственность Агента за ненадлежащее исполнение ограничена размером агентского вознаграждения по соответствующему поручению»</span></td>
+        <td><span class="norm">ст. 330–333 ГК РФ</span></td>
+      </tr>
+      <tr>
+        <td>п. 2.3<br><span class="risk-high">● крит.</span></td>
+        <td><span class="orig">«Агент выполняет работы лично, в установленные часы, на оборудовании Принципала, по его инструкциям»</span></td>
+        <td><span class="prop">«Агент самостоятельно определяет способы исполнения поручений, вправе привлекать субагентов и использовать собственные инструменты»</span></td>
+        <td><span class="norm">ст. 19.1 ТК РФ</span><br><span class="norm">ст. 1009 ГК РФ</span></td>
+      </tr>
+      <tr>
+        <td>п. 6.2<br><span class="risk-mid">● сред.</span></td>
+        <td><span class="orig">«Принципал вправе в одностороннем порядке изменять размер вознаграждения с уведомлением за 3 дня»</span></td>
+        <td><span class="prop">«Размер вознаграждения изменяется только по письменному соглашению Сторон»</span></td>
+        <td><span class="norm">ст. 450 ГК РФ</span></td>
+      </tr>
+      <tr>
+        <td>п. 7.1<br><span class="risk-mid">● сред.</span></td>
+        <td><span class="orig">«Принципал вправе расторгнуть договор в одностороннем порядке без объяснения причин»</span></td>
+        <td><span class="prop">«Расторжение по инициативе Принципала — уведомление не менее чем за 30 дней. При нарушении срока — компенсация в размере вознаграждения за 2 поручения»</span></td>
+        <td><span class="norm">ст. 1010 ГК РФ</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Подписи сторон</div>
+  <div class="sign-grid">
+    <div class="sign-party">
+      <div class="party-role">Агент</div>
+      <div class="party-name">________________________</div>
+      <div class="party-detail">Паспорт: серия ____ № ______</div>
+      <div class="sign-line">Подпись &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Дата</div>
+    </div>
+    <div class="sign-party">
+      <div class="party-role">Принципал</div>
+      <div class="party-name">________________________</div>
+      <div class="party-detail">Должность, ФИО представителя</div>
+      <div class="sign-line">Подпись / М.П. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Дата</div>
     </div>
   </div>
-  <div class="doc-body">
-    <div class="intro">
-      Настоящий протокол содержит предложения по изменению условий договора, нарушающих интересы Агента. По каждому пункту указана действующая редакция, предлагаемая замена и правовое основание. Принципал обязан либо принять предложенные формулировки, либо представить мотивированный отказ со ссылкой на нормы права.
-    </div>
 
-    <div class="section-title">Спорные условия — предложения по изменению</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Пункт</th>
-          <th>Действующая редакция</th>
-          <th>Предлагаемая редакция</th>
-          <th>Основание</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>п. 1.1<br><span class="risk-high">● Крит.</span></td>
-          <td><span class="orig">«Агент несёт полную ответственность за качество выполненных работ перед конечным потребителем»</span></td>
-          <td><span class="prop">«Агент несёт ответственность перед Принципалом в пределах суммы агентского вознаграждения за конкретное поручение. Ответственность перед конечным потребителем несёт Принципал как продавец товара»</span></td>
-          <td><span class="norm">ст. 4, 18, 29 ЗоЗПП</span><span class="norm">ст. 1005 ГК РФ</span></td>
-        </tr>
-        <tr>
-          <td>п. 4.6<br><span class="risk-high">● Крит.</span></td>
-          <td><span class="orig">«Агент обязуется возместить Принципалу все финансовые потери, возникшие вследствие ненадлежащего исполнения обязательств»</span></td>
-          <td><span class="prop">«Ответственность Агента за ненадлежащее исполнение ограничена размером агентского вознаграждения по соответствующему поручению. Штрафные санкции сверх указанного предела не применяются»</span></td>
-          <td><span class="norm">ст. 330–333 ГК РФ</span><span class="norm">ст. 15 ГК РФ</span></td>
-        </tr>
-        <tr>
-          <td>п. 2.3<br><span class="risk-high">● Крит.</span></td>
-          <td><span class="orig">«Агент выполняет работы лично, в установленные Принципалом часы, на оборудовании Принципала, строго по его инструкциям»</span></td>
-          <td><span class="prop">«Агент самостоятельно определяет способы исполнения поручений, вправе привлекать субагентов и использовать собственные инструменты. Режим рабочего времени Агент устанавливает самостоятельно»</span></td>
-          <td><span class="norm">ст. 15, 19.1 ТК РФ</span><span class="norm">ст. 1009 ГК РФ</span></td>
-        </tr>
-        <tr>
-          <td>п. 6.2<br><span class="risk-mid">● Сред.</span></td>
-          <td><span class="orig">«Принципал вправе в одностороннем порядке изменять размер агентского вознаграждения с уведомлением за 3 дня»</span></td>
-          <td><span class="prop">«Размер агентского вознаграждения может быть изменён только по письменному соглашению Сторон. Одностороннее изменение не допускается»</span></td>
-          <td><span class="norm">ст. 450 ГК РФ</span></td>
-        </tr>
-        <tr>
-          <td>п. 7.1<br><span class="risk-mid">● Сред.</span></td>
-          <td><span class="orig">«Принципал вправе расторгнуть договор в одностороннем порядке без объяснения причин»</span></td>
-          <td><span class="prop">«Расторжение договора по инициативе Принципала допускается при уведомлении Агента не менее чем за 30 календарных дней. При расторжении без указанного срока Принципал выплачивает компенсацию в размере вознаграждения за 2 поручения»</span></td>
-          <td><span class="norm">ст. 1010 ГК РФ</span><span class="norm">ст. 453 ГК РФ</span></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="section-title">Подписи сторон</div>
-    <div class="sign-block">
-      <div class="sign-party">
-        <div class="party-name">Агент</div>
-        <div>ФИО: ________________________</div>
-        <div>Паспорт: ____________________</div>
-        <div class="sign-line">Подпись / Дата</div>
-      </div>
-      <div class="sign-party">
-        <div class="party-name">Принципал</div>
-        <div>Наименование: ______________</div>
-        <div>ИНН / ОГРН: ________________</div>
-        <div class="sign-line">Подпись / Дата</div>
-      </div>
-    </div>
-  </div>
-  <div class="footer">
-    <div class="footer-brand">Подготовлено сервисом <b>ЗАЩИТА</b> · @wasrusgen1</div>
-    <a class="back-link" href="mockup.html">← Вернуться</a>
+  <div class="doc-footer">
+    Подготовлено с использованием системы <span>@wasrusgen1 | ЗАЩИТА</span>
+    <br><a class="back-link" href="mockup.html">← К выбору варианта</a>
   </div>
 </div>
 </body>
