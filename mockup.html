@@ -321,6 +321,54 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .tk-status.active{background:rgba(96,165,250,.18);color:#93c5fd}
 .tk-dot{color:rgba(255,255,255,.2);padding:0 8px;font-size:16px}
 
+/* ── MS-PROJECT GANTT ── */
+.msp-section{margin-top:28px;border-top:2px solid var(--line);padding-top:16px}
+.msp-title{font-size:13px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.msp-outer{border:1.5px solid #d1d5db;border-radius:10px;overflow:hidden;font-size:12px;font-family:var(--font-ui)}
+.msp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.msp-table{display:grid;min-width:820px}
+/* Шапка */
+.msp-head{display:flex;background:#e8e8f0;border-bottom:2px solid #b0b0c8;font-weight:700;font-size:11px;color:#444}
+.msp-head .msp-left{display:flex;border-right:2px solid #b0b0c8;flex-shrink:0}
+.msp-head .msp-right{flex:1;position:relative;overflow:hidden}
+.msp-hcol{padding:6px 8px;border-right:1px solid #c8c8d8;white-space:nowrap;color:#333}
+.msp-hcol.msp-c-num{width:32px;text-align:center}
+.msp-hcol.msp-c-name{width:200px}
+.msp-hcol.msp-c-dur{width:56px;text-align:center}
+.msp-hcol.msp-c-start{width:72px;text-align:center}
+.msp-hcol.msp-c-end{width:72px;text-align:center}
+/* Строки */
+.msp-row{display:flex;border-bottom:1px solid #e5e7eb;cursor:pointer}
+.msp-row:hover{background:#f0f0ff}
+.msp-row.msp-group{background:#f3f4f8;font-weight:700}
+.msp-row.msp-group:hover{background:#ebebf8}
+.msp-row:last-child{border-bottom:none}
+.msp-left{display:flex;border-right:2px solid #b0b0c8;flex-shrink:0}
+.msp-right{flex:1;position:relative;height:28px;overflow:hidden}
+.msp-cell{padding:6px 8px;border-right:1px solid #e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center}
+.msp-cell.msp-c-num{width:32px;justify-content:center;color:#888;font-size:10px}
+.msp-cell.msp-c-name{width:200px}
+.msp-cell.msp-c-name.ind{padding-left:20px;font-weight:400;color:#333}
+.msp-cell.msp-c-dur{width:56px;justify-content:center;color:#555}
+.msp-cell.msp-c-start{width:72px;justify-content:center;color:#555;font-size:11px}
+.msp-cell.msp-c-end{width:72px;justify-content:center;color:#555;font-size:11px}
+/* Сетка и бары */
+.msp-grid-bg{position:absolute;inset:0;display:flex}
+.msp-grid-col{flex:1;border-right:1px solid #e8e8f0;height:100%}
+.msp-grid-col.weekend{background:#f5f5fb}
+.msp-bar-wrap{position:absolute;inset:0;pointer-events:none}
+.msp-bar{position:absolute;top:5px;height:18px;border-radius:3px;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden}
+.msp-bar.b-group{background:linear-gradient(180deg,#4a4a8a,#2d2d6a);height:8px;top:10px;border-radius:1px}
+.msp-bar.b-done{background:linear-gradient(180deg,#2d7a2d,#1a5c1a)}
+.msp-bar.b-active{background:linear-gradient(180deg,#1a56db,#1e40af)}
+.msp-bar.b-urgent{background:linear-gradient(180deg,#c81e1e,#991b1b)}
+.msp-bar.b-pending{background:linear-gradient(180deg,#6b7280,#4b5563)}
+.msp-today{position:absolute;top:0;bottom:0;width:2px;background:#c81e1e;z-index:5;pointer-events:none}
+.msp-today::before{content:'▼';position:absolute;top:-1px;left:50%;transform:translateX(-50%);color:#c81e1e;font-size:9px;line-height:1}
+/* Дата-шапка на сетке */
+.msp-date-hdr{height:28px;position:relative;border-bottom:1px solid #c8c8d8;background:#e8e8f0}
+.msp-date-tick{position:absolute;top:0;bottom:0;display:flex;align-items:center;font-size:10px;font-weight:700;color:#555;padding-left:4px;border-left:1px solid #c8c8d8;white-space:nowrap}
+
 /* ── RETURNING CLIENT ── */
 .ret-greet{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:24px;letter-spacing:-.5px}
 .ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
@@ -874,6 +922,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <div class="case" onclick="tab('case')"><div class="ci">🍽️</div><div class="cb"><div class="ct">Кухня — агентский договор (ЗОВ)</div><div class="cs">23.05 · 12 рисков</div><div class="cm"><span class="chip d">⚠ Высокий</span><span class="chip w">срок 3 дня</span><span class="chip n">протокол готовится</span></div></div><div class="cg">Открыть →</div></div>
           <div class="case" onclick="tab('case')"><div class="ci">💼</div><div class="cb"><div class="ct">Трудовой договор</div><div class="cs">21.05 · 6 моментов</div><div class="cm"><span class="chip w">Средний</span><span class="chip n">на проверке</span></div></div><div class="cg">Открыть →</div></div>
           <div class="case" onclick="tab('case')"><div class="ci">🏠</div><div class="cb"><div class="ct">Квартира — ДДУ (новая редакция)</div><div class="cs">19.05 · ждёт сверки</div><div class="cm"><span class="chip n">🔍 сверка версий</span></div></div><div class="cg">Открыть →</div></div>
+
+        <!-- MS-Project Gantt -->
+        <div class="msp-section">
+          <div class="msp-title">⏱ Диаграмма сроков</div>
+          <div class="msp-outer">
+            <div class="msp-scroll">
+              <div class="msp-table" id="msp-root"></div>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Внутри дела -->
@@ -1708,6 +1765,126 @@ window.addEventListener('DOMContentLoaded', checkReturning);
   window.addEventListener('DOMContentLoaded', function() {
     renderTicker();
     tickerSync();
+  });
+})();
+
+/* ── MS-PROJECT GANTT ── */
+(function(){
+  // Данные
+  var DATA = [
+    { num:1,  group:true,  name:'🍽️ Кухня — агентский',       dur:'18 дн', start:'23.05', end:'10.06', s:'2025-05-23', e:'2025-06-10', cls:'b-group',   go:"tab('case')" },
+    { num:2,  group:false, name:'  Анализ рисков',                              dur:'2 дн',  start:'23.05', end:'24.05', s:'2025-05-23', e:'2025-05-24', cls:'b-done',    go:"tab('case')" },
+    { num:3,  group:false, name:'  Протокол разногласий',                       dur:'3 дн',  start:'24.05', end:'27.05', s:'2025-05-24', e:'2025-05-27', cls:'b-urgent',  go:"tab('case')" },
+    { num:4,  group:false, name:'  Ответ контрагенту',                          dur:'2 дн',  start:'27.05', end:'29.05', s:'2025-05-27', e:'2025-05-29', cls:'b-pending', go:"tab('case')" },
+    { num:5,  group:true,  name:'💼 Трудовой договор',               dur:'15 дн', start:'21.05', end:'05.06', s:'2025-05-21', e:'2025-06-05', cls:'b-group',   go:"tab('case')" },
+    { num:6,  group:false, name:'  Первичный анализ',                           dur:'1 дн',  start:'21.05', end:'22.05', s:'2025-05-21', e:'2025-05-22', cls:'b-done',    go:"tab('case')" },
+    { num:7,  group:false, name:'  Допсоглашение',                              dur:'8 дн',  start:'22.05', end:'30.05', s:'2025-05-22', e:'2025-05-30', cls:'b-active',  go:"tab('case')" },
+    { num:8,  group:false, name:'  Проверка финала',                            dur:'5 дн',  start:'30.05', end:'05.06', s:'2025-05-30', e:'2025-06-05', cls:'b-pending', go:"tab('case')" },
+    { num:9,  group:true,  name:'🏠 ДДУ (новая редакция)',           dur:'17 дн', start:'19.05', end:'05.06', s:'2025-05-19', e:'2025-06-05', cls:'b-group',   go:"tab('case')" },
+    { num:10, group:false, name:'  Сверка версий',                              dur:'8 дн',  start:'19.05', end:'27.05', s:'2025-05-19', e:'2025-05-27', cls:'b-active',  go:"tab('case')" },
+    { num:11, group:false, name:'  Финальное заключение',                       dur:'9 дн',  start:'27.05', end:'05.06', s:'2025-05-27', e:'2025-06-05', cls:'b-pending', go:"tab('case')" },
+  ];
+
+  var RS  = new Date('2025-05-17T00:00:00');
+  var RE  = new Date('2025-06-15T00:00:00');
+  var TOT = (RE - RS) / 86400000;
+
+  function pct(str) {
+    var dt = new Date(str + 'T00:00:00');
+    return Math.max(0, Math.min(100, (dt - RS) / 86400000 / TOT * 100));
+  }
+
+  // Построить тики дат
+  function buildDateTicks() {
+    var ticks = []; var cur = new Date(RS);
+    while(cur <= RE) { ticks.push(new Date(cur)); cur.setDate(cur.getDate()+7); }
+    return ticks;
+  }
+
+  // Построить сетку (колонки = дни)
+  function buildGridCols() {
+    var cols = ''; var cur = new Date(RS);
+    while(cur < RE) {
+      var d = cur.getDay();
+      cols += '<div class="msp-grid-col' + (d===0||d===6?' weekend':'') + '"></div>';
+      cur.setDate(cur.getDate()+1);
+    }
+    return cols;
+  }
+
+  function render() {
+    var root = document.getElementById('msp-root');
+    if (!root) return;
+
+    var today = new Date(); today.setHours(0,0,0,0);
+    var todayPct = pct(today.toISOString().slice(0,10));
+
+    var ticks = buildDateTicks();
+    var gridCols = buildGridCols();
+    var m = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+    // Шапка дат
+    var ticksHTML = ticks.map(function(dt){
+      return '<div class="msp-date-tick" style="left:'+pct(dt.toISOString().slice(0,10)).toFixed(2)+'%">'+
+        dt.getDate()+' '+m[dt.getMonth()]+'</div>';
+    }).join('');
+
+    // HEAD
+    var head = '<div class="msp-head">' +
+      '<div class="msp-left">' +
+        '<div class="msp-hcol msp-c-num">#</div>' +
+        '<div class="msp-hcol msp-c-name">Название задачи</div>' +
+        '<div class="msp-hcol msp-c-dur">Длит.</div>' +
+        '<div class="msp-hcol msp-c-start">Начало</div>' +
+        '<div class="msp-hcol msp-c-end">Окончание</div>' +
+      '</div>' +
+      '<div class="msp-right">' +
+        '<div class="msp-date-hdr">' + ticksHTML + '</div>' +
+      '</div>' +
+    '</div>';
+
+    // ROWS
+    var rows = DATA.map(function(r){
+      var left_pct = pct(r.s);
+      var right_pct = pct(r.e);
+      var w = Math.max(0.5, right_pct - left_pct);
+      var barLabel = r.group ? '' : r.end;
+
+      return '<div class="msp-row'+(r.group?' msp-group':'')+'" onclick="'+r.go+'">' +
+        '<div class="msp-left">' +
+          '<div class="msp-cell msp-c-num">'+r.num+'</div>' +
+          '<div class="msp-cell msp-c-name'+(r.group?'':' ind')+'">'+r.name+'</div>' +
+          '<div class="msp-cell msp-c-dur">'+r.dur+'</div>' +
+          '<div class="msp-cell msp-c-start">'+r.start+'</div>' +
+          '<div class="msp-cell msp-c-end">'+r.end+'</div>' +
+        '</div>' +
+        '<div class="msp-right">' +
+          '<div class="msp-grid-bg">'+gridCols+'</div>' +
+          '<div class="msp-bar-wrap">' +
+            '<div class="msp-today" style="left:'+todayPct.toFixed(2)+'%"></div>' +
+            '<div class="msp-bar '+r.cls+'" style="left:'+left_pct.toFixed(2)+'%;width:'+w.toFixed(2)+'%">'+barLabel+'</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    root.innerHTML = head + rows;
+  }
+
+  // Рендерим при открытии кабинета и при tab('cases')
+  var _origTab = window.tab;
+  window.tab = function(id) {
+    if (_origTab) _origTab(id);
+    if (id === 'cases') setTimeout(render, 50);
+  };
+  var _origGo = window.go;
+  window.go = function(id) {
+    if (_origGo) _origGo(id);
+    if (id === 'cabinet') setTimeout(render, 80);
+  };
+  window.addEventListener('DOMContentLoaded', function(){
+    var el = document.getElementById('p-cases');
+    if (el && el.classList.contains('on')) render();
   });
 })();
 
