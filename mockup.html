@@ -959,7 +959,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
               <th onclick="ctSort('type',this)">Тип</th>
               <th onclick="ctSort('date',this)">Дата</th>
               <th onclick="ctSort('risk',this)">Риск</th>
-              <th onclick="ctSort('status',this)">Этап</th>
+              <th onclick="ctSort('status',this)">Статус</th>
               <th></th>
             </tr>
           </thead>
@@ -1869,12 +1869,20 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 /* ── ТАБЛИЦА ДОГОВОРОВ ── */
 (function(){
   var CT_DATA = [
-    { ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high',   riskLbl:'⚠ Высокий', status:'Протокол готовится', open:true,  go:"tab('case')" },
-    { ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',    riskLbl:'Средний',    status:'На проверке',        open:true,  go:"tab('case')" },
-    { ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',    riskLbl:'Низкий',     status:'Сверка версий',      open:true,  go:"tab('case')" },
-    { ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',   date:'12.03', dateSort:20250312, risk:'low',    riskLbl:'Низкий',     status:'✅ Завершён',        open:false, go:"toast('📄 Открываю архивное дело')" },
-    { ico:'📄', name:'Поставка оборудования',      type:'Поставка', date:'01.02', dateSort:20250201, risk:'mid',    riskLbl:'Средний',    status:'✅ Завершён',        open:false, go:"toast('📄 Открываю архивное дело')" },
+    { ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high', riskLbl:'⚠ Высокий', status:'work',   open:true,  go:"tab('case')" },
+    { ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',  riskLbl:'Средний',    status:'work',   open:true,  go:"tab('case')" },
+    { ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',  riskLbl:'Низкий',     status:'wait',   open:true,  go:"tab('case')" },
+    { ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',  date:'12.03', dateSort:20250312, risk:'low',  riskLbl:'Низкий',     status:'done',   open:false, go:"toast('📄 Открываю архивное дело')" },
+    { ico:'📄', name:'Поставка оборудования',      type:'Поставка',date:'01.02', dateSort:20250201, risk:'mid',  riskLbl:'Средний',    status:'done',   open:false, go:"toast('📄 Открываю архивное дело')" },
   ];
+
+  var STATUS_MAP = {
+    'paid':  { lbl:'Оплачено',          cls:'chip n' },
+    'wait':  { lbl:'⏳ Ожидает договор', cls:'chip w' },
+    'work':  { lbl:'🔵 В работе',        cls:'chip n' },
+    'ready': { lbl:'📥 Готово',          cls:'chip ok' },
+    'done':  { lbl:'✅ Завершён',        cls:'chip ok' },
+  };
 
   var _filter = 'all';
   var _sortField = 'date';
@@ -1915,7 +1923,7 @@ window.addEventListener('DOMContentLoaded', checkReturning);
         '<td><span class="ct-type-badge">'+r.type+'</span></td>' +
         '<td style="color:var(--mut)">'+r.date+'</td>' +
         '<td><span class="'+riskChipCls(r.risk)+'">'+r.riskLbl+'</span></td>' +
-        '<td style="color:var(--mut);font-size:12px">'+r.status+'</td>' +
+        '<td><span class="'+(STATUS_MAP[r.status]||{cls:'chip n'}).cls+'">'+(STATUS_MAP[r.status]||{lbl:r.status}).lbl+'</span></td>' +
         '<td class="ct-open">→</td>' +
       '</tr>';
     }).join('');
