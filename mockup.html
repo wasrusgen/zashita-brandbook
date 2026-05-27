@@ -185,9 +185,129 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 
 
+/* ── GANTT ── */
+.gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;padding-bottom:16px}
+.gantt{min-width:580px;font-family:var(--font-ui)}
+.gantt-hdr{display:grid;grid-template-columns:170px 1fr;align-items:end;margin-bottom:6px;padding-bottom:8px;border-bottom:1.5px solid var(--line)}
+.gantt-hdr-lbl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.gantt-dates{position:relative;height:22px}
+.gantt-tick{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--mut);font-weight:500;white-space:nowrap}
+.gantt-today-hdr{position:absolute;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--bg);white-space:nowrap;top:-2px}
+.gantt-row{display:grid;grid-template-columns:170px 1fr;align-items:center;margin-bottom:8px;cursor:pointer}
+.gantt-row:hover .gantt-lbl{color:var(--bg)}
+.gantt-lbl{padding-right:12px;overflow:hidden}
+.gantt-lbl-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-lbl-sub{font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-track{position:relative;height:32px;background:var(--surf);border-radius:6px;overflow:visible}
+.gantt-bar{position:absolute;height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);transition:filter .15s}
+.gantt-bar:hover{filter:brightness(1.1)}
+.gantt-bar.g-overdue{background:linear-gradient(90deg,#7f1d1d,#dc2626)}
+.gantt-bar.g-urgent{background:linear-gradient(90deg,#9f1239,#e11d48)}
+.gantt-bar.g-warn{background:linear-gradient(90deg,#92400e,#d97706)}
+.gantt-bar.g-ok{background:linear-gradient(90deg,#1e3a8a,#3b82f6)}
+.gantt-bar.g-done{background:linear-gradient(90deg,#14532d,#16a34a);opacity:.7}
+.gantt-today-line{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--bg);border-radius:1px;z-index:10;pointer-events:none}
+.gantt-today-line::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:8px;background:var(--bg);border-radius:50%;margin-top:-3px}
+.gantt-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.gantt-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut)}
+.gantt-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── GANTT ── */
+(function() {
+  // Дата-хелперы
+  function d(str) { return new Date(str + 'T00:00:00'); }
+  function addDays(dt, n) { var r = new Date(dt); r.setDate(r.getDate()+n); return r; }
+  function daysBetween(a, b) { return Math.round((b-a)/86400000); }
+  function fmt(dt) {
+    var m = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+    return dt.getDate() + ' ' + m[dt.getMonth()];
+  }
+
+  var CASES = [
+    { ico:'🍽️', name:'Кухня — агентский', sub:'Протокол разногласий · ст.22 ЗоЗПП', start:'2025-05-19', end:'2025-05-26', cls:'g-urgent', go:"tab('case')" },
+    { ico:'💼', name:'Трудовой договор',   sub:'Допсоглашение (испыт. срок)',           start:'2025-05-21', end:'2025-05-30', cls:'g-warn',   go:"tab('case')" },
+    { ico:'🏠', name:'ДДУ (новая редакция)',sub:'Сверка версий с застройщиком',          start:'2025-05-19', end:'2025-06-05', cls:'g-ok',     go:"tab('case')" },
+    { ico:'📄', name:'Квартира · ДДУ',     sub:'Передача квартиры · 214-ФЗ',            start:'2025-05-27', end:'2025-06-22', cls:'g-ok',     go:"toast('📅 Открываю дело')" },
+  ];
+
+  function render() {
+    var root = document.getElementById('gantt-root');
+    if (!root) return;
+
+    var today = new Date(); today.setHours(0,0,0,0);
+    var rangeStart = d('2025-05-17');
+    var rangeEnd   = d('2025-06-25');
+    var totalDays  = daysBetween(rangeStart, rangeEnd);
+
+    function pct(dt) { return Math.max(0, Math.min(100, daysBetween(rangeStart, dt) / totalDays * 100)); }
+
+    // Шапка с датами
+    var tickDates = [];
+    var cur = new Date(rangeStart);
+    while (cur <= rangeEnd) {
+      tickDates.push(new Date(cur));
+      cur.setDate(cur.getDate() + 7);
+    }
+
+    var ticksHTML = tickDates.map(function(dt) {
+      var p = pct(dt);
+      return '<span class="gantt-tick" style="left:' + p.toFixed(1) + '%">' + fmt(dt) + '</span>';
+    }).join('');
+
+    var todayPct = pct(today);
+    var todayHdrHTML = '<span class="gantt-today-hdr" style="left:' + todayPct.toFixed(1) + '%">сегодня ▼</span>';
+
+    var hdrHTML = '<div class="gantt-hdr"><div class="gantt-hdr-lbl">Договор / дело</div><div class="gantt-dates">' + ticksHTML + todayHdrHTML + '</div></div>';
+
+    // Строки
+    var rowsHTML = CASES.map(function(c) {
+      var startPct = pct(d(c.start));
+      var endPct   = pct(d(c.end));
+      var width    = Math.max(4, endPct - startPct);
+      var daysLeft = daysBetween(today, d(c.end));
+      var lbl = daysLeft < 0 ? '⚠ просрочен' : daysLeft === 0 ? 'сегодня' : daysLeft + ' дн.';
+      var cls = c.cls;
+      if (daysLeft < 0) cls = 'g-overdue';
+
+      var todayLine = '<div class="gantt-today-line" style="left:' + todayPct.toFixed(1) + '%"></div>';
+
+      return '<div class="gantt-row" onclick="' + c.go + '">' +
+        '<div class="gantt-lbl"><div class="gantt-lbl-name">' + c.ico + ' ' + c.name + '</div><div class="gantt-lbl-sub">' + c.sub + '</div></div>' +
+        '<div class="gantt-track">' +
+          todayLine +
+          '<div class="gantt-bar ' + cls + '" style="left:' + startPct.toFixed(1) + '%;width:' + width.toFixed(1) + '%">' + fmt(d(c.end)) + ' · ' + lbl + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Легенда
+    var legend = '<div class="gantt-legend">' +
+      '<div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:#dc2626"></div>Просрочен</div>' +
+      '<div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:#e11d48"></div>Срочно (≤3 дня)</div>' +
+      '<div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:#d97706"></div>Скоро (≤7 дней)</div>' +
+      '<div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:#3b82f6"></div>В работе</div>' +
+      '<div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:#16a34a;opacity:.7"></div>Завершён</div>' +
+    '</div>';
+
+    root.innerHTML = hdrHTML + rowsHTML + legend;
+  }
+
+  // Запускаем при открытии вкладки
+  var _origTab = window.tab;
+  window.tab = function(id) {
+    if (_origTab) _origTab(id);
+    if (id === 'sroki') setTimeout(render, 50);
+  };
+  window.addEventListener('DOMContentLoaded', function() {
+    // Если уже на вкладке sroki
+    var el = document.getElementById('p-sroki');
+    if (el && el.classList.contains('on')) render();
+  });
+})();
+
 /* ── ТИКЕР СРОКОВ ── */
 .ticker-bar{position:fixed;bottom:0;left:0;right:0;z-index:900;background:rgba(20,2,8,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.1);padding:0;height:36px;overflow:hidden;display:none}
-#start.on ~ .ticker-bar, .ticker-bar.tk-on{display:block}
+#start.on ~ .ticker-bar, .ticker-bar.tk-on{display:none}
 .ticker-track{display:flex;align-items:center;height:36px;white-space:nowrap;animation:tkScroll 32s linear infinite}
 .ticker-track:hover{animation-play-state:paused}
 @keyframes tkScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -832,13 +952,11 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <button class="btn btn-o" onclick="tab('shab')">+ Доп. услуга</button>
         </div>
       </div>
-      <!-- Сроки -->
+      <!-- Сроки — Gantt -->
       <div class="tabpane" id="p-sroki">
         <div class="crumb">Кабинет</div><h1>Сроки</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за всеми вашими сроками</b> и напомню заранее — ничего не пропустите 💛</div></div>
-        <div class="dlx" style="cursor:pointer" onclick="tab('shab')"><div class="dd dd"><span class="n">3</span><span class="u">дня</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Ответ на претензию</div><div style="font-size:12px;color:var(--mut)">Кухня · ст. 22 ЗоЗПП · до 26.05</div></div><span class="cg" style="color:var(--bg);font-weight:700;font-size:13px">Подготовить →</span></div>
-        <div class="dlx" style="cursor:pointer" onclick="tab('shab')"><div class="dd dw"><span class="n">7</span><span class="u">дней</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Допсоглашение (испыт. срок)</div><div style="font-size:12px;color:var(--mut)">Трудовой · до 30.05</div></div><span class="cg" style="color:var(--bg);font-weight:700;font-size:13px">Подготовить →</span></div>
-        <div class="dlx" style="cursor:pointer" onclick="toast('🔔 Напомню заранее — до 22.06 ещё есть время')"><div class="dd dn"><span class="n">30</span><span class="u">дней</span></div><div style="flex:1"><div style="font-weight:700;font-size:14px">Передача квартиры по ДДУ</div><div style="font-size:12px;color:var(--mut)">Квартира · 214-ФЗ · до 22.06</div></div><span class="cg" style="color:var(--mut);font-weight:700;font-size:13px">Слежу →</span></div>
+        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за всеми сроками</b> — диаграмма обновляется в реальном времени. Нажмите на дело чтобы открыть 💛</div></div>
+        <div class="gantt-wrap"><div class="gantt" id="gantt-root"></div></div>
       </div>
       <!-- Шаблоны -->
       <div class="tabpane" id="p-shab">
