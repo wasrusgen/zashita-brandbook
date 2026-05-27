@@ -306,6 +306,28 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 })();
 
 
+/* ── ТАБЛИЦА ДОГОВОРОВ ── */
+.ct-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ct-filter-group{display:flex;gap:4px}
+.ct-fbtn{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit;transition:all .15s}
+.ct-fbtn:hover{border-color:var(--bg);color:var(--bg)}
+.ct-fbtn.act{background:var(--bg);color:#fff;border-color:var(--bg)}
+.ct-add{margin-left:auto;background:var(--bg);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ct-add:hover{background:var(--bghv)}
+.ct-table{width:100%;border-collapse:collapse;font-size:13px}
+.ct-table thead tr{background:#f3f4f6;border-bottom:2px solid var(--line)}
+.ct-table thead th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;cursor:pointer;white-space:nowrap;user-select:none}
+.ct-table thead th:hover{color:var(--bg)}
+.ct-table thead th.sort-asc::after{content:' ↑'}
+.ct-table thead th.sort-desc::after{content:' ↓'}
+.ct-table tbody tr{border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.ct-table tbody tr:hover{background:#f8f8ff}
+.ct-table tbody tr.ct-closed{opacity:.55}
+.ct-table tbody td{padding:9px 10px;white-space:nowrap;vertical-align:middle}
+.ct-table tbody td.ct-name{font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.ct-table tbody td.ct-open{color:var(--bg);font-weight:700;font-size:13px;text-align:right}
+.ct-type-badge{background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11px;color:var(--mut);font-weight:500}
+
 /* ── MS-PROJECT GANTT ── */
 .msp-section{margin-top:28px;border-top:2px solid var(--line);padding-top:16px}
 .msp-title{font-size:13px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
@@ -917,22 +939,32 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <!-- Мои дела -->
       <div class="tabpane on" id="p-cases">
         <div class="crumb">Кабинет</div><h1>Мои дела</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Здравствуйте, Руслан!</b> Я веду все ваши дела и слежу за сроками. Новый договор — просто загрузите. Что-то непонятно — напишите мне 💛</div></div>
-        <div class="cases">
-          <div class="case" onclick="tab('case')"><div class="ci">🍽️</div><div class="cb"><div class="ct">Кухня — агентский договор (ЗОВ)</div><div class="cs">23.05 · 12 рисков</div><div class="cm"><span class="chip d">⚠ Высокий</span><span class="chip w">срок 3 дня</span><span class="chip n">протокол готовится</span></div></div><div class="cg">Открыть →</div></div>
-          <div class="case" onclick="tab('case')"><div class="ci">💼</div><div class="cb"><div class="ct">Трудовой договор</div><div class="cs">21.05 · 6 моментов</div><div class="cm"><span class="chip w">Средний</span><span class="chip n">на проверке</span></div></div><div class="cg">Открыть →</div></div>
-          <div class="case" onclick="tab('case')"><div class="ci">🏠</div><div class="cb"><div class="ct">Квартира — ДДУ (новая редакция)</div><div class="cs">19.05 · ждёт сверки</div><div class="cm"><span class="chip n">🔍 сверка версий</span></div></div><div class="cg">Открыть →</div></div>
-
-        <!-- MS-Project Gantt -->
-        <div class="msp-section">
-          <div class="msp-title">📋 Сопровождение договоров — этапы и сроки</div>
-          <div class="msp-elena-note"><img src="logos/elena-photo.jpg"><span>Я веду каждый договор от анализа до подписания. Зелёный этап — выполнен, синий — в работе, серый — ждёт своей очереди. Нажмите на строку чтобы открыть дело 💛</span></div>
-          <div class="msp-outer">
-            <div class="msp-scroll">
-              <div class="msp-table" id="msp-root"></div>
-            </div>
+        <!-- Фильтры -->
+        <div class="ct-filters">
+          <div class="ct-filter-group">
+            <button class="ct-fbtn act" onclick="ctFilter('all',this)">Все</button>
+            <button class="ct-fbtn" onclick="ctFilter('open',this)">Открытые</button>
+            <button class="ct-fbtn" onclick="ctFilter('closed',this)">Закрытые</button>
           </div>
+          <div class="ct-filter-group">
+            <button class="ct-fbtn" onclick="ctFilter('risk',this)">⚠ Высокий риск</button>
+          </div>
+          <button class="ct-add" onclick="go('elena')">+ Новый договор</button>
         </div>
+        <!-- Таблица -->
+        <table class="ct-table" id="ct-table">
+          <thead>
+            <tr>
+              <th onclick="ctSort('name',this)">Договор</th>
+              <th onclick="ctSort('type',this)">Тип</th>
+              <th onclick="ctSort('date',this)">Дата</th>
+              <th onclick="ctSort('risk',this)">Риск</th>
+              <th onclick="ctSort('status',this)">Этап</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ct-tbody"></tbody>
+        </table>
       </div>
       <!-- Внутри дела -->
       <div class="tabpane" id="p-case">
@@ -1710,6 +1742,7 @@ function checkReturning() {
 window.addEventListener('DOMContentLoaded', checkReturning);
 
 
+
 /* ── MS-PROJECT GANTT ── */
 (function(){
   // Данные
@@ -1830,6 +1863,93 @@ window.addEventListener('DOMContentLoaded', checkReturning);
   window.addEventListener('DOMContentLoaded', function(){
     var el = document.getElementById('p-cases');
     if (el && el.classList.contains('on')) render();
+  });
+})();
+
+/* ── ТАБЛИЦА ДОГОВОРОВ ── */
+(function(){
+  var CT_DATA = [
+    { ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high',   riskLbl:'⚠ Высокий', status:'Протокол готовится', open:true,  go:"tab('case')" },
+    { ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',    riskLbl:'Средний',    status:'На проверке',        open:true,  go:"tab('case')" },
+    { ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',    riskLbl:'Низкий',     status:'Сверка версий',      open:true,  go:"tab('case')" },
+    { ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',   date:'12.03', dateSort:20250312, risk:'low',    riskLbl:'Низкий',     status:'✅ Завершён',        open:false, go:"toast('📄 Открываю архивное дело')" },
+    { ico:'📄', name:'Поставка оборудования',      type:'Поставка', date:'01.02', dateSort:20250201, risk:'mid',    riskLbl:'Средний',    status:'✅ Завершён',        open:false, go:"toast('📄 Открываю архивное дело')" },
+  ];
+
+  var _filter = 'all';
+  var _sortField = 'date';
+  var _sortDir = -1; // -1 = desc (новые сверху)
+
+  function riskOrder(r){ return r==='high'?0:r==='mid'?1:2; }
+
+  function filtered() {
+    return CT_DATA.filter(function(r){
+      if (_filter === 'open')   return r.open;
+      if (_filter === 'closed') return !r.open;
+      if (_filter === 'risk')   return r.risk === 'high';
+      return true;
+    }).sort(function(a,b){
+      var va, vb;
+      if (_sortField === 'date') { va=a.dateSort; vb=b.dateSort; }
+      else if (_sortField === 'risk') { va=riskOrder(a.risk); vb=riskOrder(b.risk); }
+      else if (_sortField === 'name') { va=a.name; vb=b.name; }
+      else if (_sortField === 'type') { va=a.type; vb=b.type; }
+      else if (_sortField === 'status') { va=a.status; vb=b.status; }
+      else { va=a.dateSort; vb=b.dateSort; }
+      if (va < vb) return -1 * _sortDir;
+      if (va > vb) return  1 * _sortDir;
+      return 0;
+    });
+  }
+
+  function riskChipCls(r){ return r==='high'?'chip d':r==='mid'?'chip w':'chip n'; }
+
+  function render() {
+    var tbody = document.getElementById('ct-tbody');
+    if (!tbody) return;
+    var rows = filtered();
+    if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--mut)">Нет дел по фильтру</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(r){
+      return '<tr class="'+(r.open?'':'ct-closed')+'" onclick="'+r.go+'">' +
+        '<td class="ct-name">'+r.ico+' '+r.name+'</td>' +
+        '<td><span class="ct-type-badge">'+r.type+'</span></td>' +
+        '<td style="color:var(--mut)">'+r.date+'</td>' +
+        '<td><span class="'+riskChipCls(r.risk)+'">'+r.riskLbl+'</span></td>' +
+        '<td style="color:var(--mut);font-size:12px">'+r.status+'</td>' +
+        '<td class="ct-open">→</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  window.ctFilter = function(f, btn) {
+    _filter = f;
+    document.querySelectorAll('.ct-fbtn').forEach(function(b){ b.classList.remove('act'); });
+    if (btn) btn.classList.add('act');
+    render();
+  };
+
+  window.ctSort = function(field, th) {
+    if (_sortField === field) { _sortDir *= -1; }
+    else { _sortField = field; _sortDir = 1; }
+    document.querySelectorAll('.ct-table thead th').forEach(function(h){ h.classList.remove('sort-asc','sort-desc'); });
+    if (th) th.classList.add(_sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    render();
+  };
+
+  // Рендер при открытии вкладки cases и cabinet
+  var _origTab2 = window.tab;
+  window.tab = function(id) {
+    if (_origTab2) _origTab2(id);
+    if (id === 'cases') setTimeout(render, 50);
+  };
+  var _origGo2 = window.go;
+  window.go = function(id) {
+    if (_origGo2) _origGo2(id);
+    if (id === 'cabinet') setTimeout(render, 80);
+  };
+  window.addEventListener('DOMContentLoaded', function(){
+    var el = document.getElementById('ct-tbody');
+    if (el) render();
   });
 })();
 
