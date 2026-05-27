@@ -185,6 +185,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 
 
+/* ── RETURNING CLIENT ── */
+.ret-greet{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:24px;letter-spacing:-.5px}
+.ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
+.ret-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:16px 18px;margin-bottom:22px}
+.ret-card:empty{display:none}
+.ret-ord-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.ret-ord-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.ret-ord-price{font-size:22px;font-weight:800;color:#ffaaaa}
+
 /* ── ЮKASSA ВИДЖЕТ ── */
 .yk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99990;display:none;align-items:flex-end;justify-content:center}
 .yk-overlay.open{display:flex}
@@ -420,11 +429,24 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <img class="hero-wordmark" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА">
     </div>
     <div class="hero-body">
-      <h1>Договор пишут юристы другой стороны. Кто защищает вас?</h1>
-      <p>Елена разберёт каждый пункт простым языком — как друг-юрист рядом. Первые 3 риска бесплатно, без регистрации.</p>
-      <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить мой договор</button></div>
-      <div class="priv">🔒 Без регистрации · данные у вас · 3 риска бесплатно</div>
-      <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Мои дела (кабинет)</button></div>
+      <!-- Новый клиент -->
+      <div id="hero-new">
+        <h1>Договор пишут юристы другой стороны. Кто защищает вас?</h1>
+        <p>Елена разберёт каждый пункт простым языком — как друг-юрист рядом. Первые 3 риска бесплатно, без регистрации.</p>
+        <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить мой договор</button></div>
+        <div class="priv">🔒 Без регистрации · данные у вас · 3 риска бесплатно</div>
+        <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Мои дела (кабинет)</button></div>
+      </div>
+      <!-- Вернувшийся клиент -->
+      <div id="hero-returning" style="display:none">
+        <div class="ret-greet">Добро пожаловать обратно —<br>вы в надёжных руках 🤝</div>
+        <div class="ret-card" id="ret-last-order"></div>
+        <div class="cta">
+          <button class="btn btn-p" style="min-width:160px" onclick="go('cabinet')">Мои дела →</button>
+          <button class="btn btn-o" style="font-size:14px" onclick="go('elena')">+ Новый договор</button>
+        </div>
+        <div class="priv" style="margin-top:16px">🔒 Данные только у вас</div>
+      </div>
     </div>
     <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — ваш референт</div></div>
   </div>
@@ -1403,7 +1425,6 @@ function selectPlan(n) {
 }
 
 
-
 /* ── ЮKASSA ВИДЖЕТ ── */
 function ykOpen() {
   const priceEl = document.getElementById('pay-price-btn');
@@ -1465,10 +1486,36 @@ function ykFinish() {
   document.getElementById('yk-success').style.display = 'block';
   setTimeout(() => {
     document.getElementById('yk-overlay').classList.remove('open');
+    // Сохраняем последний заказ для приветствия
+    try {
+      const d = DELIVS[_selDeliv] || {};
+      const p = d['p'+_selPlan] || [];
+      localStorage.setItem('zashita_last_order', JSON.stringify({ ttl: d.ttl||'', plan: p[1]||'', price: p[0]||'' }));
+    } catch(e) {}
     showOrderStatus();
     go('order-status');
   }, 1200);
 }
+
+function checkReturning() {
+  const stats = JSON.parse(localStorage.getItem('zashita_intake_stats') || '[]');
+  const lastOrder = JSON.parse(localStorage.getItem('zashita_last_order') || 'null');
+  if (!stats.length && !lastOrder) return; // новый клиент
+  // вернувшийся
+  const n = document.getElementById('hero-new');
+  const r = document.getElementById('hero-returning');
+  if (n) n.style.display = 'none';
+  if (r) r.style.display = '';
+  // карточка последнего заказа
+  if (lastOrder) {
+    const el = document.getElementById('ret-last-order');
+    if (el) el.innerHTML =
+      '<div class="ret-ord-lbl">Последний заказ</div>' +
+      '<div class="ret-ord-name">' + lastOrder.ttl + ' · ' + lastOrder.plan + '</div>' +
+      '<div class="ret-ord-price">' + lastOrder.price + '</div>';
+  }
+}
+window.addEventListener('DOMContentLoaded', checkReturning);
 
 /* ── СТАТУС ЗАКАЗА ── */
 const OS_DEADLINES = {
