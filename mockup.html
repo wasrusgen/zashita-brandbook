@@ -3798,36 +3798,92 @@ function heroChatReply(key) {
   }, 400);
 }
 
+/* ── КЛАССИФИКАТОР ВХОДЯЩИХ СООБЩЕНИЙ ── */
+var _offtopicCount = 0;
+
+function _classifyInput(text) {
+  var t = text.toLowerCase().trim();
+  // Приветствия (короткие фразы без юридического контекста)
+  if (/^(привет|здравствуй|добрый|здорово|хай|салют|доброе|доброй|хеллоу|hello|hi\b|ку\b|yo\b)/.test(t) && t.length < 50) return 'greeting';
+  // Юридические ключевые слова
+  if (/договор|контракт|доверенност|претензи|иск(овое|овое)?|арендн|расторжен|соглашени|штраф|неустойк|нотариус|нотариальн|судебн|судиться|в суд| суд |долг|взыскан|юридическ|юрист|правовой|документ|оформит|составит|проверит|подписат|условие|обязател|возврат|наследств|завещани|трудовой|увольнен|работодател|зарплат|кредит|страховк|ипотек|ДДУ|ТК РФ|ГК РФ|ЗоЗПП|земельн|имуществ|купл|продаж|займ|расписк|поручительств|залог|банкрот|ООО|ИП |\bИП\b|протокол|разногласи|риск|доверенность|пункт договора|расторг/.test(t)) return 'legal';
+  return 'offtopic';
+}
+
 function heroChatSend() {
   var inp = document.getElementById('hchat-inp');
   if (!inp) return;
   var txt = inp.value.trim();
   if (!txt) return;
   inp.value = '';
-  // hide controls
-  var replies = document.getElementById('hchat-replies');
+
+  var type = _classifyInput(txt);
+  var replies  = document.getElementById('hchat-replies');
   var inputRow = document.getElementById('hchat-input-row');
-  if (replies) replies.style.display = 'none';
+  if (replies)  replies.style.display  = 'none';
   if (inputRow) inputRow.style.display = 'none';
-  // show user message
   _hcAddBubble(txt, true);
-  // detect intent
-  var t = txt.toLowerCase();
-  var intent = 'question';
-  if (/доверенност/.test(t)) intent = 'power';
-  else if (/протокол|разногласи|убрат|невыгод/.test(t)) intent = 'dispute';
-  else if (/состав|написат|создат|подготов/.test(t) && !/проверит/.test(t)) intent = 'create';
-  else if (/проверит|анализ|посмотр|риск|договор|контракт/.test(t)) intent = 'check';
-  var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
-  // Elena responds
-  setTimeout(function(){
-    _hcAddTyping();
+
+  // ── ПРИВЕТСТВИЕ ──
+  if (type === 'greeting') {
     setTimeout(function(){
-      _hcRemoveTyping();
-      _hcAddBubble(reply.elena, false);
-      setTimeout(function(){ _chatTransition(txt, intent); }, 1200);
-    }, 900);
-  }, 400);
+      _hcAddTyping();
+      setTimeout(function(){
+        _hcRemoveTyping();
+        _hcAddBubble('Привет! 👋 Я юридический ИИ-ассистент. Помогаю с договорами, доверенностями, претензиями и другими документами. Что нужно?', false);
+        if (replies)  replies.style.display  = '';
+        if (inputRow) inputRow.style.display = '';
+      }, 700);
+    }, 300);
+    return;
+  }
+
+  // ── ПО ТЕМЕ — нормальный флоу ──
+  if (type === 'legal') {
+    _offtopicCount = 0;
+    var t = txt.toLowerCase();
+    var intent = 'question';
+    if (/доверенност/.test(t))                                       intent = 'power';
+    else if (/протокол|разногласи|убрат|невыгод/.test(t))           intent = 'dispute';
+    else if (/состав|написат|создат|подготов/.test(t) && !/проверит/.test(t)) intent = 'create';
+    else if (/проверит|анализ|посмотр|риск|договор|контракт/.test(t)) intent = 'check';
+    var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
+    setTimeout(function(){
+      _hcAddTyping();
+      setTimeout(function(){
+        _hcRemoveTyping();
+        _hcAddBubble(reply.elena, false);
+        setTimeout(function(){ _chatTransition(txt, intent); }, 1200);
+      }, 900);
+    }, 400);
+    return;
+  }
+
+  // ── НЕ ПО ТЕМЕ ──
+  _offtopicCount++;
+  if (_offtopicCount === 1) {
+    // Мягкий редирект
+    setTimeout(function(){
+      _hcAddTyping();
+      setTimeout(function(){
+        _hcRemoveTyping();
+        _hcAddBubble('Я специализируюсь на юридических документах — договорах, доверенностях, претензиях 📋 Выберите с чего начнём:', false);
+        if (replies)  replies.style.display  = '';
+        if (inputRow) inputRow.style.display = '';
+      }, 700);
+    }, 300);
+  } else {
+    // Жёсткий: только кнопки, текст скрыт
+    setTimeout(function(){
+      _hcAddTyping();
+      setTimeout(function(){
+        _hcRemoveTyping();
+        _hcAddBubble('Работаю только с юридическими вопросами 🔒 Пожалуйста, выберите из предложенных вариантов:', false);
+        if (replies) replies.style.display = '';
+        // inputRow НЕ показываем — только кнопки
+      }, 700);
+    }, 300);
+  }
 }
 
 window.addEventListener('DOMContentLoaded', function(){
