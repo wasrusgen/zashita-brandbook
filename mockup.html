@@ -894,6 +894,12 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-tw-text{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);line-height:1.4}
 .ret-tw-wrap{margin:0 0 22px;display:flex;align-items:baseline;gap:7px;min-height:32px}
+/* ── RETURNING CHAT ── */
+.ret-chat{background:rgba(255,255,255,.97);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.22);margin:0 0 14px}
+.ret-chat-stat-row{display:flex;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.ret-stat{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:5px 12px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95)}
+.ret-stat.warn{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.4)}
+.ret-stat.green{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.35)}
 .ret-tw-wrap .hero-tw-cur{font-size:20px;color:rgba(255,255,255,.45)}
 .ret-tw-wrap .hero-tw-text{font-size:18px;font-weight:700;color:rgba(255,255,255,.95)}
 .ret-ord-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
@@ -1166,14 +1172,29 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </div>
       <!-- Вернувшийся клиент -->
       <div id="hero-returning" style="display:none">
-        <div class="ret-greet">Добро пожаловать обратно —<br>вы в надёжных руках 🤝</div>
-        <div class="ret-tw-wrap" id="hw-ret"><span class="hero-tw-cur">|</span><span id="hero-tw-ret" class="hero-tw-text"></span></div>
-        <div class="ret-card" id="ret-last-order"></div>
-        <div class="cta">
-          <button class="btn btn-p" style="min-width:160px" onclick="go('cabinet')">Мои дела →</button>
-          <button class="btn btn-o" style="font-size:14px" onclick="go('elena')">+ Новый договор</button>
+        <div class="ret-chat-stat-row" id="ret-stats-row"></div>
+        <div class="hero-chat ret-chat" id="ret-chat">
+          <div class="hero-chat-hdr">
+            <img class="hero-chat-av" src="logos/elena-photo.jpg" alt="Елена">
+            <div>
+              <div class="hero-chat-name">Елена</div>
+              <div class="hero-chat-status"><span class="hero-chat-dot"></span>онлайн · помню вас</div>
+            </div>
+          </div>
+          <div class="hero-chat-msgs" id="rchat-msgs"></div>
+          <div class="hero-chat-replies" id="rchat-replies" style="display:none">
+            <div class="hc-reply" onclick="go('cabinet');tab('cases')">📂 Мои дела</div>
+            <div class="hc-reply" onclick="go('cabinet');tab('sroki')">⏱️ Сроки</div>
+            <div class="hc-reply" onclick="go('elena')">📄 Новый договор</div>
+            <div class="hc-reply" onclick="go('pay')">💳 Пополнить баланс</div>
+          </div>
+          <div class="hero-chat-input-row" id="rchat-input-row" style="display:none">
+            <input class="hc-text-inp" id="rchat-inp" placeholder="Чем могу помочь сегодня?"
+              onkeydown="if(event.key==='Enter')retChatSend()">
+            <button class="hc-send-btn" onclick="retChatSend()">→</button>
+          </div>
         </div>
-        <div class="priv" style="margin-top:16px">🔒 Данные только у вас</div>
+        <div class="priv" style="margin-top:8px">🔒 Данные только у вас</div>
       </div>
     </div>
     <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — ваш референт</div></div>
@@ -2605,7 +2626,7 @@ function toast(msg){
 }
 function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);
-  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); };window.scrollTo(0,0);}
+  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); var rm=document.getElementById('rchat-msgs'); if(rm)rm.innerHTML=''; };window.scrollTo(0,0);}
 /* ── СВОЙ ЗАПРОС ── */
 let _customOpen = false;
 let _voiceRec = null;
@@ -2901,7 +2922,8 @@ function checkReturning() {
     }
     retPhrases.push('новый документ — за несколько секунд');
     retPhrases.push('все ваши дела в кабинете 📂');
-    startTypewriter(document.getElementById('hero-tw-ret'), retPhrases, 55);
+    // personalized chat instead of typewriter
+    setTimeout(initReturnChat, 300);
   }
 }
 window.addEventListener('DOMContentLoaded', checkReturning);
@@ -3753,6 +3775,183 @@ window.addEventListener('DOMContentLoaded', function(){
     setTimeout(initHeroChat, 300);
   }
 });
+
+/* ── RETURNING CHAT ── */
+
+function _rcAddTyping() {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+  var el = document.createElement('div');
+  el.className = 'hc-typing'; el.id = 'rc-typing';
+  el.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-typing-dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+function _rcRemoveTyping() {
+  var el = document.getElementById('rc-typing'); if (el) el.remove();
+}
+function _rcAddBubble(html, isUser) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+  var row = document.createElement('div');
+  row.className = 'hc-msg' + (isUser ? ' hc-user-msg' : '');
+  if (!isUser) {
+    row.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble">' + html + '</div>';
+  } else {
+    row.innerHTML = '<div class="hc-bubble">' + html + '</div>';
+  }
+  msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+}
+function _rcShowControls() {
+  var r = document.getElementById('rchat-replies');
+  var i = document.getElementById('rchat-input-row');
+  if (r) r.style.display = '';
+  if (i) i.style.display = '';
+}
+
+function initReturnChat() {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+  msgs.innerHTML = '';
+
+  // ── Собираем персональные данные ──
+  var lastOrder  = JSON.parse(localStorage.getItem('zashita_last_order')  || 'null');
+  var credits    = parseInt(localStorage.getItem('zashita_credits')       || '0');
+  var subPlan    = localStorage.getItem('zashita_sub_plan');
+  var stats      = JSON.parse(localStorage.getItem('zashita_intake_stats')|| '[]');
+  var refunds    = JSON.parse(localStorage.getItem('zashita_refund_requests') || '[]');
+
+  // Имя из stats или last_order
+  var name = '';
+  if (stats.length && stats[0].name) name = stats[0].name;
+
+  // Ближайший срочный дедлайн
+  var urgentDL = null;
+  if (typeof _DEADLINES !== 'undefined') {
+    var today = new Date(); today.setHours(0,0,0,0);
+    _DEADLINES.forEach(function(d){
+      if (d.done || !d.date) return;
+      var dt = new Date(d.date); dt.setHours(0,0,0,0);
+      var diff = Math.round((dt - today) / 86400000);
+      if (diff >= 0 && diff <= 7) {
+        if (!urgentDL || diff < urgentDL.diff) urgentDL = { dl: d, diff: diff };
+      }
+    });
+  }
+
+  // Pending refund
+  var pendingRefund = refunds.find(function(r){ return r.status === 'pending'; });
+
+  // ── Статус-чипсы над чатом ──
+  var statsRow = document.getElementById('ret-stats-row');
+  if (statsRow) {
+    var chips = [];
+    if (credits > 0) chips.push('<div class="ret-stat green">💳 ' + credits + ' кредитов</div>');
+    else if (subPlan) chips.push('<div class="ret-stat green">✅ Подписка активна</div>');
+    if (urgentDL) chips.push('<div class="ret-stat warn">⚠️ ' + urgentDL.dl.title + ' — через ' + urgentDL.diff + ' дн.</div>');
+    if (pendingRefund) chips.push('<div class="ret-stat warn">↩ Заявка на возврат на рассмотрении</div>');
+    statsRow.innerHTML = chips.join('');
+  }
+
+  // ── Строим персональные сообщения ──
+  var greeting = name
+    ? (name + ', рада снова Вас видеть! 👋')
+    : 'С возвращением! Рада снова Вас видеть 👋';
+
+  var context = '';
+  if (lastOrder && lastOrder.ttl) {
+    context = 'Помню ваш последний документ: <b>' + lastOrder.ttl + '</b>.';
+    if (lastOrder.plan) context += ' Тариф: ' + lastOrder.plan + '.';
+  }
+  if (credits > 0) {
+    context += (context ? ' ' : '') + 'На балансе <b>' + credits + ' кредитов</b>.';
+  } else if (subPlan) {
+    var sNames = {1:'Старт', 2:'Бизнес', 3:'Безлимит'};
+    context += (context ? ' ' : '') + 'Подписка <b>' + (sNames[subPlan]||'') + '</b> активна.';
+  }
+
+  var callToAction = '';
+  if (urgentDL) {
+    callToAction = '⚠️ Срочно: <b>' + urgentDL.dl.title + '</b> — через ' + urgentDL.diff
+      + (urgentDL.diff === 1 ? ' день' : urgentDL.diff < 5 ? ' дня' : ' дней')
+      + '. Нужно действовать.';
+  } else if (pendingRefund) {
+    callToAction = 'Ваша заявка на возврат в обработке — ответим в течение 10 рабочих дней.';
+  } else if (!credits && !subPlan) {
+    callToAction = 'Кредиты закончились — пополните баланс, чтобы продолжить.';
+  } else {
+    callToAction = 'Чем займёмся сегодня?';
+  }
+
+  // ── Последовательность сообщений ──
+  var delay = 0;
+
+  // msg 1: greeting
+  delay += 400;
+  (function(d){ setTimeout(_rcAddTyping, d); })(delay);
+  delay += 700;
+  (function(d, txt){ setTimeout(function(){ _rcRemoveTyping(); _rcAddBubble(txt, false); }, d); })(delay, greeting);
+
+  // msg 2: context (only if we have something)
+  if (context) {
+    delay += 400;
+    (function(d){ setTimeout(_rcAddTyping, d); })(delay);
+    delay += 900;
+    (function(d, txt){ setTimeout(function(){ _rcRemoveTyping(); _rcAddBubble(txt, false); }, d); })(delay, context);
+  }
+
+  // msg 3: call to action
+  delay += 300;
+  (function(d){ setTimeout(_rcAddTyping, d); })(delay);
+  delay += 600;
+  (function(d, txt){ setTimeout(function(){ _rcRemoveTyping(); _rcAddBubble(txt, false); }, d); })(delay, callToAction);
+
+  // show controls
+  delay += 400;
+  (function(d){ setTimeout(_rcShowControls, d); })(delay);
+
+  // Update quick replies based on context
+  if (urgentDL) {
+    var repl = document.getElementById('rchat-replies');
+    if (repl) repl.innerHTML =
+      '<div class="hc-reply" onclick="go(\'cabinet\');tab(\'sroki\')">⏱️ Срочные сроки</div>' +
+      '<div class="hc-reply" onclick="go(\'cabinet\');tab(\'cases\')">📂 Мои дела</div>' +
+      '<div class="hc-reply" onclick="go(\'elena\')">📄 Новый договор</div>' +
+      '<div class="hc-reply" onclick="go(\'pay\')">💳 Баланс</div>';
+  }
+}
+
+function retChatSend() {
+  var inp = document.getElementById('rchat-inp');
+  if (!inp) return;
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  var r = document.getElementById('rchat-replies');
+  var i = document.getElementById('rchat-input-row');
+  if (r) r.style.display = 'none'; if (i) i.style.display = 'none';
+  _rcAddBubble(txt, true);
+  var t = txt.toLowerCase();
+  var intent = 'question';
+  if (/срок|уведомл|дедлайн/.test(t)) intent = 'deadlines';
+  else if (/баланс|кредит|оплат/.test(t)) intent = 'pay';
+  else if (/новый|загруз|проверит|договор/.test(t)) intent = 'new';
+  else if (/дела|кабинет/.test(t)) intent = 'cabinet';
+  var replies = {
+    deadlines: { elena: 'Открываю ваши сроки — всё самое срочное там 📋', action: function(){ go('cabinet'); tab('sroki'); } },
+    pay:       { elena: 'Показываю баланс и варианты пополнения 💳', action: function(){ go('pay'); } },
+    new:       { elena: 'Отличное решение! Загружайте новый документ — разберём 🔍', action: function(){ go('elena'); } },
+    cabinet:   { elena: 'Открываю ваши дела 📂', action: function(){ go('cabinet'); } },
+    question:  { elena: 'Хорошо! Перехожу к Елене — она ответит на любой юридический вопрос 💬', action: function(){ go('elena'); } }
+  };
+  var resp = replies[intent] || replies.question;
+  setTimeout(function(){
+    _rcAddTyping();
+    setTimeout(function(){
+      _rcRemoveTyping();
+      _rcAddBubble(resp.elena, false);
+      setTimeout(resp.action, 900);
+    }, 700);
+  }, 300);
+}
 
 /* ── ГОЛОСОВОЙ ВВОД ── */
 var _voiceActive = false;
