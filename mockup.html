@@ -2648,7 +2648,7 @@ function toast(msg){
 }
 function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);
-  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); var rm=document.getElementById('rchat-msgs'); if(rm)rm.innerHTML=''; };window.scrollTo(0,0);}
+  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); var rm=document.getElementById('rchat-msgs'); if(rm)rm.innerHTML=''; var s1=document.getElementById('el-step1'); if(s1)s1.style.display=''; var ic=document.getElementById('intake-custom'); if(ic)ic.value=''; };window.scrollTo(0,0);}
 /* ── СВОЙ ЗАПРОС ── */
 let _customOpen = false;
 let _voiceRec = null;
@@ -3713,14 +3713,7 @@ function _chatTransition(userText, intent) {
   if (step1) step1.style.display = 'none';
   if (inp)   inp.value = userText || '';
   go('elena');
-  setTimeout(function(){
-    elenaIntent(intent);
-    // Восстановим el-step1 на будущее (если клиент вернётся)
-    setTimeout(function(){
-      if (step1) { step1.style.display = ''; }
-      if (inp)   { inp.value = ''; }
-    }, 4000);
-  }, 80);
+  setTimeout(function(){ elenaIntent(intent); }, 80);
 }
 
 /* ── HERO CHAT ── */
