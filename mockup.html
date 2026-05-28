@@ -917,7 +917,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .hero-chat-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .hero-chat-name{font-size:13px;font-weight:800;color:#1f2937;line-height:1.2}
 .hero-chat-status{display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280}
-.hero-chat-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:hcPulse 2s ease infinite}
+.hero-chat-dot{width:7px;height:7px;border-radius:50%;background:var(--bg);display:inline-block;animation:hcPulse 2s ease infinite}
 @keyframes hcPulse{0%,100%{opacity:1}50%{opacity:.5}}
 .hero-chat-msgs{padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px;min-height:100px;max-height:240px;overflow-y:auto}
 .hc-msg{display:flex;align-items:flex-end;gap:6px;animation:hcIn .3s ease forwards;opacity:0}
@@ -1222,7 +1222,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
             <img class="hero-chat-av" src="logos/elena-photo.jpg" alt="Елена">
             <div>
               <div class="hero-chat-name">Елена</div>
-              <div class="hero-chat-status"><span class="hero-chat-dot"></span>онлайн · отвечает сразу</div>
+              <div class="hero-chat-status"><span class="hero-chat-dot"></span>робот · работает 24/7</div>
             </div>
           </div>
           <div class="hero-chat-msgs" id="hchat-msgs"></div>
@@ -1251,7 +1251,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
             <img class="hero-chat-av" src="logos/elena-photo.jpg" alt="Елена">
             <div>
               <div class="hero-chat-name">Елена</div>
-              <div class="hero-chat-status"><span class="hero-chat-dot"></span>онлайн · помню вас</div>
+              <div class="hero-chat-status"><span class="hero-chat-dot"></span>робот · помню ваши дела</div>
             </div>
           </div>
           <div class="hero-chat-msgs" id="rchat-msgs"></div>
@@ -1271,7 +1271,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         <div class="priv" style="margin-top:8px">🔒 Данные только у вас</div>
       </div>
     </div>
-    <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — ваш референт</div></div>
+    <div class="face"><img src="logos/elena-photo.jpg" alt="Елена"><div class="cap">Елена — юридический робот</div></div>
   </div>
 </section>
 
@@ -1283,7 +1283,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
     <!-- ШАГ 1: Диалог Елены — вход v4 -->
     <div id="el-step1">
-      <div class="msg elena-anim" style="--d:.08s"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 👋 Я Елена — ваш персональный юридический ассистент.</div></div>
+      <div class="msg elena-anim" style="--d:.08s"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 👋 Я Елена — юридический робот сервиса ЗАЩИТА.</div></div>
       <div class="msg elena-anim" style="--d:.75s"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Помогаю с договорами, документами и юридическими вопросами — быстро и понятно. Расскажите — чем могу Вам помочь?</div></div>
       <div class="elena-dialog-wrap elena-anim" style="--d:1.3s">
         <div class="elena-dialog-row">
@@ -4906,9 +4906,9 @@ function _buildDlAnswer(ctx) {
   else                    diffText = '🕐 Осталось ' + dl.diff + ' дн.';
 
   var stepsHtml = actions.steps.map(function(s, i){
-    return '<div style="display:flex;gap:10px;margin-bottom:8px">' +
-      '<span style="background:var(--bg);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</span>' +
-      '<span style="font-size:14px;line-height:1.5">' + s + '</span></div>';
+    return '<div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">' +
+      '<span style="background:var(--bg);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">' + (i+1) + '</span>' +
+      '<div style="font-size:14px;line-height:1.5;flex:1">' + s + '</div></div>';
   }).join('');
 
   var warnHtml = actions.warn
