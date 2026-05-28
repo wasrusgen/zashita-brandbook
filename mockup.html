@@ -484,6 +484,21 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ov-row .ov-k{color:var(--mut)}
 .ov-row .ov-v{font-weight:600}
 
+/* ── РИСКИ АККОРДЕОН ── */
+.risk-item{cursor:pointer}
+.risk-toggle{margin-left:auto;color:var(--mut);font-size:11px;transition:transform .2s;flex-shrink:0;padding-left:8px}
+.risk-item.expanded .risk-toggle{transform:rotate(180deg)}
+.risk-expand{display:none;margin-top:12px;border-top:1px solid #f3f4f6;padding-top:12px}
+.risk-item.expanded .risk-expand{display:block}
+.risk-quote{background:#fff5f5;border:1px solid #fecaca;border-radius:8px;padding:10px 13px;margin-bottom:8px}
+.risk-quote-lbl{font-size:10px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.risk-quote-txt{font-size:12px;color:#374151;font-style:italic;line-height:1.6}
+.risk-fix{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+.risk-fix-lbl{font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.risk-fix-txt{font-size:12px;color:#374151;line-height:1.6}
+.risk-apply-btn{background:var(--bg);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
+.risk-apply-btn:hover{background:var(--bghv)}
+
 /* ── КАРТОЧКА ДЕЛА v2 ── */
 
 /* Прогресс-шаги */
@@ -1219,124 +1234,196 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </div>
           <div class="risk-list">
 
-            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — одностороннее изменение условий')">
+            <div class="risk-item crit" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge crit">🔴 Критический</span>
                 <span class="risk-num">#1</span>
                 <span class="risk-title">Одностороннее изменение условий</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 4.2 договора · ст. 450 ГК РФ</div>
-              <div class="risk-rec">Агент вправе менять вознаграждение без вашего согласования. Необходимо добавить условие: «изменения вступают в силу только при письменном согласии обеих сторон».</div>
+              <div class="risk-rec">Агент вправе менять вознаграждение без вашего согласования.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Агент вправе в одностороннем порядке изменять размер агентского вознаграждения, уведомив Принципала не менее чем за 3 (три) календарных дня»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Изменение размера агентского вознаграждения допускается исключительно по письменному соглашению сторон, подписанному обеими сторонами»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #1 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — неограниченная ответственность')">
+            <div class="risk-item crit" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge crit">🔴 Критический</span>
                 <span class="risk-num">#2</span>
                 <span class="risk-title">Неограниченная ответственность принципала</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 8.1 договора · ст. 393 ГК РФ</div>
-              <div class="risk-rec">Размер убытков, которые агент может взыскать с вас, не ограничен. Необходимо установить верхний предел — например, размер вознаграждения за 3 месяца.</div>
+              <div class="risk-rec">Размер убытков, которые агент может взыскать с вас, не ограничен.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Принципал возмещает Агенту убытки в полном объёме, включая упущенную выгоду, понесённые вследствие ненадлежащего исполнения обязательств»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Ответственность Принципала ограничена суммой агентского вознаграждения за 3 (три) последних месяца. Упущенная выгода возмещению не подлежит»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #2 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — автопролонгация')">
+            <div class="risk-item crit" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge crit">🔴 Критический</span>
                 <span class="risk-num">#3</span>
                 <span class="risk-title">Автопролонгация без уведомления</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 9.3 договора · ст. 621 ГК РФ</div>
-              <div class="risk-rec">Договор автоматически продлевается на год, если ни одна из сторон не уведомила об отказе. Срок уведомления и форма не указаны — риск непреднамеренного продления.</div>
+              <div class="risk-rec">Договор продлевается на год автоматически — без явного согласия.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Договор считается пролонгированным на аналогичный срок, если ни одна из сторон не заявила письменного отказа»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Пролонгация допускается только при наличии письменного согласия обеих сторон, подписанного не позднее чем за 30 дней до окончания срока договора»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #3 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — сдача-приёмка')">
+            <div class="risk-item crit" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge crit">🔴 Критический</span>
                 <span class="risk-num">#4</span>
                 <span class="risk-title">Отсутствие порядка сдачи-приёмки</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 5 договора · ст. 720 ГК РФ</div>
-              <div class="risk-rec">Не описано как принимается исполнение по агентскому поручению — нет формы акта, сроков подписания. При споре суд может признать услугу принятой по умолчанию.</div>
+              <div class="risk-rec">Нет формы акта и сроков — суд может признать услугу принятой по умолчанию.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Результат исполнения агентского поручения считается принятым по истечении 5 рабочих дней с момента получения отчёта при отсутствии замечаний»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Приёмка исполнения оформляется актом по форме Приложения №2. Акт подписывается в течение 3 рабочих дней. При наличии замечаний составляется мотивированный отказ в той же форме»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #4 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — подсудность')">
+            <div class="risk-item crit" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge crit">🔴 Критический</span>
                 <span class="risk-num">#5</span>
-                <span class="risk-title">Невыгодная подсудность (юрисдикция)</span>
+                <span class="risk-title">Невыгодная подсудность</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 11.2 договора · ст. 37 АПК РФ</div>
-              <div class="risk-rec">Споры рассматриваются по месту нахождения агента (Москва). Вам придётся судиться в другом городе. Необходимо указать суд по вашему месту нахождения.</div>
+              <div class="risk-rec">Споры рассматриваются по месту агента — вам придётся судиться в другом городе.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Все споры, вытекающие из настоящего договора, рассматриваются в Арбитражном суде города Москвы»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Все споры, вытекающие из настоящего договора, рассматриваются в арбитражном суде по месту нахождения Принципала»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #5 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — сроки отчётности')">
+            <div class="risk-item mid" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge mid">🟡 Средний</span>
                 <span class="risk-num">#6</span>
                 <span class="risk-title">Размытые сроки отчётности агента</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 6.1 договора · ст. 1008 ГК РФ</div>
-              <div class="risk-rec">Нет конкретных дат предоставления агентских отчётов — «в разумный срок». Зафиксируйте: например, 5-е число каждого месяца.</div>
+              <div class="risk-rec">«В разумный срок» — нет конкретной даты предоставления отчётов.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Агент представляет отчёт об исполнении поручения в разумный срок после окончания отчётного периода»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Агент представляет отчёт не позднее 5-го числа месяца, следующего за отчётным, с приложением первичных документов»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #6 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — расторжение')">
+            <div class="risk-item mid" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge mid">🟡 Средний</span>
                 <span class="risk-num">#7</span>
                 <span class="risk-title">Нет срока уведомления при расторжении</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 9.2 договора · ст. 1010 ГК РФ</div>
-              <div class="risk-rec">При досрочном расторжении порядок уведомления не прописан. Рекомендую указать минимум 30 дней письменного уведомления.</div>
+              <div class="risk-rec">Порядок уведомления не прописан — расторжение может прийти в любой момент.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Каждая из сторон вправе отказаться от договора, уведомив другую сторону о своём намерении»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Каждая из сторон вправе отказаться от договора, направив письменное уведомление не менее чем за 30 (тридцать) календарных дней до предполагаемой даты расторжения»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #7 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — НДС')">
+            <div class="risk-item mid" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge mid">🟡 Средний</span>
                 <span class="risk-num">#8</span>
                 <span class="risk-title">Вознаграждение без указания НДС</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 3.1 договора · НК РФ ст. 168</div>
-              <div class="risk-rec">Не указано, включает ли сумма вознаграждения НДС. Риск доначисления налога и штрафов при проверке. Добавьте: «в т.ч. НДС 20%» или «НДС не облагается».</div>
+              <div class="risk-rec">Риск доначисления НДС и штрафов при налоговой проверке.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Размер агентского вознаграждения составляет 150 000 (сто пятьдесят тысяч) рублей ежемесячно»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Размер агентского вознаграждения составляет 150 000 (сто пятьдесят тысяч) рублей ежемесячно, в том числе НДС 20% — 25 000 рублей» <i>(или: «НДС не облагается — основание: применение УСН»)</i></div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #8 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — субагентирование')">
+            <div class="risk-item mid" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge mid">🟡 Средний</span>
                 <span class="risk-num">#9</span>
                 <span class="risk-title">Право субагентирования без согласования</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 3.4 договора · ст. 1009 ГК РФ</div>
-              <div class="risk-rec">Агент вправе привлекать субагентов без вашего ведома. Добавьте условие: «только с письменного согласия принципала».</div>
+              <div class="risk-rec">Агент привлекает субагентов без вашего ведома — вы теряете контроль.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Агент вправе для исполнения поручения привлекать третьих лиц (субагентов) с уведомлением Принципала»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Привлечение субагентов допускается исключительно с предварительного письменного согласия Принципала в каждом конкретном случае»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #9 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — форс-мажор')">
+            <div class="risk-item low" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge low">🟢 Низкий</span>
                 <span class="risk-num">#10</span>
                 <span class="risk-title">Расплывчатый перечень форс-мажора</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 10 договора · ст. 401 ГК РФ</div>
-              <div class="risk-rec">Перечень форс-мажорных обстоятельств не соответствует стандарту МТПП. Рекомендую использовать типовой перечень с конкретными событиями.</div>
+              <div class="risk-rec">Перечень открытый — контрагент может сослаться на любое «чрезвычайное обстоятельство».</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Стороны освобождаются от ответственности при наступлении обстоятельств непреодолимой силы и иных чрезвычайных обстоятельств»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Форс-мажорными признаются исключительно: стихийные бедствия, военные действия, режим ЧС, эпидемия по решению ВОЗ, запретительные акты органов государственной власти. Перечень является исчерпывающим»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #10 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — ЭДО')">
+            <div class="risk-item low" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge low">🟢 Низкий</span>
                 <span class="risk-num">#11</span>
                 <span class="risk-title">Нет упоминания ЭДО и ЭЦП</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 12 договора · 63-ФЗ</div>
-              <div class="risk-rec">Электронный документооборот и электронные подписи не предусмотрены. При дистанционном взаимодействии могут возникнуть проблемы с признанием документов.</div>
+              <div class="risk-rec">При дистанционной работе электронные документы могут не иметь юридической силы.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Уведомления и документы направляются сторонами по почте заказным письмом или курьерской службой»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«Стороны вправе использовать электронный документооборот с применением квалифицированной электронной подписи (КЭП) в соответствии с 63-ФЗ. Документы в ЭДО имеют равную юридическую силу с бумажными оригиналами»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #11 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
-            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — реквизиты')">
+            <div class="risk-item low" onclick="toggleRisk(this)">
               <div class="risk-item-hdr">
                 <span class="risk-badge low">🟢 Низкий</span>
                 <span class="risk-num">#12</span>
                 <span class="risk-title">Нет обязанности уведомлять об изменении реквизитов</span>
+                <span class="risk-toggle">▼</span>
               </div>
               <div class="risk-norm">п. 12.3 договора</div>
-              <div class="risk-rec">При смене банковских реквизитов агента вы можете оплатить «не туда» и остаться должником. Добавьте: уведомление за 5 рабочих дней с подтверждением получения.</div>
+              <div class="risk-rec">Смена реквизитов без предупреждения — оплата уйдёт не туда, но вы останетесь должником.</div>
+              <div class="risk-expand">
+                <div class="risk-quote"><div class="risk-quote-lbl">📄 Как написано сейчас</div><div class="risk-quote-txt">«Стороны используют реквизиты, указанные в разделе 12 настоящего договора»</div></div>
+                <div class="risk-fix"><div class="risk-fix-lbl">✅ Рекомендуемая формулировка</div><div class="risk-fix-txt">«При изменении банковских реквизитов сторона обязана письменно уведомить контрагента не менее чем за 5 (пять) рабочих дней. Платёж по старым реквизитам после получения уведомления не признаётся надлежащим исполнением»</div></div>
+                <button class="risk-apply-btn" onclick="event.stopPropagation();toast('✅ Формулировка #12 добавлена в протокол разногласий')">Применить в протоколе →</button>
+              </div>
             </div>
 
           </div>
@@ -2471,6 +2558,13 @@ window.tab = function(id) {
 window.addEventListener('DOMContentLoaded', function(){
   setTimeout(updateKPI, 100);
 });
+
+/* ── RISK ACCORDION ── */
+function toggleRisk(el) {
+  var wasOpen = el.classList.contains('expanded');
+  document.querySelectorAll('.risk-item.expanded').forEach(function(r){ r.classList.remove('expanded'); });
+  if (!wasOpen) el.classList.add('expanded');
+}
 
 /* ── CASE TABS ── */
 function caseTab(id, el) {
