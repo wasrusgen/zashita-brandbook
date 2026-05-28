@@ -859,6 +859,37 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ret-card:empty{display:none}
 /* ── HERO TYPEWRITER ── */
 .hero-tw-wrap{margin:14px 0 4px;display:flex;align-items:center;gap:7px;min-height:28px}
+/* ── HERO CHAT ── */
+.hero-chat{background:rgba(255,255,255,.97);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.22);margin:14px 0 0;backdrop-filter:blur(12px)}
+.hero-chat-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(159,18,57,.07);border-bottom:1px solid rgba(159,18,57,.12)}
+.hero-chat-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.hero-chat-name{font-size:13px;font-weight:800;color:#1f2937;line-height:1.2}
+.hero-chat-status{display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280}
+.hero-chat-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:hcPulse 2s ease infinite}
+@keyframes hcPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-chat-msgs{padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px;min-height:100px;max-height:240px;overflow-y:auto}
+.hc-msg{display:flex;align-items:flex-end;gap:6px;animation:hcIn .3s ease forwards;opacity:0}
+@keyframes hcIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.hc-av{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.hc-bubble{background:#f3f4f6;border-radius:16px 16px 16px 4px;padding:9px 13px;font-size:13px;color:#1f2937;line-height:1.5;max-width:85%}
+.hc-bubble b{color:#9f1239}
+.hc-bubble.user{background:#9f1239;color:#fff;border-radius:16px 16px 4px 16px;margin-left:auto}
+.hc-user-msg{justify-content:flex-end}
+.hc-user-msg .hc-bubble{background:#9f1239;color:#fff;border-radius:16px 16px 4px 16px}
+.hc-typing{display:flex;align-items:flex-end;gap:6px}
+.hc-typing-dots{background:#f3f4f6;border-radius:16px 16px 16px 4px;padding:10px 14px;display:flex;gap:4px;align-items:center}
+.hc-typing-dots span{width:7px;height:7px;border-radius:50%;background:#9ca3af;animation:hcDot 1.2s ease infinite}
+.hc-typing-dots span:nth-child(2){animation-delay:.2s}
+.hc-typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes hcDot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.hero-chat-replies{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-top:1px solid #f3f4f6}
+.hc-reply{padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:20px;font-size:12px;font-weight:600;color:#374151;background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap}
+.hc-reply:hover{border-color:#9f1239;color:#9f1239;background:#fff5f5}
+.hero-chat-input-row{display:flex;gap:6px;padding:8px 10px;border-top:1px solid #f3f4f6;background:#fafafa}
+.hc-text-inp{flex:1;border:1.5px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:13px;outline:none;background:#fff;font-family:inherit}
+.hc-text-inp:focus{border-color:#9f1239}
+.hc-send-btn{background:#9f1239;color:#fff;border:none;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.hc-send-btn:hover{background:#7f1d2e}
 .hero-tw-cur{color:rgba(255,255,255,.5);font-size:18px;flex-shrink:0;line-height:1;animation:twBlink .65s step-start infinite}
 @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-tw-text{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);line-height:1.4}
@@ -1107,17 +1138,27 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <!-- Новый клиент -->
       <div id="hero-new">
         <h1>Договор пишут юристы другой стороны. Кто защищает вас?</h1>
-        <p>Елена — ваш персональный юридический ИИ. Ответ готов сразу — без счетов и переговоров.</p>
-        <div class="hero-services">
-          <span class="hero-svc">📄 Проверить договор</span>
-          <span class="hero-svc">✍️ Составить документ</span>
-          <span class="hero-svc">📋 Протокол разногласий</span>
-          <span class="hero-svc">📑 Доверенность</span>
-          <span class="hero-svc">✉️ Претензия</span>
-        </div>
-        <div class="hero-tw-wrap" id="hw-new"><span class="hero-tw-cur">|</span><span id="hero-tw-new" class="hero-tw-text"></span></div>
-        <div class="hero-elena-hint">
-          <b>Как это работает:</b> нажмите кнопку → Елена спросит что вам нужно → вы загружаете документ или заполняете форму → результат за несколько секунд
+        
+        <div class="hero-chat" id="hero-chat">
+          <div class="hero-chat-hdr">
+            <img class="hero-chat-av" src="logos/elena-photo.jpg" alt="Елена">
+            <div>
+              <div class="hero-chat-name">Елена</div>
+              <div class="hero-chat-status"><span class="hero-chat-dot"></span>онлайн · отвечает сразу</div>
+            </div>
+          </div>
+          <div class="hero-chat-msgs" id="hchat-msgs"></div>
+          <div class="hero-chat-replies" id="hchat-replies" style="display:none">
+            <div class="hc-reply" onclick="heroChatReply('check')">📄 Проверить договор</div>
+            <div class="hc-reply" onclick="heroChatReply('create')">✍️ Составить документ</div>
+            <div class="hc-reply" onclick="heroChatReply('dispute')">📋 Протокол разногласий</div>
+            <div class="hc-reply" onclick="heroChatReply('question')">💬 Другой вопрос</div>
+          </div>
+          <div class="hero-chat-input-row" id="hchat-input-row" style="display:none">
+            <input class="hc-text-inp" id="hchat-inp" placeholder="Или напишите своими словами..."
+              onkeydown="if(event.key==='Enter')heroChatSend()">
+            <button class="hc-send-btn" onclick="heroChatSend()">→</button>
+          </div>
         </div>
         <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить договор бесплатно →</button></div>
         <div class="priv">🔒 Без регистрации · данные у вас · первые 3 риска бесплатно</div>
@@ -2563,7 +2604,8 @@ function toast(msg){
   _toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
 function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
-  if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);;window.scrollTo(0,0);}
+  if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);
+  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); };window.scrollTo(0,0);}
 /* ── СВОЙ ЗАПРОС ── */
 let _customOpen = false;
 let _voiceRec = null;
@@ -3555,6 +3597,161 @@ var _origTab = typeof tab === 'function' ? tab : null;
 window.addEventListener('DOMContentLoaded', function(){
   _initAdmin();
   _refreshBalanceTab();
+});
+
+/* ── HERO CHAT ── */
+
+var _hchatDone = false;
+
+var _HC_MESSAGES = [
+  { text: 'Добрый день! Рады Вас видеть 👋', delay: 600, typing: 900 },
+  { text: 'Могу проверить Ваш договор, составить документ, подготовить протокол разногласий, оценить риски, оформить доверенность — и многое другое.', delay: 500, typing: 1600 },
+  { text: 'Что Вас привело к нам?', delay: 400, typing: 700 }
+];
+
+var _HC_REPLIES = {
+  check:    { user: 'Хочу проверить договор',    elena: 'Отлично! Загрузите договор или вставьте текст — найду все риски за секунды 🔍', intent: 'check' },
+  create:   { user: 'Нужно составить документ',  elena: 'Расскажите какой документ нужен — договор, доверенность, претензию? Составлю под Ваши параметры ✍️', intent: 'create' },
+  dispute:  { user: 'Протокол разногласий',       elena: 'Загрузите договор контрагента — подготовлю протокол с обоснованием каждого изменения 📋', intent: 'dispute' },
+  question: { user: 'Есть вопрос',                elena: 'Спрашивайте — отвечу без лишних формальностей 💬', intent: 'question' }
+};
+
+function _hcAddTyping() {
+  var msgs = document.getElementById('hchat-msgs');
+  if (!msgs) return null;
+  var el = document.createElement('div');
+  el.className = 'hc-typing';
+  el.id = 'hc-typing';
+  el.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-typing-dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+function _hcRemoveTyping() {
+  var el = document.getElementById('hc-typing');
+  if (el) el.remove();
+}
+
+function _hcAddBubble(text, isUser) {
+  var msgs = document.getElementById('hchat-msgs');
+  if (!msgs) return;
+  var row = document.createElement('div');
+  row.className = 'hc-msg' + (isUser ? ' hc-user-msg' : '');
+  if (!isUser) {
+    row.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble"></div>';
+    msgs.appendChild(row);
+    // typewrite word by word
+    var bubble = row.querySelector('.hc-bubble');
+    var words = text.split(' ');
+    var wi = 0;
+    function nextWord() {
+      if (wi < words.length) {
+        bubble.textContent += (wi > 0 ? ' ' : '') + words[wi++];
+        msgs.scrollTop = msgs.scrollHeight;
+        setTimeout(nextWord, 55 + Math.random()*30);
+      }
+    }
+    nextWord();
+  } else {
+    row.innerHTML = '<div class="hc-bubble user">' + text + '</div>';
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+}
+
+function _hcShowControls() {
+  var replies = document.getElementById('hchat-replies');
+  var inputRow = document.getElementById('hchat-input-row');
+  if (replies) { replies.style.display = ''; replies.style.animation = 'hcIn .3s ease forwards'; }
+  if (inputRow) { inputRow.style.display = ''; }
+}
+
+function initHeroChat() {
+  if (_hchatDone) return;
+  var msgs = document.getElementById('hchat-msgs');
+  if (!msgs) return;
+  _hchatDone = true;
+
+  var totalDelay = 0;
+  _HC_MESSAGES.forEach(function(m, i) {
+    // show typing
+    totalDelay += m.delay;
+    (function(d){ setTimeout(function(){ _hcAddTyping(); }, d); })(totalDelay);
+    // show message
+    totalDelay += m.typing;
+    (function(d, text){ setTimeout(function(){
+      _hcRemoveTyping();
+      _hcAddBubble(text, false);
+    }, d); })(totalDelay, m.text);
+  });
+
+  // show controls after last message finishes typing
+  totalDelay += 800;
+  setTimeout(_hcShowControls, totalDelay);
+}
+
+function heroChatReply(key) {
+  var r = _HC_REPLIES[key];
+  if (!r) return;
+  // hide controls
+  var replies = document.getElementById('hchat-replies');
+  var inputRow = document.getElementById('hchat-input-row');
+  if (replies) replies.style.display = 'none';
+  if (inputRow) inputRow.style.display = 'none';
+  // show user message
+  _hcAddBubble(r.user, true);
+  // Elena responds
+  setTimeout(function(){
+    _hcAddTyping();
+    setTimeout(function(){
+      _hcRemoveTyping();
+      _hcAddBubble(r.elena, false);
+      setTimeout(function(){
+        elenaIntent(r.intent);
+      }, 1200);
+    }, 900);
+  }, 400);
+}
+
+function heroChatSend() {
+  var inp = document.getElementById('hchat-inp');
+  if (!inp) return;
+  var txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  // hide controls
+  var replies = document.getElementById('hchat-replies');
+  var inputRow = document.getElementById('hchat-input-row');
+  if (replies) replies.style.display = 'none';
+  if (inputRow) inputRow.style.display = 'none';
+  // show user message
+  _hcAddBubble(txt, true);
+  // detect intent
+  var t = txt.toLowerCase();
+  var intent = 'question';
+  if (/доверенност/.test(t)) intent = 'power';
+  else if (/протокол|разногласи|убрат|невыгод/.test(t)) intent = 'dispute';
+  else if (/состав|написат|создат|подготов/.test(t) && !/проверит/.test(t)) intent = 'create';
+  else if (/проверит|анализ|посмотр|риск|договор|контракт/.test(t)) intent = 'check';
+  var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
+  // Elena responds
+  setTimeout(function(){
+    _hcAddTyping();
+    setTimeout(function(){
+      _hcRemoveTyping();
+      _hcAddBubble(reply.elena, false);
+      setTimeout(function(){ elenaIntent(intent); }, 1200);
+    }, 900);
+  }, 400);
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  // Start chat on hero screen if visible
+  var start = document.getElementById('start');
+  if (start && start.classList.contains('on')) {
+    setTimeout(initHeroChat, 300);
+  }
 });
 
 /* ── ГОЛОСОВОЙ ВВОД ── */
