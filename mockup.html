@@ -4840,7 +4840,7 @@ var _DL_ACTIONS = {
     steps: [
       'Составьте письменное уведомление (могу помочь — нажмите «Составить»)',
       'Отправьте заказным письмом с уведомлением о вручении — это фиксирует дату <button onclick="event.stopPropagation();_showPostalForm()" style="background:var(--tint);color:var(--bg);border:1.5px solid rgba(159,18,57,.25);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;vertical-align:middle;margin-left:6px">📄 Бланк ф.119</button>',
-      'Продублируйте на email контрагента с запросом подтверждения получения',
+      'Продублируйте на email контрагента — адрес из договора у нас есть <button onclick="event.stopPropagation();_prepareEmailDraft()" style="background:var(--tint);color:var(--bg);border:1.5px solid rgba(159,18,57,.25);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;vertical-align:middle;margin-left:6px">📧 Подготовить письмо</button>',
       'Введите трек-номер после отправки:<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap"><input id="postal-track-input" placeholder="14 цифр..." maxlength="14" style="border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;width:160px;outline:none" oninput="_filterDigits(this)" /><button onclick="_saveTrackNumber()" style="background:var(--bg);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📮 Отследить</button></div>'
     ],
     warn: 'Устное уведомление не имеет юридической силы — только письменное с подтверждением доставки.'
@@ -4951,9 +4951,12 @@ function _filterDigits(el) {
   el.value = el.value.replace(/[^0-9]/g, '');
 }
 
-// Извлекает стороны и адреса из текста договора
+// Глобальный кэш данных сторон (заполняется при анализе и при открытии бланка)
+var _postalData = null;
+
+// Извлекает стороны, адреса и email из текста договора
 function _extractParties(text) {
-  var out = { counterparty: '', counterAddr: '', sender: '', senderAddr: '' };
+  var out = { counterparty: '', counterAddr: '', counterEmail: '', sender: '', senderAddr: '', senderEmail: '' };
   if (!text) return out;
 
   // Роли: [контрагент (кому шлём), сторона клиента]
@@ -4989,7 +4992,7 @@ function _extractParties(text) {
     return m ? m[1].replace(/^[\s,:—–]+/, '').trim() : '';
   }
 
-  // Извлекаем адрес: берём первые N символов после имени роли, ищем адресный блок
+  // Извлекаем адрес из блока роли
   function extractAddr(role) {
     var roleIdx = text.search(new RegExp(role, 'i'));
     if (roleIdx < 0) return '';
@@ -4998,11 +5001,22 @@ function _extractParties(text) {
     return m ? m[1].trim() : '';
   }
 
+  // Извлекаем email из блока роли (500 символов вокруг упоминания)
+  function extractEmail(role) {
+    var roleIdx = text.search(new RegExp(role, 'i'));
+    if (roleIdx < 0) return '';
+    var chunk = text.slice(roleIdx, roleIdx + 500);
+    var m = chunk.match(/[\w.+-]+@[\w.-]+\.[a-zа-яё]{2,}/i);
+    return m ? m[0] : '';
+  }
+
   if (r1) {
-    out.counterparty = (r1 ? r1 + ': ' : '') + extractName(r1);
-    out.counterAddr  = extractAddr(r1);
-    out.sender       = (r2 ? r2 + ': ' : '') + extractName(r2);
-    out.senderAddr   = extractAddr(r2);
+    out.counterparty  = (r1 ? r1 + ': ' : '') + extractName(r1);
+    out.counterAddr   = extractAddr(r1);
+    out.counterEmail  = extractEmail(r1);
+    out.sender        = (r2 ? r2 + ': ' : '') + extractName(r2);
+    out.senderAddr    = extractAddr(r2);
+    out.senderEmail   = extractEmail(r2);
   }
 
   return out;
@@ -5031,11 +5045,22 @@ function _showPostalForm() {
     if (nameEl && nameEl.value) { senderName = nameEl.value; senderAddr = addrEl ? addrEl.value : ''; }
   }
 
+  // Сохраняем глобально для email-черновика
+  _postalData = {
+    counterparty:  parties.counterparty  || '',
+    counterAddr:   parties.counterAddr   || '',
+    counterEmail:  parties.counterEmail  || '',
+    sender:        senderName || parties.sender    || '',
+    senderAddr:    senderAddr || parties.senderAddr || '',
+    senderEmail:   parties.senderEmail   || '',
+    about:         about
+  };
+
   // Приоритет: договор > localStorage > пусто
-  var recipientVal = parties.counterparty || '';
-  var recAddrVal   = parties.counterAddr  || '';
-  var senderVal    = senderName || parties.sender     || '';
-  var sendAddrVal  = senderAddr || parties.senderAddr || '';
+  var recipientVal = _postalData.counterparty;
+  var recAddrVal   = _postalData.counterAddr;
+  var senderVal    = _postalData.sender;
+  var sendAddrVal  = _postalData.senderAddr;
 
   var el = document.getElementById('postal-form-overlay');
   if (!el) return;
@@ -5102,6 +5127,76 @@ function _postalPrint() {
     '</div>'+
     '</body></html>');
   w.document.close();
+}
+
+function _prepareEmailDraft() {
+  var pd = _postalData || {};
+  var dlTitle    = (_rcLastContext && _rcLastContext.dl) ? _rcLastContext.dl.title : 'уведомление';
+  var caseName   = (_rcLastContext && _rcLastContext.caseName) ? _rcLastContext.caseName : '';
+  var toEmail    = pd.counterEmail || '';
+  var toName     = pd.counterparty || 'контрагент';
+  var fromName   = pd.sender       || 'клиент';
+  var about      = pd.about        || dlTitle;
+
+  // Если _postalData не заполнен — попробуем распарсить сейчас
+  if (!pd.counterparty) {
+    var contractText = (document.getElementById('el-paste') || {}).value || '';
+    var parties = _extractParties(contractText);
+    toEmail  = parties.counterEmail  || '';
+    toName   = parties.counterparty  || 'контрагент';
+    fromName = parties.sender        || fromName;
+    _postalData = Object.assign({}, parties, { about: about });
+  }
+
+  var subject = 'Уведомление: ' + dlTitle + (caseName ? ' · ' + caseName : '');
+  var body =
+    'Уважаемый(ая) ' + toName.replace(/^[^:]+:\s*/, '') + ',\n\n' +
+    'Настоящим письмом уведомляю Вас о следующем:\n' +
+    about + '.\n\n' +
+    'Одновременно направляю настоящее уведомление заказным письмом ' +
+    'с уведомлением о вручении (Почта России).\n\n' +
+    'Прошу подтвердить получение данного письма ответным сообщением ' +
+    'на адрес электронной почты отправителя.\n\n' +
+    'С уважением,\n' + fromName.replace(/^[^:]+:\s*/, '') + '\n' +
+    'Дата: ' + new Date().toLocaleDateString('ru-RU');
+
+  var ov = document.getElementById('email-draft-overlay');
+  if (!ov) return;
+  document.getElementById('ed-to').value      = toEmail;
+  document.getElementById('ed-subject').value  = subject;
+  document.getElementById('ed-body').value     = body;
+
+  // Если email найден — подсветим зелёным, иначе — рамка предупреждения
+  var toInp = document.getElementById('ed-to');
+  toInp.style.borderColor = toEmail ? 'var(--ok)' : 'rgba(159,18,57,.4)';
+  if (!toEmail) toInp.placeholder = 'Email не найден в договоре — введите вручную';
+
+  ov.classList.add('on');
+}
+
+function _emailDraftClose() {
+  var ov = document.getElementById('email-draft-overlay');
+  if (ov) ov.classList.remove('on');
+}
+
+function _emailCopy() {
+  var to      = (document.getElementById('ed-to')      || {}).value || '';
+  var subject = (document.getElementById('ed-subject') || {}).value || '';
+  var body    = (document.getElementById('ed-body')    || {}).value || '';
+  var full = 'Кому: ' + to + '\nТема: ' + subject + '\n\n' + body;
+  navigator.clipboard.writeText(full).then(function(){
+    toast('📋 Письмо скопировано — вставьте в почтовый клиент');
+    _emailDraftClose();
+  }).catch(function(){
+    toast('Скопируйте текст вручную');
+  });
+}
+
+function _emailOpenClient() {
+  var to      = encodeURIComponent((document.getElementById('ed-to')      || {}).value || '');
+  var subject = encodeURIComponent((document.getElementById('ed-subject') || {}).value || '');
+  var body    = encodeURIComponent((document.getElementById('ed-body')    || {}).value || '');
+  window.open('mailto:' + to + '?subject=' + subject + '&body=' + body, '_blank');
 }
 
 function _saveTrackNumber() {
@@ -6017,6 +6112,62 @@ function tab(name){
         <div class="admin-section-ttl">Заявки на возврат</div>
       </div>
       <div id="adm-refunds-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── МОДАЛКА: ЧЕРНОВИК EMAIL КОНТРАГЕНТУ ── -->
+<style>
+#email-draft-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9001;align-items:flex-end;justify-content:center}
+#email-draft-overlay.on{display:flex}
+</style>
+<div id="email-draft-overlay" onclick="if(event.target===this)_emailDraftClose()">
+  <div onclick="event.stopPropagation()"
+    style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:22px 20px 32px;position:relative;box-shadow:0 -8px 40px rgba(0,0,0,.18);animation:slideUp .22s ease;max-height:92vh;overflow-y:auto">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--ink)">📧 Черновик письма</div>
+        <div style="font-size:12px;color:var(--mut)">Подтверждение получения уведомления</div>
+      </div>
+      <button onclick="_emailDraftClose()" style="background:var(--surf);border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;color:var(--mut)">✕</button>
+    </div>
+
+    <div style="background:var(--tint);border-radius:10px;padding:9px 13px;font-size:12px;color:var(--dark);margin-bottom:14px;line-height:1.5">
+      Email контрагента подтянут из договора. Отправьте это письмо параллельно с заказным — он дублирует вручение и создаёт цифровой след.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">КОМУ</label>
+        <input id="ed-to" placeholder="email@counterparty.ru"
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">ТЕМА</label>
+        <input id="ed-subject"
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">ТЕКСТ ПИСЬМА</label>
+        <textarea id="ed-body" rows="9"
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink);resize:vertical;line-height:1.55"></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+      <button onclick="_emailOpenClient()"
+        style="flex:1;min-width:150px;background:var(--bg);color:#fff;border:none;border-radius:11px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+        ✉️ Открыть в почте
+      </button>
+      <button onclick="_emailCopy()"
+        style="flex:1;min-width:120px;background:var(--surf);color:var(--ink);border:1.5px solid var(--line);border-radius:11px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+        📋 Копировать
+      </button>
+      <button onclick="_emailDraftClose()"
+        style="background:var(--surf);color:var(--mut);border:1.5px solid var(--line);border-radius:11px;padding:11px 14px;font-size:13px;cursor:pointer;font-family:inherit">
+        Отмена
+      </button>
     </div>
   </div>
 </div>
