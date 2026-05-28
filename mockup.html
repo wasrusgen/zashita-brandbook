@@ -4897,12 +4897,27 @@ function _buildDlAnswer(ctx) {
     ? '<div style="background:#fff5f7;border-left:3px solid #9f1239;border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:#6b7280;margin-top:10px">' + actions.warn + '</div>'
     : '';
 
+  // Кнопки действий — всегда есть "Продолжить с Еленой"
+  var primaryBtn = '';
+  if (actionType === 'notification' || actionType === 'termination') {
+    primaryBtn = '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" ' +
+      'onclick="_rcTransferToElena(\'create\')">✍️ Составить уведомление</button>';
+  } else if (actionType === 'payment') {
+    primaryBtn = '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" ' +
+      'onclick="_rcTransferToElena(\'dispute\')">💬 Уточнить у Елены</button>';
+  } else if (actionType === 'renewal') {
+    primaryBtn = '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" ' +
+      'onclick="_rcTransferToElena(\'create\')">✍️ Составить отказ от продления</button>';
+  } else {
+    primaryBtn = '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" ' +
+      'onclick="_rcTransferToElena(\'question\')">💬 Продолжить с Еленой</button>';
+  }
+
   var ctaHtml =
-    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">' +
-      (actionType === 'notification' || actionType === 'termination'
-        ? '<button class="btn btn-p" style="padding:7px 14px;font-size:13px" onclick="go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)">✍️ Составить документ</button>'
-        : '') +
-      '<button class="btn btn-o" style="padding:7px 14px;font-size:13px" onclick="go(\'cabinet\');tab(\'sroki\')">📋 Все сроки</button>' +
+    '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
+      primaryBtn +
+      '<button class="btn btn-o" style="padding:8px 14px;font-size:13px" ' +
+        'onclick="go(\'cabinet\');tab(\'sroki\')">📋 Все сроки</button>' +
     '</div>';
 
   return '<div class="nm">Елена</div>' +
@@ -4910,6 +4925,80 @@ function _buildDlAnswer(ctx) {
     (dl.quote ? '<div style="font-size:12px;color:#6b7280;font-style:italic;margin:6px 0 10px">' + dl.quote + '</div>' : '<br><br>') +
     '<b>Что нужно сделать:</b><div style="margin-top:8px">' + stepsHtml + '</div>' +
     warnHtml + ctaHtml;
+}
+
+function _rcTransferToElena(intent) {
+  // Переносим контекст дедлайна в полный экран Елены
+  if (_rcLastContext && _rcLastContext.type === 'deadline') {
+    var dl = _rcLastContext.dl;
+    var contextMsg = 'У меня срок: ' + dl.title;
+    if (dl.caseName) contextMsg += ' по договору «' + dl.caseName + '»';
+    if (dl.diff !== undefined) {
+      contextMsg += dl.diff < 0
+        ? ' (просрочен на ' + Math.abs(dl.diff) + ' дн.)'
+        : dl.diff === 0 ? ' (сегодня)' : ' (через ' + dl.diff + ' дн.)';
+    }
+    // Кладём в историю чата — Елена будет знать контекст
+    _chatHistory.push({ role: 'user', content: contextMsg });
+
+    // Переходим на экран Елены
+    go('elena');
+
+    setTimeout(function(){
+      // Скрываем el-step1, показываем чат
+      var step1 = document.getElementById('el-step1');
+      if (step1) step1.style.display = 'none';
+
+      // Добавляем контекстное сообщение в chatwrap
+      var wrap = document.querySelector('.chatwrap');
+      if (!wrap) return;
+
+      // Пузырь пользователя
+      var uDiv = document.createElement('div');
+      uDiv.className = 'msg msg-user';
+      uDiv.innerHTML = '<div class="bubble user">' + _rcEscape(contextMsg) + '</div>';
+      wrap.appendChild(uDiv);
+
+      // Елена отвечает с контекстом
+      var typingDiv = document.createElement('div');
+      typingDiv.className = 'msg'; typingDiv.id = 'elena-ctx-typing';
+      typingDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+        '<div class="bubble"><div class="nm">Елена</div>' +
+        '<div class="hc-typing-dots"><span></span><span></span><span></span></div></div>';
+      wrap.appendChild(typingDiv);
+      wrap.scrollTop = wrap.scrollHeight;
+
+      // Реальный ответ через API или шаблон
+      var fallbackReply = _getElenaCtxReply(intent, dl);
+      _elenaApi(contextMsg, intent, function(apiReply){
+        var t = document.getElementById('elena-ctx-typing');
+        if (t) t.remove();
+        var reply = apiReply || fallbackReply;
+        _chatHistory.push({ role: 'assistant', content: reply });
+        var eDiv = document.createElement('div');
+        eDiv.className = 'msg';
+        eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+          '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
+        wrap.appendChild(eDiv);
+        wrap.scrollTop = wrap.scrollHeight;
+
+        // Показываем поле ввода Елены
+        setTimeout(function(){
+          elenaIntent(intent);
+        }, 600);
+      });
+    }, 120);
+  } else {
+    go('elena');
+    setTimeout(function(){ elenaIntent(intent); }, 120);
+  }
+}
+
+function _getElenaCtxReply(intent, dl) {
+  var name = dl.title || 'срок';
+  if (intent === 'create')   return 'Понял — нужно составить документ по сроку «' + name + '». Уточните детали — подготовлю.';
+  if (intent === 'dispute')  return 'Разберёмся со сроком «' + name + '». Расскажите что именно произошло — дам конкретный план.';
+  return 'Продолжаем по сроку «' + name + '». Что именно хотите уточнить?';
 }
 
 function retChatSend() {
