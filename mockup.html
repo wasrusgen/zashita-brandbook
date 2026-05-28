@@ -696,6 +696,14 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
 .ret-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:16px 18px;margin-bottom:22px}
 .ret-card:empty{display:none}
+/* ── HERO TYPEWRITER ── */
+.hero-tw-wrap{margin:14px 0 4px;display:flex;align-items:center;gap:7px;min-height:28px}
+.hero-tw-cur{color:rgba(255,255,255,.5);font-size:18px;flex-shrink:0;line-height:1;animation:twBlink .65s step-start infinite}
+@keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-tw-text{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);line-height:1.4}
+.ret-tw-wrap{margin:0 0 22px;display:flex;align-items:baseline;gap:7px;min-height:32px}
+.ret-tw-wrap .hero-tw-cur{font-size:20px;color:rgba(255,255,255,.45)}
+.ret-tw-wrap .hero-tw-text{font-size:18px;font-weight:700;color:rgba(255,255,255,.95)}
 .ret-ord-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
 .ret-ord-name{font-size:15px;font-weight:700;margin-bottom:3px}
 .ret-ord-price{font-size:22px;font-weight:800;color:#ffaaaa}
@@ -946,6 +954,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <span class="hero-svc">📑 Доверенность</span>
           <span class="hero-svc">✉️ Претензия</span>
         </div>
+        <div class="hero-tw-wrap" id="hw-new"><span class="hero-tw-cur">|</span><span id="hero-tw-new" class="hero-tw-text"></span></div>
         <div class="hero-elena-hint">
           <b>Как это работает:</b> нажмите кнопку → Елена спросит что вам нужно → вы загружаете документ или заполняете форму → результат за несколько секунд
         </div>
@@ -956,6 +965,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <!-- Вернувшийся клиент -->
       <div id="hero-returning" style="display:none">
         <div class="ret-greet">Добро пожаловать обратно —<br>вы в надёжных руках 🤝</div>
+        <div class="ret-tw-wrap" id="hw-ret"><span class="hero-tw-cur">|</span><span id="hero-tw-ret" class="hero-tw-text"></span></div>
         <div class="ret-card" id="ret-last-order"></div>
         <div class="cta">
           <button class="btn btn-p" style="min-width:160px" onclick="go('cabinet')">Мои дела →</button>
@@ -2540,22 +2550,66 @@ function ykFinish() {
   }, 1200);
 }
 
+function startTypewriter(el, phrases, speed) {
+  if (!el) return;
+  var pi = 0, ci = 0, deleting = false, pause = 0;
+  speed = speed || 62;
+  function tick() {
+    var ph = phrases[pi];
+    if (pause > 0) { pause--; setTimeout(tick, 80); return; }
+    if (!deleting) {
+      ci++;
+      el.textContent = ph.slice(0, ci);
+      if (ci >= ph.length) { deleting = true; pause = 32; }
+    } else {
+      ci--;
+      el.textContent = ph.slice(0, ci);
+      if (ci <= 0) { deleting = false; pause = 10; pi = (pi + 1) % phrases.length; }
+    }
+    setTimeout(tick, deleting ? Math.round(speed / 3) : speed);
+  }
+  tick();
+}
+
 function checkReturning() {
   const stats = JSON.parse(localStorage.getItem('zashita_intake_stats') || '[]');
   const lastOrder = JSON.parse(localStorage.getItem('zashita_last_order') || 'null');
-  if (!stats.length && !lastOrder) return; // новый клиент
-  // вернувшийся
+  const isReturning = stats.length > 0 || !!lastOrder;
+
   const n = document.getElementById('hero-new');
   const r = document.getElementById('hero-returning');
-  if (n) n.style.display = 'none';
-  if (r) r.style.display = '';
-  // карточка последнего заказа
-  if (lastOrder) {
-    const el = document.getElementById('ret-last-order');
-    if (el) el.innerHTML =
-      '<div class="ret-ord-lbl">Последний заказ</div>' +
-      '<div class="ret-ord-name">' + lastOrder.ttl + ' · ' + lastOrder.plan + '</div>' +
-      '<div class="ret-ord-price">' + lastOrder.price + '</div>';
+
+  if (!isReturning) {
+    // ── НОВЫЙ КЛИЕНТ: typewriter с USP-фразами
+    if (n) n.style.display = '';
+    if (r) r.style.display = 'none';
+    startTypewriter(document.getElementById('hero-tw-new'), [
+      'Первые 3 риска — бесплатно',
+      'Результат за несколько секунд',
+      'Работаю 24/7 — без очередей и звонков',
+      'Данные только на вашем устройстве 🔒',
+      'Уже помогла сотням предпринимателей',
+    ], 68);
+  } else {
+    // ── ВЕРНУВШИЙСЯ: personalized typewriter
+    if (n) n.style.display = 'none';
+    if (r) r.style.display = '';
+    // карточка последнего заказа
+    if (lastOrder && lastOrder.ttl) {
+      const el = document.getElementById('ret-last-order');
+      if (el) el.innerHTML =
+        '<div class="ret-ord-lbl">Последний заказ</div>' +
+        '<div class="ret-ord-name">' + lastOrder.ttl + ' · ' + lastOrder.plan + '</div>' +
+        '<div class="ret-ord-price">' + lastOrder.price + '</div>';
+    }
+    // персональные фразы
+    var retPhrases = ['готова продолжить — что нужно сегодня?'];
+    if (lastOrder && lastOrder.ttl) {
+      retPhrases.unshift('помню ваш договор: ' + lastOrder.ttl);
+    }
+    retPhrases.push('новый документ — за несколько секунд');
+    retPhrases.push('все ваши дела в кабинете 📂');
+    startTypewriter(document.getElementById('hero-tw-ret'), retPhrases, 55);
   }
 }
 window.addEventListener('DOMContentLoaded', checkReturning);
