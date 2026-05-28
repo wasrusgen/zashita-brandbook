@@ -904,6 +904,12 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .svc-btn-detail{padding:7px 16px;font-size:13px;background:transparent;border:1.5px solid #9f1239;color:#9f1239;border-radius:20px;cursor:pointer;transition:all .15s;font-family:inherit}
 .svc-btn-detail:hover{background:#fff5f7}
 .svc-detail-inp-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.doc-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 16px 48px}
+.doc-type-card{border:1.5px solid #e5e7eb;border-radius:12px;padding:14px;cursor:pointer;background:#fff;transition:all .15s}
+.doc-type-card:hover{border-color:#9f1239;background:#fff5f7;transform:translateY(-1px)}
+.dt-ico{font-size:22px;margin-bottom:6px}
+.dt-lbl{font-size:14px;font-weight:600;color:#1f2937;margin-bottom:3px}
+.dt-sub{font-size:11px;color:#6b7280;line-height:1.3}
 .hero-tw-cur{color:rgba(255,255,255,.5);font-size:18px;flex-shrink:0;line-height:1;animation:twBlink .65s step-start infinite}
 @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-tw-text{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);line-height:1.4}
@@ -1200,7 +1206,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <div class="hero-chat-replies" id="rchat-replies" style="display:none">
             <div class="hc-reply" onclick="go('cabinet');tab('cases')">📂 Мои дела</div>
             <div class="hc-reply" onclick="go('cabinet');tab('sroki')">⏱️ Сроки</div>
-            <div class="hc-reply" onclick="go('elena')">📄 Новый договор</div>
+            <div class="hc-reply" onclick="go('elena');setTimeout(function(){elenaIntent('create');},80)">📄 Новый договор</div>
             <div class="hc-reply" onclick="go('pay')">💳 Пополнить баланс</div>
           </div>
           <div class="hero-chat-input-row" id="rchat-input-row" style="display:none">
@@ -3194,8 +3200,33 @@ function elenaIntent(intent) {
     return;
   }
 
-  // create — переходим к wizard созданию документа
-  if (intent === 'create') { go('cabinet'); setTimeout(function(){ tab('create'); }, 200); return; }
+  // create — Елена сразу спрашивает "Какой документ?" без вступлений
+  if (intent === 'create') {
+    document.getElementById('el-step1').style.display = 'none';
+    var wrap = document.querySelector('.chatwrap');
+    var old = document.getElementById('el-create-picker'); if (old) old.remove();
+    var div = document.createElement('div');
+    div.id = 'el-create-picker';
+    div.innerHTML =
+      '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+        '<div class="bubble"><div class="nm">Елена</div>Хорошо! Какой документ нужен?</div></div>' +
+      '<div class="doc-type-grid">' +
+        '<div class="doc-type-card" onclick="elenaCreate(\'contract\')">' +
+          '<div class="dt-ico">📄</div><div class="dt-lbl">Договор</div>' +
+          '<div class="dt-sub">купли-продажи, аренды, услуг, подряда</div></div>' +
+        '<div class="doc-type-card" onclick="elenaCreate(\'power\')">' +
+          '<div class="dt-ico">📑</div><div class="dt-lbl">Доверенность</div>' +
+          '<div class="dt-sub">генеральная, на авто, в суд</div></div>' +
+        '<div class="doc-type-card" onclick="elenaCreate(\'claim\')">' +
+          '<div class="dt-ico">📋</div><div class="dt-lbl">Претензия</div>' +
+          '<div class="dt-sub">к контрагенту, продавцу, банку</div></div>' +
+        '<div class="doc-type-card" onclick="elenaCreate(\'other\')">' +
+          '<div class="dt-ico">✏️</div><div class="dt-lbl">Другое</div>' +
+          '<div class="dt-sub">расписка, соглашение, акт, заявление</div></div>' +
+      '</div>';
+    if (wrap) { wrap.appendChild(div); div.scrollIntoView({behavior:'smooth'}); }
+    return;
+  }
 
   // power — карточка услуги с ценой и CTA (не upload-форма!)
   if (intent === 'power') {
@@ -3243,7 +3274,11 @@ function elenaCreate(type) {
     other:    'Расскажите что нужно составить — постараюсь помочь или подберу ближайший шаблон.',
   };
   var msg = msgs[type] || msgs.other;
-  document.getElementById('el-step-create').style.display = 'none';
+  // Скрываем пикер типа документа
+  var picker = document.getElementById('el-create-picker');
+  if (picker) picker.style.display = 'none';
+  var stepCreate = document.getElementById('el-step-create');
+  if (stepCreate) stepCreate.style.display = 'none';
   // Показываем ответ Елены и поле ввода
   var wrap = document.querySelector('.chatwrap');
   var div = document.createElement('div');
@@ -3664,7 +3699,13 @@ window.addEventListener('DOMContentLoaded', function(){
 /* ── CHAT → ELENA TRANSITION ── */
 function _chatTransition(userText, intent) {
   if (intent === 'cabinet') { go('cabinet'); return; }
-  if (intent === 'create')  { go('cabinet'); setTimeout(function(){ tab('create'); }, 200); return; }
+  if (intent === 'create') {
+    var step1c = document.getElementById('el-step1');
+    if (step1c) step1c.style.display = 'none';
+    go('elena');
+    setTimeout(function(){ elenaIntent('create'); }, 80);
+    return;
+  }
 
   // Скрываем el-step1 ДО переключения экрана — нет вспышки приветствия
   var step1 = document.getElementById('el-step1');
