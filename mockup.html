@@ -501,6 +501,17 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .voice-btn-sm:hover{background:var(--bghv)}
 .voice-btn-sm.pulse{animation:vPulse 1s ease-in-out infinite}
 @keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(159,18,57,.4)}50%{box-shadow:0 0 0 8px rgba(159,18,57,0)}}
+/* ── ELENA CHAT ENTRY v4 ── */
+.elena-anim{opacity:0;transform:translateY(8px);animation:elFadeIn .38s ease forwards;animation-delay:var(--d,0s)}
+@keyframes elFadeIn{to{opacity:1;transform:translateY(0)}}
+.elena-dialog-wrap{margin:18px 0 10px 51px;max-width:560px}
+.elena-dialog-row{display:flex;gap:8px;align-items:center;background:#fff;border:2.5px solid var(--bg);border-radius:14px;padding:10px 14px;box-shadow:0 0 0 5px rgba(159,18,57,.07)}
+.elena-main-inp{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--ink);background:transparent;padding:6px 0}
+.elena-main-inp::placeholder{color:#b0b7c3}
+.elena-go-btn{background:var(--bg);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-size:16px;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .15s}
+.elena-go-btn:hover{background:var(--bghv)}
+.elena-quick{margin-top:4px}
+.elena-q-lbl{font-size:11px;font-weight:700;color:var(--mut);margin:14px 0 10px 51px;text-transform:uppercase;letter-spacing:.06em}
 
 /* Стартовый экран — усиление Елены */
 .hero-elena-hint{background:rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
@@ -963,39 +974,27 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
   <div id="elena-mode-badge"></div>
   <div class="chatwrap">
 
-    <!-- ШАГ 1: Чем могу помочь? — намерение клиента -->
+    <!-- ШАГ 1: Диалог Елены — вход v4 -->
     <div id="el-step1">
-      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 💛 Я Елена — ваш персональный юридический ассистент. Проверяю договоры, составляю документы, защищаю ваши интересы. Что вам нужно прямо сейчас?</div></div>
-      <div class="elena-q">Чем могу помочь?</div>
-      <div class="intent-grid">
-        <div class="int-card" onclick="elenaIntent('check')">
-          <div class="int-ico">📄</div>
-          <div class="int-body"><div class="int-lbl">Проверить договор</div><div class="int-sub">Найду риски и объясню каждый пункт простым языком</div></div>
-        </div>
-        <div class="int-card" onclick="elenaIntent('create')">
-          <div class="int-ico">✍️</div>
-          <div class="int-body"><div class="int-lbl">Составить документ</div><div class="int-sub">Договор, доверенность, претензию — под ваши параметры</div></div>
-        </div>
-        <div class="int-card" onclick="elenaIntent('dispute')">
-          <div class="int-ico">📋</div>
-          <div class="int-body"><div class="int-lbl">Убрать невыгодные пункты</div><div class="int-sub">Подготовлю протокол разногласий — загрузите договор</div></div>
-        </div>
-        <div class="int-card" onclick="elenaIntent('question')">
-          <div class="int-ico">💬</div>
-          <div class="int-body"><div class="int-lbl">Есть вопрос</div><div class="int-sub">Отвечу без загрузки документа — спросите текстом или голосом</div></div>
-        </div>
-        <div class="int-card" onclick="elenaIntent('power')">
-          <div class="int-ico">📑</div>
-          <div class="int-body"><div class="int-lbl">Нужна доверенность</div><div class="int-sub">Скажите кому и какие полномочия — составлю за несколько секунд</div></div>
-        </div>
-        <div class="int-card" onclick="elenaIntent('cabinet')">
-          <div class="int-ico">🗂️</div>
-          <div class="int-body"><div class="int-lbl">Я уже клиент</div><div class="int-sub">Войти в кабинет и посмотреть мои дела</div></div>
+      <div class="msg elena-anim" style="--d:.08s"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 👋 Я Елена — ваш персональный юридический ассистент.</div></div>
+      <div class="msg elena-anim" style="--d:.75s"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Помогаю с договорами, документами и защитой ваших интересов — быстро и понятно. Расскажите, что вас привело?</div></div>
+      <div class="elena-dialog-wrap elena-anim" style="--d:1.3s">
+        <div class="elena-dialog-row">
+          <input class="elena-main-inp" id="intake-custom" placeholder="Например: хочу проверить договор аренды..." onkeydown="if(event.key==='Enter')elenaIntentFromInput()">
+          <button class="voice-btn-sm" id="voice-btn-elena" onclick="toggleVoice('intake-custom')" title="Голосовой ввод">🎙</button>
+          <button class="elena-go-btn" onclick="elenaIntentFromInput()">→</button>
         </div>
       </div>
-      <div class="elena-voice-row">
-        <input class="elena-voice-input" id="intake-custom" placeholder="Или напишите своими словами..." onkeydown="if(event.key==='Enter')elenaIntent('custom')">
-        <button class="voice-btn-sm" id="voice-btn-elena" onclick="toggleVoice('intake-custom')" title="Голосовой ввод">🎙</button>
+      <div class="elena-quick elena-anim" style="--d:1.95s">
+        <div class="elena-q-lbl">или выберите быстро:</div>
+        <div class="intent-grid">
+          <div class="int-card" onclick="elenaIntent('check')"><div class="int-ico">📄</div><div class="int-body"><div class="int-lbl">Проверить договор</div><div class="int-sub">Найду риски и объясню каждый пункт простым языком</div></div></div>
+          <div class="int-card" onclick="elenaIntent('create')"><div class="int-ico">✍️</div><div class="int-body"><div class="int-lbl">Составить документ</div><div class="int-sub">Договор, доверенность, претензию — под ваши параметры</div></div></div>
+          <div class="int-card" onclick="elenaIntent('dispute')"><div class="int-ico">📋</div><div class="int-body"><div class="int-lbl">Убрать невыгодные пункты</div><div class="int-sub">Подготовлю протокол разногласий — загрузите договор</div></div></div>
+          <div class="int-card" onclick="elenaIntent('question')"><div class="int-ico">💬</div><div class="int-body"><div class="int-lbl">Есть вопрос</div><div class="int-sub">Отвечу без загрузки документа — спросите текстом или голосом</div></div></div>
+          <div class="int-card" onclick="elenaIntent('power')"><div class="int-ico">📑</div><div class="int-body"><div class="int-lbl">Нужна доверенность</div><div class="int-sub">Скажите кому и какие полномочия — составлю за несколько секунд</div></div></div>
+          <div class="int-card" onclick="elenaIntent('cabinet')"><div class="int-ico">🗂️</div><div class="int-body"><div class="int-lbl">Я уже клиент</div><div class="int-sub">Войти в кабинет и посмотреть мои дела</div></div></div>
+        </div>
       </div>
     </div>
 
@@ -2782,6 +2781,21 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 })();
 
 /* ── ELENA INTAKE v2 ── */
+function elenaIntentFromInput() {
+  var txt = (document.getElementById('intake-custom').value || '').trim();
+  if (!txt) { document.getElementById('intake-custom').focus(); return; }
+  var t = txt.toLowerCase();
+  var intent = 'question';
+  if (/доверенност/.test(t)) { intent = 'power'; }
+  else if (/протокол|разногласи|убрат|невыгод/.test(t)) { intent = 'dispute'; }
+  else if (/претензи|жалоб/.test(t)) { intent = 'check'; }
+  else if (/состав|написат|создат|подготов/.test(t) && !/проверит|анализ/.test(t)) { intent = 'create'; }
+  else if (/проверит|анализ|посмотр|риск/.test(t)) { intent = 'check'; }
+  else if (/договор|контракт|соглашени/.test(t)) { intent = 'check'; }
+  else if (/кабинет|войт|мои дел/.test(t)) { intent = 'cabinet'; }
+  elenaIntent(intent);
+}
+
 function elenaIntent(intent) {
   // cabinet — сразу в кабинет
   if (intent === 'cabinet') { go('cabinet'); return; }
