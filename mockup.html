@@ -4496,19 +4496,58 @@ var _apiAvailable = null; // null=не проверяли, true/false
 var _contractDeadlines = null;
 var _chatHistory = []; // история чата для /api/elena
 
+// Собирает контекст клиента для передачи Елене
+function _buildElenaContext() {
+  var clientName = '';
+  var caseContext = '';
+  try {
+    // Имя из localStorage (B2B или физлицо)
+    var b2b = JSON.parse(localStorage.getItem('zashita_b2b') || 'null');
+    if (b2b && b2b.name) clientName = b2b.name;
+    // Имя из stats (если физлицо)
+    if (!clientName) {
+      var stats = JSON.parse(localStorage.getItem('zashita_intake_stats') || '[]');
+      if (stats.length && stats[0].name) clientName = stats[0].name;
+    }
+  } catch(e) {}
+
+  // Контекст дела из активного дедлайна
+  if (_rcLastContext && _rcLastContext.dl) {
+    var dl = _rcLastContext.dl;
+    caseContext = (dl.type || '') + (dl.title ? ': ' + dl.title : '');
+    if (_rcLastContext.caseName) caseContext += ' · ' + _rcLastContext.caseName;
+  }
+  // Или из textarea договора
+  if (!caseContext) {
+    var contractText = (document.getElementById('el-paste') || {}).value || '';
+    if (contractText) caseContext = contractText.slice(0, 300);
+  }
+
+  return {
+    client_name:  clientName,
+    case_context: caseContext,
+    parties: _postalData ? {
+      counterparty: _postalData.counterparty,
+      counterEmail: _postalData.counterEmail
+    } : {}
+  };
+}
+
 function _elenaApi(txt, intent, callback) {
   /* Вызывает /api/elena. При ошибке — fallback на шаблон. */
   if (!_apiAvailable) { callback(null); return; }
-  var empathy = _getEmpathyPrefix(txt);
-  var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
+  var ctx = _buildElenaContext();
   fetch(API_BASE + '/api/elena', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      text: txt,
-      intent: intent,
-      history: _chatHistory.slice(-6),
-      deadlines: _contractDeadlines
+      text:         txt,
+      intent:       intent,
+      history:      _chatHistory.slice(-10),
+      deadlines:    _contractDeadlines,
+      client_name:  ctx.client_name,
+      case_context: ctx.case_context,
+      parties:      ctx.parties
     })
   })
   .then(function(r){ return r.json(); })
@@ -5348,14 +5387,18 @@ function retChatSend() {
       var ctx = _rcLastContext && _rcLastContext.type === 'deadline'
         ? '\n[Контекст: клиент спрашивает о сроке «' + _rcLastContext.dl.title + '» по договору ' + (_rcLastContext.caseName || '') + ']'
         : '';
+      var _ectx = _buildElenaContext();
       fetch(API_BASE + '/api/elena', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
-          text: txt + ctx,
-          intent: 'question',
-          history: _chatHistory.slice(-6),
-          deadlines: _contractDeadlines
+          text:         txt + ctx,
+          intent:       'question',
+          history:      _chatHistory.slice(-10),
+          deadlines:    _contractDeadlines,
+          client_name:  _ectx.client_name,
+          case_context: _ectx.case_context,
+          parties:      _ectx.parties
         })
       })
       .then(function(res){ return res.json(); })
