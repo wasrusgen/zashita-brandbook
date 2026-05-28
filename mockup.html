@@ -484,6 +484,72 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ov-row .ov-k{color:var(--mut)}
 .ov-row .ov-v{font-weight:600}
 
+/* ── СОСТАВИТЬ ДОКУМЕНТ ── */
+.create-steps{display:flex;align-items:center;gap:0;margin-bottom:28px}
+.cstep{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--mut);border:1.5px solid #e5e7eb;background:#fff;transition:all .2s}
+.cstep.act{background:var(--bg);color:#fff;border-color:var(--bg)}
+.cstep.done{background:var(--tint);color:var(--bg);border-color:var(--bg)}
+.cstep-num{width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.cstep.act .cstep-num{background:rgba(255,255,255,.25)}
+.cstep.done .cstep-num{background:var(--bg);color:#fff}
+.cstep-arrow{color:#d1d5db;font-size:18px;margin:0 6px;flex-shrink:0}
+
+.create-pane{display:none}.create-pane.on{display:block}
+
+/* Тип документа */
+.doc-type-intro{font-size:14px;color:var(--mut);margin-bottom:20px;line-height:1.5}
+.doc-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:800px;margin-bottom:24px}
+.doc-type-card{background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .15s;text-align:center}
+.doc-type-card:hover{border-color:var(--bg);background:var(--tint);transform:translateY(-2px);box-shadow:0 4px 14px rgba(159,18,57,.1)}
+.doc-type-card.sel{border-color:var(--bg);background:var(--tint);box-shadow:0 2px 10px rgba(159,18,57,.15)}
+.dtc-ico{font-size:30px;margin-bottom:8px}
+.dtc-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3}
+.dtc-desc{font-size:10px;color:var(--mut);margin-top:3px}
+.doc-type-next{background:var(--bg);color:#fff;border:none;border-radius:11px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;display:none}
+.doc-type-next.show{display:inline-flex;align-items:center;gap:8px}
+.doc-type-next:hover{background:var(--bghv)}
+
+/* Форма параметров */
+.create-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:740px;margin-bottom:20px}
+.cf-group{display:flex;flex-direction:column;gap:5px}
+.cf-group.wide{grid-column:1/-1}
+.cf-label{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px}
+.cf-input{border:1.5px solid #e5e7eb;border-radius:9px;padding:10px 13px;font-size:13px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .15s;background:#fff}
+.cf-input:focus{border-color:var(--bg)}
+.cf-select{border:1.5px solid #e5e7eb;border-radius:9px;padding:10px 13px;font-size:13px;font-family:inherit;color:var(--ink);outline:none;background:#fff;cursor:pointer}
+.cf-hint{font-size:11px;color:var(--mut);margin-top:2px;line-height:1.4}
+.create-form-actions{display:flex;gap:10px;margin-top:8px;max-width:740px}
+.cf-back{background:#fff;color:var(--bg);border:1.5px solid var(--bg);border-radius:11px;padding:11px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.cf-generate{background:var(--bg);color:#fff;border:none;border-radius:11px;padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px}
+.cf-generate:hover{background:var(--bghv)}
+
+/* Превью документа */
+.doc-generating{text-align:center;padding:40px 20px;display:none}
+.doc-generating.show{display:block}
+.dg-spinner{width:48px;height:48px;border:4px solid var(--tint);border-top-color:var(--bg);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dg-text{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.dg-sub{font-size:13px;color:var(--mut)}
+
+.doc-preview-wrap{display:none;max-width:700px}
+.doc-preview-wrap.show{display:block}
+.doc-preview-actions{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.dpa-btn{display:flex;align-items:center;gap:7px;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.dpa-dl{background:var(--bg);color:#fff}
+.dpa-dl:hover{background:var(--bghv)}
+.dpa-copy{background:#fff;color:var(--bg);border:1.5px solid var(--bg)}
+.dpa-add{background:#f0fdf4;color:#166534;border:1.5px solid #86efac}
+.doc-preview{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:32px 36px;font-size:13px;line-height:1.8;color:#374151;font-family:Georgia,serif}
+.doc-preview h3{font-family:var(--font-ui);font-size:15px;font-weight:800;text-align:center;margin-bottom:6px;color:var(--ink)}
+.doc-preview .doc-city{text-align:right;font-size:12px;color:var(--mut);margin-bottom:20px}
+.doc-preview .doc-p{margin-bottom:10px}
+.doc-preview .doc-article{font-weight:700;margin-top:16px;margin-bottom:6px;font-family:var(--font-ui);font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--bg)}
+.doc-preview .doc-clause{margin-bottom:6px;padding-left:12px;border-left:2px solid #e5e7eb}
+.doc-preview .doc-highlight{background:#fef9c3;border-radius:3px;padding:1px 3px}
+.doc-preview .doc-blank{background:#e5e7eb;border-radius:3px;padding:1px 8px;color:var(--mut);font-style:italic}
+.doc-preview .doc-parties{background:#f8f9fa;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:12px}
+.doc-preview .doc-parties b{display:block;margin-bottom:4px;font-family:var(--font-ui)}
+
 /* ── ЧАСЫ В САЙДБАРЕ ── */
 .side-clock{padding:10px 16px 6px;border-top:1px solid rgba(255,255,255,.07);margin-top:auto}
 .side-clock-day{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
@@ -1131,6 +1197,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <a id="t-case" onclick="tab('case')">📄 Дело: Кухня</a>
       <a id="t-sroki" onclick="tab('sroki')">⏱️ Сроки</a>
       <a id="t-shab" onclick="tab('shab')">📋 Шаблоны</a>
+      <a id="t-create" onclick="tab('create')">✍️ Составить документ</a>
       <a onclick="go('start')">↩ Выйти (в начало)</a>
       <div class="side-clock">
         <div class="side-clock-day" id="sc-day">Среда</div>
@@ -1611,6 +1678,152 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <div class="tpl" onclick="toast('✍️ Заполняю «Расторжение» — выйдем без потерь')"><div class="ti">🚪</div><div class="tn">Расторжение</div><div class="td">выйти без потерь</div></div>
         </div>
       </div>
+      <!-- Составить документ -->
+      <div class="tabpane" id="p-create"><div class="main-body">
+        <div class="crumb">Кабинет</div><h1>Составить документ</h1>
+        <div class="enote" style="margin-bottom:20px"><img src="logos/elena-photo.jpg"><div class="et"><b>Составлю любой документ под ваши параметры.</b> Выберите тип, заполните ключевые данные — черновик будет готов за 2 минуты. Сохранено на вашем устройстве 💛</div></div>
+
+        <!-- Шаги -->
+        <div class="create-steps">
+          <div class="cstep act" id="cstep-1"><div class="cstep-num">1</div>Тип документа</div>
+          <div class="cstep-arrow">›</div>
+          <div class="cstep" id="cstep-2"><div class="cstep-num">2</div>Параметры</div>
+          <div class="cstep-arrow">›</div>
+          <div class="cstep" id="cstep-3"><div class="cstep-num">3</div>Черновик готов</div>
+        </div>
+
+        <!-- Шаг 1: Тип документа -->
+        <div class="create-pane on" id="cp-type">
+          <div class="doc-type-intro">Выберите тип — Елена подберёт структуру и заполнит шаблон под ваши данные</div>
+          <div class="doc-type-grid">
+            <div class="doc-type-card sel" onclick="selectDocType('agent',this)">
+              <div class="dtc-ico">🤝</div>
+              <div class="dtc-name">Агентский договор</div>
+              <div class="dtc-desc">поручение + вознаграждение</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('trust',this)">
+              <div class="dtc-ico">📑</div>
+              <div class="dtc-name">Доверенность</div>
+              <div class="dtc-desc">полномочия представителя</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('claim',this)">
+              <div class="dtc-ico">✉️</div>
+              <div class="dtc-name">Претензия</div>
+              <div class="dtc-desc">оплата / неустойка</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('supply',this)">
+              <div class="dtc-ico">📦</div>
+              <div class="dtc-name">Договор поставки</div>
+              <div class="dtc-desc">товар + сроки + ответственность</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('rent',this)">
+              <div class="dtc-ico">🏠</div>
+              <div class="dtc-name">Аренда</div>
+              <div class="dtc-desc">помещение / оборудование</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('nda',this)">
+              <div class="dtc-ico">🔒</div>
+              <div class="dtc-name">NDA / Конфиденциальность</div>
+              <div class="dtc-desc">защита данных и ноу-хау</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('labor',this)">
+              <div class="dtc-ico">💼</div>
+              <div class="dtc-name">Трудовой договор</div>
+              <div class="dtc-desc">оформление сотрудника</div>
+            </div>
+            <div class="doc-type-card" onclick="selectDocType('dismiss',this)">
+              <div class="dtc-ico">🚪</div>
+              <div class="dtc-name">Расторжение</div>
+              <div class="dtc-desc">выйти без потерь</div>
+            </div>
+          </div>
+          <button class="doc-type-next show" id="doc-type-next" onclick="goCreateStep(2)">Заполнить параметры →</button>
+        </div>
+
+        <!-- Шаг 2: Параметры -->
+        <div class="create-pane" id="cp-form">
+          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:16px" id="cf-doc-title">Агентский договор</div>
+          <div class="create-form-grid" id="create-form-fields">
+            <!-- Поля строятся через JS buildCreateForm() -->
+            <div class="cf-group"><label class="cf-label">Принципал (вы)</label><input class="cf-input" placeholder="ИП Васильев Руслан Геннадьевич"><span class="cf-hint">Полное наименование или ФИО</span></div>
+            <div class="cf-group"><label class="cf-label">Агент (контрагент)</label><input class="cf-input" placeholder="ООО «Зов Ресторанс»"><span class="cf-hint">Полное наименование</span></div>
+            <div class="cf-group wide"><label class="cf-label">Предмет поручения</label><input class="cf-input" placeholder="Поиск и привлечение клиентов для ресторана"><span class="cf-hint">Что именно делает агент</span></div>
+            <div class="cf-group"><label class="cf-label">Вознаграждение</label><input class="cf-input" placeholder="150 000 руб./мес."><span class="cf-hint">Сумма и периодичность</span></div>
+            <div class="cf-group"><label class="cf-label">Срок договора</label><input class="cf-input" placeholder="1 год с даты подписания"><span class="cf-hint">Начало и окончание</span></div>
+            <div class="cf-group"><label class="cf-label">Подсудность</label><input class="cf-input" placeholder="По месту нахождения Принципала"><span class="cf-hint">Суд при спорах</span></div>
+            <div class="cf-group"><label class="cf-label">НДС</label><input class="cf-input" placeholder="Не облагается — УСН"><span class="cf-hint">Или: в т.ч. НДС 20%</span></div>
+          </div>
+          <div class="enote" style="margin-bottom:16px;max-width:740px"><img src="logos/elena-photo.jpg"><div class="et">Заполните ключевые параметры — остальное (нумерацию, ссылки на нормы, форс-мажор, реквизиты) я добавлю автоматически 💛</div></div>
+          <div class="create-form-actions">
+            <button class="cf-back" onclick="goCreateStep(1)">← Назад</button>
+            <button class="cf-generate" onclick="goCreateStep(3)">⚡ Сгенерировать черновик</button>
+          </div>
+        </div>
+
+        <!-- Шаг 3: Черновик готов -->
+        <div class="create-pane" id="cp-preview">
+
+          <!-- Спиннер генерации -->
+          <div class="doc-generating" id="doc-generating">
+            <div class="dg-spinner"></div>
+            <div class="dg-text">Елена составляет черновик…</div>
+            <div class="dg-sub">Проверяю нормы ГК РФ · подбираю формулировки · 2–3 секунды</div>
+          </div>
+
+          <!-- Превью документа -->
+          <div class="doc-preview-wrap" id="doc-preview-wrap">
+            <div class="doc-preview-actions">
+              <button class="dpa-btn dpa-dl" onclick="toast('⬇️ Скачиваю агентский договор в формате DOCX — файл будет готов через секунду')">⬇ Скачать DOCX</button>
+              <button class="dpa-btn dpa-copy" onclick="toast('📋 Текст договора скопирован в буфер обмена')">📋 Копировать</button>
+              <button class="dpa-btn dpa-add" onclick="toast('📁 Черновик добавлен в дело «Кухня — агентский (ЗОВ)»')">➕ В дело</button>
+              <button class="cf-back" style="border-radius:10px;padding:10px 16px;font-size:13px" onclick="goCreateStep(1)">← Новый</button>
+            </div>
+
+            <div class="doc-preview">
+              <h3>АГЕНТСКИЙ ДОГОВОР № <span class="doc-blank">___</span></h3>
+              <div class="doc-city">г. Краснодар &nbsp;&nbsp;&nbsp; <span class="doc-highlight">28 мая 2025 г.</span></div>
+
+              <div class="doc-parties">
+                <b>ПРИНЦИПАЛ:</b> <span class="doc-highlight">ИП Васильев Руслан Геннадьевич</span>, ОГРНИП <span class="doc-blank">____________</span>, ИНН <span class="doc-blank">____________</span>, именуемый в дальнейшем «Принципал»,<br><br>
+                <b>АГЕНТ:</b> <span class="doc-highlight">ООО «Зов Ресторанс»</span>, ИНН <span class="doc-blank">____________</span>, КПП <span class="doc-blank">____________</span>, именуемое в дальнейшем «Агент»,<br><br>
+                совместно именуемые «Стороны», заключили настоящий договор о нижеследующем:
+              </div>
+
+              <div class="doc-article">1. Предмет договора</div>
+              <div class="doc-clause">1.1. Принципал поручает, а Агент обязуется за вознаграждение совершать от имени и за счёт Принципала следующие действия: <span class="doc-highlight">поиск и привлечение клиентов для ресторана</span>.</div>
+              <div class="doc-clause">1.2. Агент действует в пределах полномочий, предоставленных настоящим договором и доверенностью (при необходимости).</div>
+
+              <div class="doc-article">2. Вознаграждение агента</div>
+              <div class="doc-clause">2.1. Вознаграждение Агента составляет <span class="doc-highlight">150 000 (сто пятьдесят тысяч) рублей</span> ежемесячно. <span class="doc-highlight">НДС не облагается — Агент применяет УСН.</span></div>
+              <div class="doc-clause">2.2. Изменение размера вознаграждения допускается исключительно по письменному соглашению Сторон.</div>
+              <div class="doc-clause">2.3. Оплата производится в течение 5 (пяти) рабочих дней с момента подписания акта за отчётный период.</div>
+
+              <div class="doc-article">3. Порядок исполнения</div>
+              <div class="doc-clause">3.1. Агент представляет отчёт не позднее <span class="doc-highlight">5-го числа</span> месяца, следующего за отчётным, с приложением первичных документов.</div>
+              <div class="doc-clause">3.2. Принципал вправе заявить возражения по отчёту в течение 3 (трёх) рабочих дней. По истечении данного срока отчёт считается принятым.</div>
+              <div class="doc-clause">3.3. Привлечение субагентов допускается исключительно с письменного согласия Принципала.</div>
+
+              <div class="doc-article">4. Ответственность сторон</div>
+              <div class="doc-clause">4.1. Ответственность Принципала ограничена суммой вознаграждения за 3 (три) последних месяца. Упущенная выгода возмещению не подлежит.</div>
+              <div class="doc-clause">4.2. За просрочку оплаты Принципал уплачивает пеню в размере 0,1% от суммы за каждый день просрочки.</div>
+
+              <div class="doc-article">5. Срок и расторжение</div>
+              <div class="doc-clause">5.1. Договор вступает в силу с даты подписания и действует <span class="doc-highlight">1 (один) год</span>.</div>
+              <div class="doc-clause">5.2. Каждая из Сторон вправе расторгнуть договор, уведомив другую сторону письменно не менее чем за 30 (тридцать) дней.</div>
+              <div class="doc-clause">5.3. Пролонгация допускается только при наличии письменного согласия обеих Сторон не позднее 30 дней до окончания срока.</div>
+
+              <div class="doc-article">6. Разрешение споров</div>
+              <div class="doc-clause">6.1. Все споры рассматриваются в арбитражном суде <span class="doc-highlight">по месту нахождения Принципала</span>.</div>
+
+              <div style="margin-top:24px;font-size:11px;color:var(--mut);border-top:1px solid #e5e7eb;padding-top:12px">
+                📌 Черновик сгенерирован ЗАЩИТА · требует проверки перед подписанием · данные хранятся на вашем устройстве
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div></div>
+
     </main>
   </div>
 </section>
@@ -2694,6 +2907,91 @@ window.addEventListener('DOMContentLoaded', function(){
   setTimeout(updateKPI, 100);
 });
 
+/* ── СОЗДАНИЕ ДОКУМЕНТА ── */
+var _selectedDocType = null;
+
+var _DOC_FORMS = {
+  agent: {
+    title: 'Агентский договор',
+    fields: [
+      {id:'df-principal',label:'Принципал (вы)',placeholder:'ИП Васильев Руслан Геннадьевич',hint:'Полное наименование или ФИО',col:'half'},
+      {id:'df-agent',label:'Агент (контрагент)',placeholder:'ООО «Зов Ресторанс»',hint:'Полное наименование',col:'half'},
+      {id:'df-subject',label:'Предмет поручения',placeholder:'Поиск и привлечение клиентов для ресторана',hint:'Что именно делает агент',col:'full'},
+      {id:'df-fee',label:'Вознаграждение',placeholder:'150 000 руб./мес.',hint:'Сумма и периодичность',col:'half'},
+      {id:'df-term',label:'Срок договора',placeholder:'1 год с даты подписания',hint:'Дата начала и окончания',col:'half'},
+      {id:'df-court',label:'Подсудность',placeholder:'По месту нахождения Принципала',hint:'Суд при возникновении споров',col:'half'},
+      {id:'df-nds',label:'НДС',placeholder:'Не облагается — УСН',hint:'Или: в т.ч. НДС 20%',col:'half'},
+    ]
+  },
+  trust: {
+    title: 'Доверенность',
+    fields: [
+      {id:'df-principal',label:'Доверитель',placeholder:'ИП Васильев Руслан Геннадьевич',hint:'ФИО и паспортные данные',col:'half'},
+      {id:'df-attorney',label:'Поверенный',placeholder:'Иванов Иван Иванович',hint:'ФИО и паспортные данные',col:'half'},
+      {id:'df-powers',label:'Полномочия',placeholder:'Подписание договоров, переговоры с контрагентами',hint:'Что может делать поверенный',col:'full'},
+      {id:'df-term',label:'Срок действия',placeholder:'1 год',hint:'Дата выдачи и срок',col:'half'},
+      {id:'df-subst',label:'Передоверие',placeholder:'Без права передоверия',hint:'Разрешено ли передоверие',col:'half'},
+    ]
+  },
+  claim: {
+    title: 'Претензия',
+    fields: [
+      {id:'df-sender',label:'Отправитель',placeholder:'ИП Васильев Р.Г.',hint:'Ваши данные',col:'half'},
+      {id:'df-receiver',label:'Получатель',placeholder:'ООО «Контрагент»',hint:'Кому направляете',col:'half'},
+      {id:'df-basis',label:'Основание',placeholder:'Договор поставки № 12 от 01.04.2025',hint:'Договор или обязательство',col:'full'},
+      {id:'df-violation',label:'Нарушение',placeholder:'Не оплачена поставка товара на сумму 500 000 руб.',hint:'Что нарушено',col:'full'},
+      {id:'df-demand',label:'Требование',placeholder:'Оплатить в течение 10 дней',hint:'Что требуете и в какой срок',col:'full'},
+      {id:'df-penalty',label:'Неустойка',placeholder:'0,1% за каждый день просрочки',hint:'Размер пени по договору или ст. 395 ГК',col:'half'},
+    ]
+  }
+};
+
+function selectDocType(type, el) {
+  _selectedDocType = type;
+  document.querySelectorAll('.doc-type-card').forEach(function(c){ c.classList.remove('sel'); });
+  if(el) el.classList.add('sel');
+  var btn = document.getElementById('doc-type-next');
+  if(btn){ btn.classList.add('show'); btn.textContent = 'Заполнить параметры →'; }
+}
+
+function goCreateStep(step) {
+  document.querySelectorAll('.create-pane').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.cstep').forEach(function(s,i){
+    s.classList.toggle('act', i+1 === step);
+    s.classList.toggle('done', i+1 < step);
+    var num = s.querySelector('.cstep-num');
+    if(num) num.textContent = (i+1 < step) ? '✓' : (i+1);
+  });
+  if(step === 1){ document.getElementById('cp-type').classList.add('on'); }
+  else if(step === 2){ buildCreateForm(); document.getElementById('cp-form').classList.add('on'); }
+  else if(step === 3){ document.getElementById('cp-preview').classList.add('on'); startDocGeneration(); }
+  window.scrollTo(0,0);
+}
+
+function buildCreateForm() {
+  var type = _selectedDocType || 'agent';
+  var def = _DOC_FORMS[type] || _DOC_FORMS.agent;
+  var title = document.getElementById('cf-doc-title');
+  if(title) title.textContent = def.title;
+  var grid = document.getElementById('create-form-fields');
+  if(!grid) return;
+  grid.innerHTML = def.fields.map(function(f){
+    var cls = f.col === 'full' ? 'cf-group wide' : 'cf-group';
+    return '<div class="'+cls+'"><label class="cf-label">'+f.label+'</label><input class="cf-input" id="'+f.id+'" placeholder="'+f.placeholder+'"><span class="cf-hint">'+f.hint+'</span></div>';
+  }).join('');
+}
+
+function startDocGeneration() {
+  var spinner = document.getElementById('doc-generating');
+  var preview = document.getElementById('doc-preview-wrap');
+  if(spinner){ spinner.classList.add('show'); }
+  if(preview){ preview.classList.remove('show'); }
+  setTimeout(function(){
+    if(spinner) spinner.classList.remove('show');
+    if(preview) preview.classList.add('show');
+  }, 2200);
+}
+
 /* ── ЧАСЫ ── */
 (function(){
   var DAYS = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
@@ -2956,7 +3254,7 @@ window.addEventListener('hashchange', handleHash);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
-  const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab'};
+  const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab',create:'t-create'};
   const el=document.getElementById(map[name]); if(el) el.classList.add('on');
   window.scrollTo(0,0);
 }
