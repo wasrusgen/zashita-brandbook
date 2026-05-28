@@ -336,11 +336,11 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 
 /* ── ТАБЛИЦА ДОГОВОРОВ ── */
-.ct-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.ct-filter-group{display:flex;gap:4px}
-.ct-fbtn{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit;transition:all .15s}
-.ct-fbtn:hover{border-color:var(--bg);color:var(--bg)}
-.ct-fbtn.act{background:var(--bg);color:#fff;border-color:var(--bg)}
+.ct-filters{display:flex;align-items:center;gap:0;margin-bottom:18px;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:4px;width:fit-content}
+.ct-filter-sep{width:1px;height:20px;background:#e5e7eb;margin:0 4px;flex-shrink:0}
+.ct-fbtn{background:transparent;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:#6b7280;font-family:inherit;transition:all .15s;white-space:nowrap}
+.ct-fbtn:hover{color:var(--ink);background:#f3f4f6}
+.ct-fbtn.act{background:var(--bg);color:#fff;box-shadow:0 1px 4px rgba(159,18,57,.25)}
 .ct-add{margin-left:auto;background:var(--bg);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .ct-add:hover{background:var(--bghv)}
 .ct-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -1007,15 +1007,11 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         </div>
         <!-- Фильтры -->
         <div class="ct-filters">
-          <div class="ct-filter-group">
-            <button class="ct-fbtn act" onclick="ctFilter('all',this)">Все</button>
-            <button class="ct-fbtn" onclick="ctFilter('open',this)">Открытые</button>
-            <button class="ct-fbtn" onclick="ctFilter('closed',this)">Закрытые</button>
-          </div>
-          <div class="ct-filter-group">
-            <button class="ct-fbtn" onclick="ctFilter('risk',this)">⚠ Высокий риск</button>
-          </div>
-          <button class="ct-add" onclick="go('elena')">+ Новый договор</button>
+          <button class="ct-fbtn act" onclick="ctFilter('all',this)">Все</button>
+          <button class="ct-fbtn" onclick="ctFilter('open',this)">Открытые</button>
+          <button class="ct-fbtn" onclick="ctFilter('closed',this)">Закрытые</button>
+          <div class="ct-filter-sep"></div>
+          <button class="ct-fbtn" onclick="ctFilter('risk',this)">⚠ Срочные</button>
         </div>
         <!-- Таблица -->
         <table class="ct-table" id="ct-table">
