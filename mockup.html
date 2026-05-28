@@ -4483,7 +4483,7 @@ function heroChatReply(key) {
 }
 
 /* ── API ── */
-var API_BASE = 'http://localhost:5001';  // замени на VPS когда задеплоишь
+var API_BASE = 'https://wasrusgen1.ru';  // Finnish VPS via Caddy
 var _apiAvailable = null; // null=не проверяли, true/false
 (function _checkApi(){
   fetch(API_BASE + '/api/health', {method:'GET'})
