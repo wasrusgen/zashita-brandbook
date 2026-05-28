@@ -82,17 +82,46 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .pdn{font-size:11px;color:var(--mut);margin:10px 0 16px}.pdn a{color:var(--bg)}
 
 /* ── кабинет (общий каркас) ── */
-.app{display:flex;min-height:100vh}
-.side{width:210px;background:#0C0608;color:#cbb;display:flex;flex-direction:column;padding:16px 0;flex-shrink:0}
-.side .lg{display:flex;align-items:center;gap:8px;padding:0 18px 14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:8px}
-.side .lg .w{color:#fff;font-size:14px}
-.side a{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;border-left:2px solid transparent}
-.side a.on{color:#fff;background:rgba(159,18,57,.28);border-left-color:var(--bg)}
-.side .prof{margin-top:auto;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;align-items:center}
-.side .prof .pa{width:32px;height:32px;border-radius:9px;background:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
-.side .prof .pn{font-size:12px;color:#fff;font-weight:600} .side .prof .pt{font-size:10px;color:rgba(255,255,255,.45)}
-.main{flex:1;padding:24px 30px;min-width:0}
-.main h1{font-size:22px;font-weight:800;margin-bottom:4px}.main .crumb{font-size:12px;color:var(--mut)}
+.app{display:flex;min-height:100vh;background:#f4f5f7}
+/* ── Сайдбар ── */
+.side{width:224px;background:#0C0608;color:#cbb;display:flex;flex-direction:column;flex-shrink:0;min-height:100vh}
+.side-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.side-logo img{height:16px;filter:brightness(0) invert(1)}
+.side-nav{padding:10px 0;flex:1}
+.side-section{font-size:10px;font-weight:700;letter-spacing:.8px;color:rgba(255,255,255,.25);padding:14px 20px 5px;text-transform:uppercase}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 20px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.side a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.side a.on{color:#fff;background:rgba(159,18,57,.25);border-left-color:var(--bg)}
+.side a .sico{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.side a .sbadge{margin-left:auto;background:var(--bg);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center}
+.side-new{margin:8px 12px 4px;background:var(--bg);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:calc(100% - 24px);display:flex;align-items:center;gap:8px;transition:background .15s}
+.side-new:hover{background:var(--bghv)}
+.side .prof{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:10px;align-items:center}
+.side .prof .pa{width:34px;height:34px;border-radius:10px;background:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.side .prof .pn{font-size:12px;color:#fff;font-weight:600}
+.side .prof .pt{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+/* ── Основная область ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:100vh}
+.main-hdr{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;height:56px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:50}
+.main-hdr h2{font-size:17px;font-weight:800;margin:0;flex-shrink:0}
+.main-hdr-search{flex:1;max-width:340px;position:relative}
+.main-hdr-search input{width:100%;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 12px 7px 34px;font-size:13px;font-family:inherit;outline:none;background:#f9fafb;color:var(--ink);box-sizing:border-box}
+.main-hdr-search input:focus{border-color:var(--bg);background:#fff}
+.main-hdr-search::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none}
+.main-hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.main-body{padding:24px 28px;flex:1}
+.main-body .crumb{font-size:12px;color:var(--mut);margin-bottom:6px}
+.main-body h1{font-size:20px;font-weight:800;margin:0 0 18px}
+/* ── KPI карточки ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi-card{background:#fff;border:1px solid #e5e7eb;border-radius:13px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.kpi-card .kc-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.kpi-card .kc-num{font-size:24px;font-weight:800;line-height:1}
+.kpi-card .kc-lbl{font-size:12px;color:var(--mut);margin-top:2px}
+.kpi-card.kpi-total .kc-ico{background:#ede9fe}
+.kpi-card.kpi-work  .kc-ico{background:#dbeafe}
+.kpi-card.kpi-urg   .kc-ico{background:#fee2e2}
+.kpi-card.kpi-done  .kc-ico{background:#dcfce7}
 .enote{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--bg);border-radius:12px;padding:12px 14px;max-width:760px;margin:14px 0 16px}
 .enote img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:center 16%}
 .enote .et{font-size:13px}
@@ -967,7 +996,15 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
     <main class="main">
       <!-- Мои дела -->
       <div class="tabpane on" id="p-cases">
+        <div class="main-body">
         <div class="crumb">Кабинет</div><h1>Мои дела</h1>
+        <!-- KPI -->
+        <div class="kpi-row">
+          <div class="kpi-card kpi-total"><div class="kc-ico">📁</div><div><div class="kc-num" id="kpi-total">5</div><div class="kc-lbl">Всего дел</div></div></div>
+          <div class="kpi-card kpi-work"><div class="kc-ico">🔵</div><div><div class="kc-num" id="kpi-work">3</div><div class="kc-lbl">В работе</div></div></div>
+          <div class="kpi-card kpi-urg"><div class="kc-ico">⚠️</div><div><div class="kc-num" id="kpi-urg">1</div><div class="kc-lbl">Срочных</div></div></div>
+          <div class="kpi-card kpi-done"><div class="kc-ico">✅</div><div><div class="kc-num" id="kpi-done">2</div><div class="kc-lbl">Завершено</div></div></div>
+        </div>
         <!-- Фильтры -->
         <div class="ct-filters">
           <div class="ct-filter-group">
@@ -994,10 +1031,10 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </thead>
           <tbody id="ct-tbody"></tbody>
         </table>
+        </div><!-- /main-body -->
       </div>
       <!-- Внутри дела -->
-      <div class="tabpane" id="p-case">
-        <div class="crumb">Кабинет / Мои дела</div><h1>Дело «Кухня — агентский договор»</h1>
+      <div class="tabpane" id="p-case"><div class="main-body"><div class="crumb">Кабинет / Мои дела</div><h1>Дело «Кухня — агентский договор»</h1>
         <div class="enote"><img src="logos/elena-photo.jpg"><div class="et">По этому делу я слежу за всем. Ближайший срок — через 3 дня, я напомню. Что нужно — скажите 💛</div></div>
 
         <!-- Следующий шаг -->
@@ -1072,14 +1109,12 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         </div>
       </div>
       <!-- Сроки — Gantt -->
-      <div class="tabpane" id="p-sroki">
-        <div class="crumb">Кабинет</div><h1>Сроки</h1>
+      <div class="tabpane" id="p-sroki"><div class="main-body"><div class="crumb">Кабинет</div><h1>Сроки</h1>
         <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за всеми сроками</b> — диаграмма обновляется в реальном времени. Нажмите на дело чтобы открыть 💛</div></div>
         <div class="gantt-wrap"><div class="gantt" id="gantt-root"></div></div>
       </div>
       <!-- Шаблоны -->
-      <div class="tabpane" id="p-shab">
-        <div class="crumb">Кабинет</div><h1>Шаблоны</h1>
+      <div class="tabpane" id="p-shab"><div class="main-body"><div class="crumb">Кабинет</div><h1>Шаблоны</h1>
         <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Готовые документы — заполню под ваш случай.</b> Составлять с нуля не нужно 💛</div></div>
         <div class="tpls">
           <div class="tpl" onclick="toast('✍️ Заполняю «Протокол разногласий» под ваш договор — Елена рядом')"><div class="ti">📝</div><div class="tn">Протокол разногласий</div><div class="td">убрать невыгодные пункты</div></div>
@@ -2134,6 +2169,41 @@ window.addEventListener('DOMContentLoaded', function() {
     var btn = document.getElementById('voice-btn');
     if (btn) btn.classList.add('no-support');
   }
+});
+
+/* ── CRM CABINET ── */
+function ctSearchFilter(q) {
+  q = q.toLowerCase();
+  var rows = document.querySelectorAll('#ct-tbody tr');
+  rows.forEach(function(r){ r.style.display = q && !r.textContent.toLowerCase().includes(q) ? 'none' : ''; });
+}
+
+function updateKPI() {
+  if (!window.CT_DATA) return;
+  var total = CT_DATA.length;
+  var work  = CT_DATA.filter(function(r){ return r.status==='work'; }).length;
+  var urg   = CT_DATA.filter(function(r){ return r.risk==='high' && r.open; }).length;
+  var done  = CT_DATA.filter(function(r){ return r.status==='done'; }).length;
+  var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+  set('kpi-total', total); set('kpi-work', work); set('kpi-urg', urg); set('kpi-done', done);
+  var b = document.getElementById('side-badge-cases');
+  if(b) b.textContent = CT_DATA.filter(function(r){ return r.open; }).length;
+}
+
+var TAB_TITLES = { cases:'Мои дела', case:'Текущее дело', sroki:'Сроки', shab:'Шаблоны' };
+var _origTabCRM = window.tab;
+window.tab = function(id) {
+  if (_origTabCRM) _origTabCRM(id);
+  var t = document.getElementById('main-hdr-title');
+  if (t) t.textContent = TAB_TITLES[id] || 'Кабинет';
+  // Показать/скрыть пункт "Текущее дело" в сайдбаре
+  var caseLink = document.getElementById('t-case');
+  if (caseLink) caseLink.style.display = id === 'case' ? 'flex' : 'none';
+  if (id === 'cases') setTimeout(updateKPI, 60);
+};
+
+window.addEventListener('DOMContentLoaded', function(){
+  setTimeout(updateKPI, 100);
 });
 
 /* ── СТАТУС ЗАКАЗА ── */
