@@ -4786,7 +4786,7 @@ function initReturnChat() {
   delay += 300;
   (function(d){ setTimeout(_rcAddTyping, d); })(delay);
   delay += 600;
-  (function(d, txt){ setTimeout(function(){ _rcRemoveTyping(); _rcAddBubble(txt, false); }, d); })(delay, callToAction);
+  (function(d, txt){ setTimeout(function(){ _rcRemoveTyping(); _rcAddBubble(txt, false, true); }, d); })(delay, callToAction);
 
   // show controls
   delay += 400;
