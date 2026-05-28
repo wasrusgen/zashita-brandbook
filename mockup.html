@@ -216,6 +216,47 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
 /* ── GANTT ── */
 .gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;padding-bottom:16px}
+/* ── DEADLINE CARDS ── */
+.dl-filter{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.dl-ftab{padding:6px 16px;border-radius:20px;border:1.5px solid #e5e7eb;font-size:12px;font-weight:600;cursor:pointer;color:#6b7280;background:#fff;transition:all .15s}
+.dl-ftab.on{background:var(--bg);color:#fff;border-color:var(--bg)}
+.dl-list{display:flex;flex-direction:column;gap:10px}
+.dl-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;transition:box-shadow .15s}
+.dl-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.dl-card.overdue{border-left:4px solid #ef4444}
+.dl-card.soon{border-left:4px solid #f59e0b}
+.dl-card.ok{border-left:4px solid #22c55e}
+.dl-card.done{opacity:.55}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.dl-card.overdue .dl-dot{background:#ef4444}
+.dl-card.soon .dl-dot{background:#f59e0b}
+.dl-card.ok .dl-dot{background:#22c55e}
+.dl-card.done .dl-dot{background:#9ca3af}
+.dl-body{flex:1;min-width:0}
+.dl-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.dl-meta{font-size:12px;color:var(--mut);margin-bottom:6px}
+.dl-quote{font-size:11px;color:#6b7280;background:#f9fafb;border-left:2px solid #e5e7eb;padding:5px 10px;border-radius:0 6px 6px 0;margin-bottom:8px;line-height:1.5}
+.dl-right{flex-shrink:0;text-align:right}
+.dl-date{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.dl-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+.dl-badge.overdue{background:#fee2e2;color:#991b1b}
+.dl-badge.soon{background:#fef3c7;color:#92400e}
+.dl-badge.ok{background:#dcfce7;color:#166534}
+.dl-badge.done{background:#f3f4f6;color:#6b7280}
+.dl-btn{margin-top:8px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;color:#374151;transition:all .15s;white-space:nowrap}
+.dl-btn:hover{border-color:var(--bg);color:var(--bg)}
+.dl-btn.done-btn{border-color:#22c55e;color:#16a34a}
+.dl-empty{text-align:center;padding:48px 24px;color:var(--mut)}
+.dl-empty-ico{font-size:40px;margin-bottom:12px}
+.dl-empty-txt{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--ink)}
+.dl-empty-sub{font-size:12px}
+.dl-summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.dl-sum-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;flex:1;min-width:100px;text-align:center}
+.dl-sum-num{font-size:22px;font-weight:800;line-height:1}
+.dl-sum-lbl{font-size:11px;color:var(--mut);margin-top:3px}
+.dl-sum-card.red .dl-sum-num{color:#ef4444}
+.dl-sum-card.yellow .dl-sum-num{color:#f59e0b}
+.dl-sum-card.green .dl-sum-num{color:#22c55e}
 .gantt{min-width:580px;font-family:var(--font-ui)}
 .gantt-hdr{display:grid;grid-template-columns:170px 1fr;align-items:end;margin-bottom:6px;padding-bottom:8px;border-bottom:1.5px solid var(--line)}
 .gantt-hdr-lbl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
@@ -1729,8 +1770,14 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </div>
       <!-- Сроки — Gantt -->
       <div class="tabpane" id="p-sroki"><div class="main-body"><div class="crumb">Кабинет</div><h1>Сроки</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за всеми сроками</b> — диаграмма обновляется в реальном времени. Нажмите на дело чтобы открыть 💛</div></div>
-        <div class="gantt-wrap"><div class="gantt" id="gantt-root"></div></div>
+        <div class="enote" style="margin-bottom:20px"><img src="logos/elena-photo.jpg"><div class="et"><b>Слежу за сроками из ваших договоров.</b> Если в документе есть даты оплат, уведомлений или расторжения — покажу здесь 💛</div></div>
+        <div class="dl-summary" id="dl-summary"></div>
+        <div class="dl-filter">
+          <div class="dl-ftab on" onclick="dlFilter('all',this)">Все</div>
+          <div class="dl-ftab" onclick="dlFilter('urgent',this)">Срочные 🔴🟡</div>
+          <div class="dl-ftab" onclick="dlFilter('done',this)">Выполненные</div>
+        </div>
+        <div class="dl-list" id="dl-list"></div>
       </div></div>
       <!-- Шаблоны -->
       <div class="tabpane" id="p-shab"><div class="main-body"><div class="crumb">Кабинет</div><h1>Шаблоны</h1>
@@ -2903,6 +2950,137 @@ function elenaCreate(type) {
   div.scrollIntoView({behavior:'smooth'});
 }
 
+/* ── DEADLINES ── */
+// Структура: { id, caseId, caseName, title, type, date (YYYY-MM-DD),
+//              quote, done }
+// В проде: заполняется при анализе договора через Claude API
+// Промпт парсинга (см. архитектуру ниже):
+//   "Извлеки все сроки из договора: даты оплат, уведомлений, пролонгации,
+//    расторжения, штрафных триггеров. Формат: [{title, type, date, quote}]"
+
+var _DEADLINES = [
+  { id:1, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
+    title:'Оплата аренды за май',
+    type:'Оплата', date:'2026-05-25',
+    quote:'«Арендная плата вносится не позднее 25-го числа текущего месяца»',
+    done:false },
+  { id:2, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
+    title:'Уведомить арендодателя о непродлении',
+    type:'Уведомление', date:'2026-06-04',
+    quote:'«Сторона обязана уведомить о намерении не продлевать договор не менее чем за 30 дней»',
+    done:false },
+  { id:3, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
+    title:'Плановое продление договора',
+    type:'Пролонгация', date:'2026-07-01',
+    quote:'«Договор пролонгируется автоматически на 12 месяцев при отсутствии уведомления»',
+    done:false },
+  { id:4, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
+    title:'Оплата обеспечительного депозита (возврат)',
+    type:'Оплата', date:'2026-07-15',
+    quote:'«Обеспечительный платёж возвращается в течение 45 дней после окончания аренды»',
+    done:false },
+];
+
+var _dlFilter = 'all';
+var _dlDone = new Set();
+
+function _dlStatus(dateStr) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var d = new Date(dateStr); d.setHours(0,0,0,0);
+  var diff = Math.round((d - today) / 86400000);
+  if (diff < 0)  return { cls:'overdue', badge:'Просрочено ' + Math.abs(diff) + ' дн.', days: diff };
+  if (diff <= 7) return { cls:'soon',    badge:'Через ' + diff + ' дн.',               days: diff };
+  return             { cls:'ok',      badge:'Через ' + diff + ' дн.',               days: diff };
+}
+
+function _fmtDate(dateStr) {
+  var m = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  var p = dateStr.split('-');
+  return p[2].replace(/^0/,'') + ' ' + m[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+function renderDeadlines() {
+  var list = document.getElementById('dl-list');
+  var sumEl = document.getElementById('dl-summary');
+  if (!list) return;
+
+  var items = _DEADLINES.map(function(d) {
+    var isDone = _dlDone.has(d.id) || d.done;
+    var st = isDone ? {cls:'done', badge:'Выполнено', days:999} : _dlStatus(d.date);
+    return Object.assign({}, d, {isDone: isDone, st: st});
+  });
+
+  // Сводка
+  var nOver = items.filter(function(i){ return i.st.cls==='overdue'; }).length;
+  var nSoon = items.filter(function(i){ return i.st.cls==='soon'; }).length;
+  var nOk   = items.filter(function(i){ return i.st.cls==='ok'; }).length;
+  if (sumEl) sumEl.innerHTML =
+    '<div class="dl-sum-card red"><div class="dl-sum-num">'+nOver+'</div><div class="dl-sum-lbl">Просрочено</div></div>' +
+    '<div class="dl-sum-card yellow"><div class="dl-sum-num">'+nSoon+'</div><div class="dl-sum-lbl">Скоро</div></div>' +
+    '<div class="dl-sum-card green"><div class="dl-sum-num">'+nOk+'</div><div class="dl-sum-lbl">В срок</div></div>';
+
+  // Фильтрация
+  var filtered = items.filter(function(i) {
+    if (_dlFilter === 'done')   return i.isDone;
+    if (_dlFilter === 'urgent') return !i.isDone && (i.st.cls==='overdue'||i.st.cls==='soon');
+    return true;
+  });
+
+  // Сортировка: overdue → soon → ok → done
+  filtered.sort(function(a,b){ return a.st.days - b.st.days; });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="dl-empty"><div class="dl-empty-ico">✅</div><div class="dl-empty-txt">Активных сроков нет</div><div class="dl-empty-sub">Елена найдёт сроки автоматически при загрузке договора</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(function(d) {
+    var btnHtml = d.isDone
+      ? '<button class="dl-btn done-btn" disabled>✅ Выполнено</button>'
+      : '<button class="dl-btn" onclick="markDeadlineDone('+d.id+')">Отметить выполненным</button>';
+    return '<div class="dl-card '+d.st.cls+'">' +
+      '<div class="dl-dot"></div>' +
+      '<div class="dl-body">' +
+        '<div class="dl-title">'+d.title+'</div>' +
+        '<div class="dl-meta">'+d.caseName+' · '+d.type+'</div>' +
+        '<div class="dl-quote">'+d.quote+'</div>' +
+        btnHtml +
+      '</div>' +
+      '<div class="dl-right">' +
+        '<div class="dl-date">'+_fmtDate(d.date)+'</div>' +
+        '<div class="dl-badge '+d.st.cls+'">'+d.st.badge+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function dlFilter(name, el) {
+  _dlFilter = name;
+  document.querySelectorAll('.dl-ftab').forEach(function(t){ t.classList.remove('on'); });
+  if (el) el.classList.add('on');
+  renderDeadlines();
+}
+
+function markDeadlineDone(id) {
+  _dlDone.add(id);
+  renderDeadlines();
+  toast('✅ Срок отмечен выполненным');
+}
+
+// Добавить дедлайн из анализа договора (вызывается при парсинге)
+function addDeadlinesFromContract(caseId, caseName, deadlines) {
+  deadlines.forEach(function(d) {
+    var maxId = Math.max.apply(null, _DEADLINES.map(function(x){return x.id;})) || 0;
+    _DEADLINES.push({ id: maxId+1, caseId: caseId, caseName: caseName,
+      title: d.title, type: d.type, date: d.date, quote: d.quote||'', done: false });
+  });
+  if (document.getElementById('dl-list')) renderDeadlines();
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('dl-list')) renderDeadlines();
+});
+
 /* ── ГОЛОСОВОЙ ВВОД ── */
 var _voiceActive = false;
 var _voiceRecog = null;
@@ -3409,6 +3587,7 @@ window.addEventListener('DOMContentLoaded', handleHash);
 window.addEventListener('hashchange', handleHash);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
+  if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();;
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
   const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab',create:'t-create'};
   const el=document.getElementById(map[name]); if(el) el.classList.add('on');
