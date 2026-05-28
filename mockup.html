@@ -449,6 +449,41 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .create-type-card .ctc-name{font-weight:700;font-size:13px}
 .create-type-card .ctc-sub{font-size:11px;color:var(--mut);margin-top:2px}
 
+/* ── КАРТОЧКА ДЕЛА CRM ── */
+.case-hdr{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px 22px;margin-bottom:20px;display:flex;align-items:flex-start;gap:18px}
+.case-hdr-ico{width:52px;height:52px;border-radius:13px;background:var(--tint);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.case-hdr-info{flex:1;min-width:0}
+.case-hdr-name{font-size:18px;font-weight:800;margin-bottom:6px;line-height:1.2}
+.case-hdr-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.case-hdr-actions{display:flex;gap:8px;flex-shrink:0;align-items:flex-start}
+
+.next-step-v2{background:linear-gradient(135deg,#fff7f8,#fff);border:2px solid var(--bg);border-radius:16px;padding:20px 22px;margin-bottom:22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:box-shadow .15s}
+.next-step-v2:hover{box-shadow:0 4px 20px rgba(159,18,57,.12)}
+.ns2-pulse{width:48px;height:48px;border-radius:13px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;animation:nsPulse 2s ease-in-out infinite}
+@keyframes nsPulse{0%,100%{box-shadow:0 0 0 0 rgba(159,18,57,.3)}50%{box-shadow:0 0 0 8px rgba(159,18,57,0)}}
+.ns2-body{flex:1;min-width:0}
+.ns2-label{font-size:11px;font-weight:700;color:var(--bg);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.ns2-action{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.ns2-meta{font-size:12px;color:var(--mut)}
+.ns2-deadline{background:#fee2e2;color:#991b1b;border-radius:7px;padding:2px 9px;font-size:11px;font-weight:700;margin-left:8px}
+.ns2-btn{background:var(--bg);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap}
+.ns2-btn:hover{background:var(--bghv)}
+
+.case-tabs{display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:20px}
+.case-tab{padding:10px 18px;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.case-tab:hover{color:var(--ink)}
+.case-tab.on{color:var(--bg);border-bottom-color:var(--bg);font-weight:700}
+
+.case-pane{display:none}.case-pane.on{display:block}
+
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.ov-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px}
+.ov-card-ttl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.ov-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px}
+.ov-row:last-child{border-bottom:none}
+.ov-row .ov-k{color:var(--mut)}
+.ov-row .ov-v{font-weight:600}
+
 /* ── RETURNING CLIENT ── */
 .ret-greet{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:24px;letter-spacing:-.5px}
 .ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
@@ -1029,79 +1064,93 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         </table>
         </div><!-- /main-body -->
       </div>
-      <!-- Внутри дела -->
-      <div class="tabpane" id="p-case"><div class="main-body"><div class="crumb">Кабинет / Мои дела</div><h1>Дело «Кухня — агентский договор»</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et">По этому делу я слежу за всем. Ближайший срок — через 3 дня, я напомню. Что нужно — скажите 💛</div></div>
+      <!-- Внутри дела — CRM -->
+      <div class="tabpane" id="p-case"><div class="main-body">
+        <div class="crumb" style="margin-bottom:14px">Кабинет / <span style="cursor:pointer;color:var(--bg)" onclick="tab('cases')">Мои дела</span> / Кухня — агентский</div>
 
-        <!-- Следующий шаг -->
-        <div class="next-step" onclick="tab('shab')">
-          <div class="ns-icon">⏰</div>
-          <div class="ns-body">
-            <div class="ns-title">Следующий шаг</div>
-            <div class="ns-text">Отправить протокол разногласий контрагенту</div>
-            <div class="ns-sub">Срок — до 26.05 (осталось 3 дня) · ст. 22 ЗоЗПП</div>
+        <!-- Шапка дела -->
+        <div class="case-hdr">
+          <div class="case-hdr-ico">🍽️</div>
+          <div class="case-hdr-info">
+            <div class="case-hdr-name">Кухня — агентский договор (ЗОВ)</div>
+            <div class="case-hdr-meta">
+              <span class="chip d">⚠ Высокий риск</span>
+              <span class="chip w">🔵 В работе</span>
+              <span class="chip n">12 рисков</span>
+              <span class="chip n">Агентский · 23.05.2025</span>
+            </div>
           </div>
-          <button class="ns-btn" onclick="event.stopPropagation();toast('📋 Готовлю протокол разногласий — проверю все 5 критичных пунктов и добавлю в документы дела')">Подготовить →</button>
-        </div>
-
-        <div style="display:flex;gap:8px;margin-bottom:16px"><span class="chip d">⚠ Высокий риск · 3/5</span><span class="chip n">12 рисков</span><span class="chip w">срок 3 дня</span></div>
-
-        <b style="font-size:13px">Документы дела</b>
-        <div style="max-width:760px;margin-top:8px">
-          <div class="docrow" onclick="toast('Открываю исходный договор (v1) — данные на вашем устройстве')">📄 Исходный договор <span class="ver">v1</span></div>
-          <div class="docrow" onclick="toast('Открываю новую редакцию (v2) — рядом со сверкой версий')">📝 Новая редакция <span class="ver">v2</span></div>
-          <div class="docrow" onclick="toast('Открываю заключение экспертизы — 12 рисков со ссылками на нормы')">🔍 Заключение экспертизы <span class="ver">готово</span></div>
-          <div class="docrow" onclick="toast('Открываю протокол разногласий (черновик)')">📋 Протокол разногласий <span class="ver">черновик</span></div>
-          <div class="docrow" onclick="toast('Открываю ответ контрагента (входящее)')">⬇️ Ответ контрагента <span class="ver">входящее</span></div>
-        </div>
-
-        <!-- Таймлайн -->
-        <div class="tl-section">
-          <div class="tl-label">История дела</div>
-          <div class="tl">
-            <div class="tl-item done">
-              <div class="tl-dot"></div>
-              <div class="tl-date">23.05</div>
-              <div class="tl-title">Договор загружен</div>
-              <div class="tl-ev">Агентский договор ЗОВ — v1</div>
-            </div>
-            <div class="tl-item done">
-              <div class="tl-dot"></div>
-              <div class="tl-date">23.05</div>
-              <div class="tl-title">Экспертиза завершена</div>
-              <div class="tl-ev">12 рисков, 5 критичных — заключение готово</div>
-            </div>
-            <div class="tl-item done">
-              <div class="tl-dot"></div>
-              <div class="tl-date">24.05</div>
-              <div class="tl-title">Получена новая редакция</div>
-              <div class="tl-ev">Контрагент прислал v2 — сверка выполнена</div>
-            </div>
-            <div class="tl-item active">
-              <div class="tl-dot"></div>
-              <div class="tl-date">сейчас</div>
-              <div class="tl-title">Протокол разногласий</div>
-              <div class="tl-ev">Черновик готов · ждёт вашего согласования</div>
-            </div>
-            <div class="tl-item pending">
-              <div class="tl-dot"></div>
-              <div class="tl-date">до 26.05</div>
-              <div class="tl-title">Ответ контрагенту</div>
-              <div class="tl-ev">Направить протокол разногласий</div>
-            </div>
-            <div class="tl-item pending">
-              <div class="tl-dot"></div>
-              <div class="tl-date">—</div>
-              <div class="tl-title">Итоговое подписание</div>
-              <div class="tl-ev">После согласования всех пунктов</div>
-            </div>
+          <div class="case-hdr-actions">
+            <button class="btn btn-o" style="font-size:12px;padding:7px 14px" onclick="toast('⬇️ PDF экспортируется')">⬇ PDF</button>
+            <button class="btn btn-p" style="font-size:12px;padding:7px 14px" onclick="toast('💬 Открываю чат с Еленой')">💬 Елена</button>
           </div>
         </div>
 
-        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="toast('📋 Готовлю протокол разногласий по критичным пунктам — добавлю в документы дела')">Сформировать протокол</button>
-          <button class="btn btn-o" onclick="toast('⬇️ Заключение экспортируется в PDF (с колонтитулом и парафированием)')">Скачать PDF</button>
-          <button class="btn btn-o" onclick="tab('shab')">+ Доп. услуга</button>
+        <!-- ⚡ Следующий шаг — ГЛАВНЫЙ БЛОК -->
+        <div class="next-step-v2" onclick="toast('📋 Открываю протокол разногласий для согласования')">
+          <div class="ns2-pulse">⚡</div>
+          <div class="ns2-body">
+            <div class="ns2-label">Следующий шаг</div>
+            <div class="ns2-action">Отправить протокол разногласий контрагенту<span class="ns2-deadline">до 29.05</span></div>
+            <div class="ns2-meta">Протокол готов · 5 пунктов · ст. 22 ЗоЗПП · осталось 1 день</div>
+          </div>
+          <button class="ns2-btn" onclick="event.stopPropagation();toast('✅ Протокол согласован и готов к отправке')">Согласовать →</button>
+        </div>
+
+        <!-- Вкладки -->
+        <div class="case-tabs">
+          <div class="case-tab on" onclick="caseTab('overview',this)">Обзор</div>
+          <div class="case-tab" onclick="caseTab('docs',this)">Документы <span style="background:#e5e7eb;border-radius:8px;padding:1px 6px;font-size:10px">5</span></div>
+          <div class="case-tab" onclick="caseTab('timeline',this)">История</div>
+        </div>
+
+        <!-- Обзор -->
+        <div class="case-pane on" id="cp-overview">
+          <div class="overview-grid">
+            <div class="ov-card">
+              <div class="ov-card-ttl">Параметры дела</div>
+              <div class="ov-row"><span class="ov-k">Тип договора</span><span class="ov-v">Агентский</span></div>
+              <div class="ov-row"><span class="ov-k">Дата загрузки</span><span class="ov-v">23.05.2025</span></div>
+              <div class="ov-row"><span class="ov-k">Риск</span><span class="ov-v"><span class="chip d" style="font-size:11px">⚠ Высокий · 3/5</span></span></div>
+              <div class="ov-row"><span class="ov-k">Рисков найдено</span><span class="ov-v">12 (5 критичных)</span></div>
+              <div class="ov-row"><span class="ov-k">Статус</span><span class="ov-v">🔵 В работе</span></div>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-ttl">Прогресс сделки</div>
+              <div class="ov-row"><span class="ov-k">✅ Экспертиза</span><span class="ov-v" style="color:#16a34a">Готово</span></div>
+              <div class="ov-row"><span class="ov-k">✅ Новая редакция</span><span class="ov-v" style="color:#16a34a">Получена</span></div>
+              <div class="ov-row"><span class="ov-k">⏳ Протокол</span><span class="ov-v" style="color:#d97706">На согласовании</span></div>
+              <div class="ov-row"><span class="ov-k">⬜ Ответ контрагенту</span><span class="ov-v" style="color:#9ca3af">Ожидает</span></div>
+              <div class="ov-row"><span class="ov-k">⬜ Подписание</span><span class="ov-v" style="color:#9ca3af">Ожидает</span></div>
+            </div>
+          </div>
+          <div class="enote" style="margin-top:4px"><img src="logos/elena-photo.jpg"><div class="et">Протокол разногласий готов — осталось согласовать и отправить контрагенту до 29.05. Я напомню накануне 💛</div></div>
+        </div>
+
+        <!-- Документы -->
+        <div class="case-pane" id="cp-docs">
+          <div style="max-width:700px">
+            <div class="docrow" onclick="toast('Открываю исходный договор v1')">📄 Исходный договор <span class="ver">v1</span></div>
+            <div class="docrow" onclick="toast('Открываю редакцию v2')">📝 Новая редакция <span class="ver">v2</span></div>
+            <div class="docrow" onclick="toast('Открываю заключение экспертизы — 12 рисков')">🔍 Заключение экспертизы <span class="ver">готово</span></div>
+            <div class="docrow" onclick="toast('Открываю протокол разногласий')">📋 Протокол разногласий <span class="ver">черновик</span></div>
+            <div class="docrow" onclick="toast('Открываю ответ контрагента')">⬇️ Ответ контрагента <span class="ver">входящее</span></div>
+          </div>
+        </div>
+
+        <!-- История -->
+        <div class="case-pane" id="cp-timeline">
+          <div class="tl-section" style="margin-top:0">
+            <div class="tl">
+              <div class="tl-item done"><div class="tl-dot"></div><div class="tl-date">23.05</div><div class="tl-title">Договор загружен</div><div class="tl-ev">Агентский договор ЗОВ — v1</div></div>
+              <div class="tl-item done"><div class="tl-dot"></div><div class="tl-date">23.05</div><div class="tl-title">Экспертиза завершена</div><div class="tl-ev">12 рисков, 5 критичных — заключение готово</div></div>
+              <div class="tl-item done"><div class="tl-dot"></div><div class="tl-date">24.05</div><div class="tl-title">Получена новая редакция</div><div class="tl-ev">Контрагент прислал v2 — сверка выполнена</div></div>
+              <div class="tl-item active"><div class="tl-dot"></div><div class="tl-date">сейчас</div><div class="tl-title">Протокол разногласий</div><div class="tl-ev">Черновик готов · ждёт согласования</div></div>
+              <div class="tl-item pending"><div class="tl-dot"></div><div class="tl-date">до 29.05</div><div class="tl-title">Ответ контрагенту</div><div class="tl-ev">Направить протокол разногласий</div></div>
+              <div class="tl-item pending"><div class="tl-dot"></div><div class="tl-date">—</div><div class="tl-title">Итоговое подписание</div><div class="tl-ev">После согласования всех пунктов</div></div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
       <!-- Сроки — Gantt -->
@@ -2201,6 +2250,15 @@ window.tab = function(id) {
 window.addEventListener('DOMContentLoaded', function(){
   setTimeout(updateKPI, 100);
 });
+
+/* ── CASE TABS ── */
+function caseTab(id, el) {
+  document.querySelectorAll('.case-pane').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.case-tab').forEach(function(t){ t.classList.remove('on'); });
+  var pane = document.getElementById('cp-' + id);
+  if (pane) pane.classList.add('on');
+  if (el) el.classList.add('on');
+}
 
 /* ── СТАТУС ЗАКАЗА ── */
 const OS_DEADLINES = {
