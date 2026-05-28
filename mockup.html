@@ -3869,17 +3869,59 @@ function elenaIntent(intent) {
     return;
   }
 
-  // check / dispute — переходим к загрузке
-  var ackMap = {
-    check:   'Отлично — проверю договор 📄 Найду все риски и объясню каждый понятно.',
-    dispute: 'Хорошо — подготовлю протокол разногласий 📋 Загрузите договор, уберём невыгодные пункты.',
-    custom:  'Понял вас. Загрузите документ или опишите подробнее — разберёмся.',
-  };
+  // check / dispute — сначала Елена отвечает, потом мягко предлагает загрузить
+  var userTxt = (document.getElementById('intake-custom') || {}).value || '';
   document.querySelectorAll('#el-step1, #el-step-create').forEach(function(el){ el.style.display='none'; });
-  var upload = document.getElementById('el-step-upload');
-  if(upload) upload.style.display='';
-  var ack = document.getElementById('el-ack');
-  if(ack) ack.innerHTML = ackMap[intent] || '';
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) {
+    // fallback: сразу upload
+    var upload = document.getElementById('el-step-upload');
+    if(upload) upload.style.display='';
+    return;
+  }
+
+  // Пузырь пользователя
+  if (userTxt) {
+    var ub = document.createElement('div');
+    ub.className = 'msg user-msg';
+    ub.innerHTML = '<div class="bubble">' + userTxt.replace(/</g,'&lt;') + '</div>';
+    wrap.appendChild(ub);
+  }
+
+  // Typing → API → ответ → кнопка загрузки
+  _hcAddTyping();
+  _elenaApi(userTxt || intent, intent, function(apiReply) {
+    _hcRemoveTyping();
+    var defaultReply = intent === 'dispute'
+      ? 'Понял ситуацию — разберёмся. Если есть текст договора, загрузите его — сразу покажу спорные пункты и как их оспорить.'
+      : 'Хорошо, посмотрю. Если у вас есть текст договора — загрузите или вставьте, найду все риски и объясню понятно.';
+    var replyText = apiReply || defaultReply;
+
+    // Добавляем ответ Елены
+    var mb = document.createElement('div');
+    mb.className = 'msg';
+    mb.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
+      + '<div class="bubble"><div class="nm">Елена</div>' + replyText + '</div>';
+    wrap.appendChild(mb);
+
+    // Через паузу — мягкое предложение загрузить
+    setTimeout(function() {
+      var ob = document.createElement('div');
+      ob.className = 'msg';
+      ob.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
+        + '<div class="bubble"><div class="nm">Елена</div>'
+        + 'Есть договор? Загрузите — разберу подробно.'
+        + '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
+        + '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" onclick="'
+        + '  document.querySelectorAll(\'.chatwrap .msg\').forEach(function(e){e.style.opacity=\'1\'});'
+        + '  var up=document.getElementById(\'el-step-upload\');if(up){up.style.display=\'\';up.scrollIntoView({behavior:\'smooth\'});}'
+        + '">📂 Загрузить договор</button>'
+        + '<button class="svc-btn-detail" onclick="this.closest(\'.bubble\').innerHTML+=\'<br>Хорошо — задавайте вопросы, отвечу по нормам ГК/ТК.\'; this.parentNode.remove()">💬 Задам вопрос</button>'
+        + '</div></div></div>';
+      wrap.appendChild(ob);
+      ob.scrollIntoView({behavior:'smooth'});
+    }, 600);
+  });
 }
 
 function elenaCreate(type) {
