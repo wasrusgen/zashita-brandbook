@@ -1175,14 +1175,14 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </div>
           <div class="hero-chat-msgs" id="hchat-msgs"></div>
           <div class="hero-chat-replies" id="hchat-replies" style="display:none">
-            <div class="hc-reply" onclick="heroChatReply('check')">📄 Проверить договор</div>
-            <div class="hc-reply" onclick="heroChatReply('create')">✍️ Составить документ</div>
-            <div class="hc-reply" onclick="heroChatReply('dispute')">📋 Протокол разногласий</div>
-            <div class="hc-reply" onclick="heroChatReply('question')">💬 Другой вопрос</div>
+            <div class="hc-reply" onclick="heroChatReply('check')">📄 Дали договор на подпись</div>
+            <div class="hc-reply" onclick="heroChatReply('dispute')">🚨 Контрагент нарушает условия</div>
+            <div class="hc-reply" onclick="heroChatReply('create')">✍️ Нужно составить документ</div>
+            <div class="hc-reply" onclick="heroChatReply('question')">❓ Не знаю с чего начать</div>
           </div>
           <div class="hero-chat-input-row" id="hchat-input-row" style="display:none">
             <button class="hc-mic-btn" id="hcmic-btn" onclick="toggleVoice('hchat-inp','hcmic-btn')" title="Голосовой ввод">🎙</button>
-            <input class="hc-text-inp" id="hchat-inp" placeholder="Или напишите своими словами..."
+            <input class="hc-text-inp" id="hchat-inp" placeholder="Например: контрагент не платит / дали договор на подпись..."
               onkeydown="if(event.key==='Enter')heroChatSend()">
             <button class="hc-send-btn" onclick="heroChatSend()">→</button>
           </div>
@@ -3728,17 +3728,36 @@ function _chatTransition(userText, intent) {
 var _hchatDone =false;
 
 var _HC_MESSAGES = [
-  { text: 'Добрый день! Рады Вас видеть 👋', delay: 600, typing: 900 },
-  { text: 'Могу проверить Ваш договор, составить документ, подготовить протокол разногласий, оценить риски, оформить доверенность — и многое другое.', delay: 500, typing: 1600 },
-  { text: 'Что Вас привело к нам?', delay: 400, typing: 700 }
+  { text: 'Добрый день 👋', delay: 400, typing: 450 },
+  { text: 'Что случилось — расскажите. Помогу разобраться.', delay: 350, typing: 700 }
 ];
 
+// Карты боли → эмпатичный префикс ответа Елены
+var _EMPATHY_MAP = [
+  { re: /не платит|долг|задолжал|деньги не|не вернул|взыскать/,    prefix: 'Неприятная ситуация — но решаемая. ' },
+  { re: /уволят|увольняют|сократят|не выплачивает зарплат|работодатель/, prefix: 'Понимаю, это серьёзно и стрессово. ' },
+  { re: /обман|мошенн|обманули|кинули|развели/,                    prefix: 'Это возмутительно, и с этим можно бороться. ' },
+  { re: /срочно|сегодня|завтра|скоро|горит|быстро/,                prefix: 'Понял, нужно быстро — разберёмся. ' },
+  { re: /боюсь|страшно|не знаю|растерян|непонятно/,                prefix: 'Спокойно, разберёмся вместе. ' },
+  { re: /расторг|разорвать|выйти из договора/,                     prefix: 'Понятно — это можно сделать правильно. ' },
+  { re: /арендодатель|арендатор|аренда/,                           prefix: 'Арендные споры — частая история. ' },
+  { re: /контрагент|партнёр|поставщик/,                            prefix: 'Понятно, ситуация с контрагентом. ' },
+];
+
+function _getEmpathyPrefix(text) {
+  var t = text.toLowerCase();
+  for (var i = 0; i < _EMPATHY_MAP.length; i++) {
+    if (_EMPATHY_MAP[i].re.test(t)) return _EMPATHY_MAP[i].prefix;
+  }
+  return 'Понятно. ';
+}
+
 var _HC_REPLIES = {
-  check:    { user: 'Хочу проверить договор',    elena: 'Отлично! Загрузите договор или вставьте текст — найду все риски за секунды 🔍', intent: 'check' },
-  create:   { user: 'Нужно составить документ',  elena: 'Расскажите какой документ нужен — договор, доверенность, претензию? Составлю под Ваши параметры ✍️', intent: 'create' },
-  dispute:  { user: 'Протокол разногласий',       elena: 'Загрузите договор контрагента — подготовлю протокол с обоснованием каждого изменения 📋', intent: 'dispute' },
-  question: { user: 'Есть вопрос',                elena: 'Спрашивайте — отвечу без лишних формальностей 💬', intent: 'question' },
-  power:    { user: 'Нужна доверенность',          elena: 'Составлю доверенность за 15 минут — сразу перейдём к оформлению или расскажите детали 📑', intent: 'power' }
+  check:    { user: 'Дали договор — хочу проверить',  elena: 'Загрузите или вставьте текст — найду все риски и объясню каждый пункт простым языком 🔍', intent: 'check' },
+  create:   { user: 'Нужно составить документ',        elena: 'Хорошо — уточним что именно нужно, и составлю под вашу ситуацию ✍️', intent: 'create' },
+  dispute:  { user: 'Контрагент нарушает условия',     elena: 'Неприятно, но это решаемо. Загрузите договор — разберём что нарушено и как защититься 📋', intent: 'dispute' },
+  question: { user: 'Не знаю с чего начать',           elena: 'Расскажите ситуацию своими словами — разберёмся вместе, без юридического птичьего языка 💬', intent: 'question' },
+  power:    { user: 'Нужна доверенность',               elena: 'Составлю за 15 минут — скажите кому и какие полномочия нужны 📑', intent: 'power' }
 };
 
 function _hcAddTyping() {
@@ -3800,10 +3819,8 @@ function initHeroChat() {
 
   var totalDelay = 0;
   _HC_MESSAGES.forEach(function(m, i) {
-    // show typing
     totalDelay += m.delay;
     (function(d){ setTimeout(function(){ _hcAddTyping(); }, d); })(totalDelay);
-    // show message
     totalDelay += m.typing;
     (function(d, text){ setTimeout(function(){
       _hcRemoveTyping();
@@ -3811,9 +3828,21 @@ function initHeroChat() {
     }, d); })(totalDelay, m.text);
   });
 
-  // show controls after last message finishes typing
-  totalDelay += 800;
-  setTimeout(_hcShowControls, totalDelay);
+  // Показываем поле ввода СРАЗУ после последнего сообщения — не ждём
+  var inputDelay = totalDelay + 300;
+  setTimeout(function(){
+    var inputRow = document.getElementById('hchat-input-row');
+    if (inputRow) { inputRow.style.display = ''; inputRow.style.animation = 'hcIn .3s ease forwards'; }
+    // Фокус в поле
+    var inp = document.getElementById('hchat-inp');
+    if (inp) inp.focus();
+  }, inputDelay);
+
+  // Quick replies появляются чуть позже — как подсказка, не главный путь
+  setTimeout(function(){
+    var replies = document.getElementById('hchat-replies');
+    if (replies) { replies.style.display = ''; replies.style.animation = 'hcIn .3s ease forwards'; }
+  }, inputDelay + 600);
 }
 
 function heroChatReply(key) {
@@ -3885,16 +3914,19 @@ function heroChatSend() {
     var t = txt.toLowerCase();
     var intent = 'question';
     if (/доверенност/.test(t))                                       intent = 'power';
-    else if (/протокол|разногласи|убрат|невыгод/.test(t))           intent = 'dispute';
+    else if (/протокол|разногласи|убрат|невыгод|нарушает|не платит|спор/.test(t)) intent = 'dispute';
     else if (/состав|написат|создат|подготов/.test(t) && !/проверит/.test(t)) intent = 'create';
     else if (/проверит|анализ|посмотр|риск|договор|контракт/.test(t)) intent = 'check';
     var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
+    // Ответ Елены = эмпатия к боли + конкретное действие
+    var empathy = _getEmpathyPrefix(txt);
+    var elenaText = empathy + reply.elena;
     setTimeout(function(){
       _hcAddTyping();
       setTimeout(function(){
         _hcRemoveTyping();
-        _hcAddBubble(reply.elena, false);
-        setTimeout(function(){ _chatTransition(txt, intent); }, 1200);
+        _hcAddBubble(elenaText, false);
+        setTimeout(function(){ _chatTransition(txt, intent); }, 1400);
       }, 900);
     }, 400);
     return;
