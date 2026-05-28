@@ -3904,23 +3904,24 @@ function elenaIntent(intent) {
       + '<div class="bubble"><div class="nm">Елена</div>' + replyText + '</div>';
     wrap.appendChild(mb);
 
-    // Через паузу — мягкое предложение загрузить
-    setTimeout(function() {
-      var ob = document.createElement('div');
-      ob.className = 'msg';
-      ob.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
-        + '<div class="bubble"><div class="nm">Елена</div>'
-        + 'Есть договор? Загрузите — разберу подробно.'
-        + '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
-        + '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" onclick="'
-        + '  document.querySelectorAll(\'.chatwrap .msg\').forEach(function(e){e.style.opacity=\'1\'});'
-        + '  var up=document.getElementById(\'el-step-upload\');if(up){up.style.display=\'\';up.scrollIntoView({behavior:\'smooth\'});}'
-        + '">📂 Загрузить договор</button>'
-        + '<button class="svc-btn-detail" onclick="this.closest(\'.bubble\').innerHTML+=\'<br>Хорошо — задавайте вопросы, отвечу по нормам ГК/ТК.\'; this.parentNode.remove()">💬 Задам вопрос</button>'
-        + '</div></div></div>';
-      wrap.appendChild(ob);
-      ob.scrollIntoView({behavior:'smooth'});
-    }, 600);
+    // Предлагаем загрузить только если intent=check И договора ещё нет
+    var hasContract = ((document.getElementById('el-paste') || {}).value || '').length > 50;
+    if (intent === 'check' && !hasContract) {
+      setTimeout(function() {
+        var ob = document.createElement('div');
+        ob.className = 'msg';
+        ob.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
+          + '<div class="bubble"><div class="nm">Елена</div>'
+          + 'Если у вас есть текст договора — загрузите, разберу детально.'
+          + '<div style="margin-top:10px">'
+          + '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" onclick="'
+          + '  var up=document.getElementById(\'el-step-upload\');if(up){up.style.display=\'\';up.scrollIntoView({behavior:\'smooth\'});}'
+          + '">📂 Загрузить договор</button>'
+          + '</div></div></div>';
+        wrap.appendChild(ob);
+        ob.scrollIntoView({behavior:'smooth'});
+      }, 800);
+    }
   });
 }
 
@@ -4553,16 +4554,15 @@ function _buildElenaContext() {
     }
   } catch(e) {}
 
-  // Контекст дела из активного дедлайна
-  if (_rcLastContext && _rcLastContext.dl) {
-    var dl = _rcLastContext.dl;
-    caseContext = (dl.type || '') + (dl.title ? ': ' + dl.title : '');
-    if (_rcLastContext.caseName) caseContext += ' · ' + _rcLastContext.caseName;
-  }
-  // Или из textarea договора
-  if (!caseContext) {
-    var contractText = (document.getElementById('el-paste') || {}).value || '';
-    if (contractText) caseContext = contractText.slice(0, 300);
+  // Контекст дела — ТОЛЬКО если пользователь реально загрузил договор в этой сессии
+  // НЕ берём из demo-дедлайнов/_rcLastContext чтобы не путать Елену чужим контекстом
+  var contractText = (document.getElementById('el-paste') || {}).value || '';
+  if (contractText && contractText.length > 50) {
+    // Есть реальный текст договора — используем первые 300 символов как контекст
+    caseContext = contractText.slice(0, 300);
+  } else if (_rcLastContext && _rcLastContext.caseName && _rcLastContext._userLoaded) {
+    // _userLoaded = флаг что пользователь сам загрузил, не demo
+    caseContext = _rcLastContext.caseName;
   }
 
   return {
