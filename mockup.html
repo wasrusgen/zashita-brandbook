@@ -2554,11 +2554,244 @@ function startScan() {
     setTimeout(() => { lbl.textContent = SCAN_PHRASES[i]; lbl.style.opacity = '1'; }, 180);
   }, 800);
 
+  // Параллельно запускаем реальный API (если доступен)
+  var _apiResult = null;
+  if (_apiAvailable && text) {
+    fetch(API_BASE + '/api/deadlines', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({text: text})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      _apiResult = data;
+      // Сохраняем сроки для контекста Елены
+      if (data.deadlines && data.deadlines.length) {
+        _contractDeadlines = data.deadlines;
+        // Обновляем _DEADLINES для экрана "Сроки"
+        _DEADLINES = data.deadlines.map(function(d, idx){
+          return {
+            id: idx + 100,
+            caseId: 'case-new',
+            caseName: (data.meta && data.meta.type) || 'Договор',
+            title: d.title,
+            type: d.type || 'Другое',
+            date: d.date,
+            quote: d.quote || '',
+            done: false
+          };
+        });
+      }
+    })
+    .catch(function(e){ console.warn('API /deadlines:', e); });
+  }
+
   setTimeout(() => {
     clearInterval(interval);
     lbl.style.opacity = '0';
-    setTimeout(() => { showResults(ctypeKey); }, 200);
+    setTimeout(() => {
+      showResults(ctypeKey);
+      // Если API вернул need_signed_date — Елена спрашивает дату
+      if (_apiResult && _apiResult.need_signed_date) {
+        _askSignedDate();
+      }
+      // Если complexity_score >= 3 — предлагаем Council
+      if (_apiResult && _apiResult.council_trigger) {
+        setTimeout(function(){ _offerCouncil(_apiResult); }, 1500);
+      }
+    }, 200);
   }, 4000);
+}
+
+function _askSignedDate() {
+  /* Елена спрашивает дату подписания после сканирования */
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+  var div = document.createElement('div');
+  div.id = 'signed-date-ask';
+  div.innerHTML =
+    '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    'Договор уже подписан? Укажите дату — буду считать живые сроки и покажу что горит прямо сейчас.</div></div>' +
+    '<div style="display:flex;gap:8px;margin:8px 0 16px 48px;flex-wrap:wrap">' +
+      '<button class="btn btn-o" style="padding:7px 14px;font-size:13px" onclick="_setSignedDate(\'today\')">Сегодня</button>' +
+      '<button class="btn btn-o" style="padding:7px 14px;font-size:13px" onclick="_setSignedDate(\'yesterday\')">Вчера</button>' +
+      '<input type="date" id="signed-date-inp" style="border:1.5px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px;font-family:inherit">' +
+      '<button class="btn btn-p" style="padding:7px 14px;font-size:13px" onclick="_setSignedDate(\'input\')">Указать</button>' +
+    '</div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _setSignedDate(mode) {
+  var today = new Date();
+  var d;
+  if (mode === 'today') {
+    d = today.toISOString().slice(0,10);
+  } else if (mode === 'yesterday') {
+    today.setDate(today.getDate() - 1);
+    d = today.toISOString().slice(0,10);
+  } else {
+    d = (document.getElementById('signed-date-inp') || {}).value;
+    if (!d) { toast('Выберите дату'); return; }
+  }
+  // Убираем вопрос
+  var ask = document.getElementById('signed-date-ask');
+  if (ask) ask.remove();
+
+  // Перезапрашиваем deadlines с датой
+  var text = (document.getElementById('el-paste').value || '').trim();
+  if (!text || !_apiAvailable) { toast('📅 Дата ' + d + ' сохранена'); return; }
+
+  fetch(API_BASE + '/api/deadlines', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({text: text, signed_date: d})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.deadlines) {
+      _contractDeadlines = data.deadlines;
+      _DEADLINES = data.deadlines.map(function(dl, idx){
+        return {id:idx+100, caseId:'case-new', caseName:(data.meta&&data.meta.type)||'Договор',
+                title:dl.title, type:dl.type||'Другое', date:dl.date, quote:dl.quote||'', done:false};
+      });
+      // Показываем что горит
+      var hot = data.deadlines.filter(function(dl){ return dl.status === 'overdue' || dl.status === 'critical'; });
+      if (hot.length) {
+        _showHotDeadlines(hot);
+      } else {
+        toast('📅 Сроки пересчитаны на ' + d);
+      }
+      if (data.council_trigger) setTimeout(function(){ _offerCouncil(data); }, 1000);
+    }
+  })
+  .catch(function(){ toast('📅 Дата сохранена'); });
+}
+
+function _showHotDeadlines(hot) {
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+  var list = hot.map(function(d){
+    return '<div style="padding:8px 0;border-bottom:1px solid #f3f4f6">' +
+      '<b>' + d.title + '</b> — <span style="color:#9f1239">' + (d.status_label || d.date) + '</span>' +
+      (d.quote ? '<div style="font-size:12px;color:#6b7280;margin-top:3px">' + d.quote + '</div>' : '') +
+    '</div>';
+  }).join('');
+  var div = document.createElement('div');
+  div.innerHTML =
+    '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '🔴 Обратите внимание — есть горящие сроки:' +
+    '<div style="margin-top:10px">' + list + '</div>' +
+    '</div></div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _offerCouncil(data) {
+  /* Предлагаем Council для сложных кейсов */
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+  var old = document.getElementById('council-offer'); if(old) return; // уже показано
+  var div = document.createElement('div');
+  div.id = 'council-offer';
+  div.innerHTML =
+    '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    'Ситуация требует глубокого анализа — я вижу признаки сложного кейса.' +
+    '</div></div>' +
+    '<div class="svc-order-card" style="border-color:#9f1239">' +
+      '<div style="font-size:13px;font-weight:700;color:#9f1239;margin-bottom:6px">⚖️ Совет экспертов</div>' +
+      '<div style="font-size:13px;color:#374151;margin-bottom:10px">' +
+        'Адвокат · Судья · Арбитражный управляющий · Пристав · Аналитик практики — ' +
+        'каждый даёт позицию по вашему делу. Opus синтезирует вердикт с шансами в суде.' +
+      '</div>' +
+      '<div style="font-size:15px;font-weight:700;margin-bottom:12px">от 2 990 ₽ · ~20 сек</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="btn btn-p" style="padding:8px 18px;font-size:13px" onclick="_runCouncil()">⚖️ Запустить совет</button>' +
+        '<button class="btn btn-o" style="padding:8px 18px;font-size:13px" onclick="this.closest(\'[id]\').remove()">Нет, спасибо</button>' +
+      '</div>' +
+    '</div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _runCouncil() {
+  var offer = document.getElementById('council-offer'); if(offer) offer.remove();
+  var text = (document.getElementById('el-paste').value || '').trim();
+  if (!text) { toast('Нет текста договора'); return; }
+
+  var wrap = document.querySelector('.chatwrap');
+  var progress = document.createElement('div');
+  progress.id = 'council-progress';
+  progress.innerHTML =
+    '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '⚖️ Совет экспертов работает… <span id="council-timer">0 сек</span>' +
+    '</div></div>';
+  if (wrap) wrap.appendChild(progress);
+  progress.scrollIntoView({behavior:'smooth'});
+
+  var t0 = Date.now();
+  var timerInterval = setInterval(function(){
+    var el = document.getElementById('council-timer');
+    if (el) el.textContent = Math.round((Date.now()-t0)/1000) + ' сек';
+  }, 1000);
+
+  fetch(API_BASE + '/api/council', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      case_description: text,
+      deadlines: _contractDeadlines,
+      complexity_score: 3
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    clearInterval(timerInterval);
+    var pr = document.getElementById('council-progress'); if(pr) pr.remove();
+    _showCouncilResult(data);
+  })
+  .catch(function(e){
+    clearInterval(timerInterval);
+    var pr = document.getElementById('council-progress'); if(pr) pr.remove();
+    toast('Ошибка совета: ' + e.message);
+  });
+}
+
+function _showCouncilResult(data) {
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+
+  // Карточки агентов
+  var agentCards = '';
+  var icons = {advocate:'⚖️', judge:'🏛️', arbitrator:'👨‍💼', bailiff:'🔨', precedents:'📚'};
+  if (data.agents) {
+    Object.keys(data.agents).forEach(function(key){
+      var a = data.agents[key];
+      agentCards +=
+        '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:8px">' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:6px">' + (icons[key]||'•') + ' ' + a.label + '</div>' +
+        '<div style="font-size:13px;color:#374151;line-height:1.6">' + a.reply.replace(/\n/g,'<br>') + '</div>' +
+        '</div>';
+    });
+  }
+
+  var div = document.createElement('div');
+  div.innerHTML =
+    '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble" style="max-width:100%"><div class="nm">Елена · Вердикт совета (' + (data.duration_sec||'?') + ' сек)</div>' +
+    '<div style="background:#fff5f7;border:1.5px solid #9f1239;border-radius:10px;padding:14px;margin:10px 0;font-size:14px;line-height:1.7">' +
+    (data.synthesis || '').replace(/\n/g,'<br>') +
+    '</div>' +
+    '<details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px;color:#6b7280">Позиции экспертов ↓</summary>' +
+    '<div style="margin-top:10px">' + agentCards + '</div>' +
+    '</details>' +
+    '</div></div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
 }
 
 /* ── ВЫБОР DELIVERABLE ── */
@@ -3861,6 +4094,48 @@ function heroChatReply(key) {
   }, 400);
 }
 
+/* ── API ── */
+var API_BASE = 'http://localhost:5001';  // замени на VPS когда задеплоишь
+var _apiAvailable = null; // null=не проверяли, true/false
+(function _checkApi(){
+  fetch(API_BASE + '/api/health', {method:'GET'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ _apiAvailable = d.has_api_key && d.status === 'ok'; })
+    .catch(function(){ _apiAvailable = false; });
+})();
+
+// Текущий контекст договора (deadlines из последнего анализа)
+var _contractDeadlines = null;
+var _chatHistory = []; // история чата для /api/elena
+
+function _elenaApi(txt, intent, callback) {
+  /* Вызывает /api/elena. При ошибке — fallback на шаблон. */
+  if (!_apiAvailable) { callback(null); return; }
+  var empathy = _getEmpathyPrefix(txt);
+  var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
+  fetch(API_BASE + '/api/elena', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      text: txt,
+      intent: intent,
+      history: _chatHistory.slice(-6),
+      deadlines: _contractDeadlines
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.reply) {
+      _chatHistory.push({role:'user', content: txt});
+      _chatHistory.push({role:'assistant', content: d.reply});
+      callback(d.reply);
+    } else {
+      callback(null);
+    }
+  })
+  .catch(function(){ callback(null); });
+}
+
 /* ── КЛАССИФИКАТОР ВХОДЯЩИХ СООБЩЕНИЙ ── */
 var _offtopicCount = 0;
 
@@ -3914,16 +4189,17 @@ function heroChatSend() {
     else if (/состав|написат|создат|подготов|нужен договор|оформить|нужна расписка/.test(t) && !/проверит/.test(t)) intent = 'create';
     else if (/проверит|анализ|посмотр|риск|подписать|боюсь подписать|прислали договор|дали договор/.test(t)) intent = 'check';
     var reply = _HC_REPLIES[intent] || _HC_REPLIES.question;
-    // Ответ Елены = эмпатия к боли + конкретное действие
+    // Ответ Елены — реальный API или fallback на шаблон
     var empathy = _getEmpathyPrefix(txt);
-    var elenaText = empathy + reply.elena;
+    var fallbackText = empathy + reply.elena;
     setTimeout(function(){
       _hcAddTyping();
-      setTimeout(function(){
+      _elenaApi(txt, intent, function(apiReply){
         _hcRemoveTyping();
+        var elenaText = apiReply || fallbackText;
         _hcAddBubble(elenaText, false);
         setTimeout(function(){ _chatTransition(txt, intent); }, 1400);
-      }, 900);
+      });
     }, 400);
     return;
   }
