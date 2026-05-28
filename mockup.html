@@ -1449,6 +1449,21 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <button class="pay-bal-use" id="pay-bal-use-btn" onclick="useBalance()" style="display:none">Списать 1 кредит</button>
     </div>
 
+    <!-- Баннер цены запуска -->
+    <div id="launch-banner" style="background:var(--tint);border:1.5px solid rgba(159,18,57,.2);border-radius:12px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">🚀</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#9f1239">Цена запуска</div>
+          <div style="font-size:12px;color:#6b7280">Специальные условия для первых клиентов</div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;color:#6b7280">действует до</div>
+        <div style="font-size:13px;font-weight:700;color:#9f1239" id="launch-deadline">28 авг 2026</div>
+      </div>
+    </div>
+
     <!-- Переключатель: разовая / подписка -->
     <div class="pay-tabs">
       <div class="pay-tab on" id="ptab-once" onclick="payTab('once')">Разовая покупка</div>
