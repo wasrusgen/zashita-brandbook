@@ -4951,19 +4951,107 @@ function _filterDigits(el) {
   el.value = el.value.replace(/[^0-9]/g, '');
 }
 
-function _showPostalForm() {
-  var dlName = (_rcLastContext && _rcLastContext.dl) ? _rcLastContext.dl.title : 'Уведомление';
-  var caseName = (_rcLastContext && _rcLastContext.caseName) ? _rcLastContext.caseName : '';
-  var about = dlName + (caseName ? ' по договору «' + caseName + '»' : '');
+// Извлекает стороны и адреса из текста договора
+function _extractParties(text) {
+  var out = { counterparty: '', counterAddr: '', sender: '', senderAddr: '' };
+  if (!text) return out;
 
-  // Pre-fill recipient from contract context (в проде — из разбора договора)
-  var recipient = (_rcLastContext && _rcLastContext.dl && _rcLastContext.dl.party)
-    ? _rcLastContext.dl.party : '';
+  // Роли: [контрагент (кому шлём), сторона клиента]
+  var rolePairs = [
+    ['Арендодатель', 'Арендатор'],
+    ['Исполнитель',  'Заказчик'],
+    ['Продавец',     'Покупатель'],
+    ['Поставщик',    'Покупатель'],
+    ['Подрядчик',    'Заказчик'],
+    ['Принципал',    'Агент'],
+    ['Займодавец',   'Заёмщик'],
+    ['Страховщик',   'Страхователь'],
+    ['Сторона 1',    'Сторона 2'],
+  ];
+
+  // Ищем первую встречающуюся пару ролей
+  var r1 = '', r2 = '';
+  for (var i = 0; i < rolePairs.length; i++) {
+    var re1 = new RegExp(rolePairs[i][0], 'i');
+    var re2 = new RegExp(rolePairs[i][1], 'i');
+    if (re1.test(text) && re2.test(text)) { r1 = rolePairs[i][0]; r2 = rolePairs[i][1]; break; }
+  }
+
+  // Извлекаем имя по роли: «Арендодатель: ООО "Ромашка"» или «Арендодатель в лице ООО ...»
+  function extractName(role) {
+    var re = new RegExp(
+      role + '[\\s\\S]{0,20}?' +
+      '((?:ООО|ОАО|ЗАО|ПАО|АО|НКО|ИП|Гр(?:ажданин|ажданка)?|физическое лицо)?' +
+      '\\s*(?:«[^»]{2,60}»|"[^"]{2,60}"|[А-ЯЁ][а-яёА-ЯЁ\\s-]{2,50}(?:ович|евич|овна|евна|ич|вна)?))',
+      'im'
+    );
+    var m = text.match(re);
+    return m ? m[1].replace(/^[\s,:—–]+/, '').trim() : '';
+  }
+
+  // Извлекаем адрес: берём первые N символов после имени роли, ищем адресный блок
+  function extractAddr(role) {
+    var roleIdx = text.search(new RegExp(role, 'i'));
+    if (roleIdx < 0) return '';
+    var chunk = text.slice(roleIdx, roleIdx + 600);
+    var m = chunk.match(/(?:юр(?:идический)?\.?\s*адрес|адрес(?:\s*места?\s*нахожден(?:ия|ие))?|место\s*нахожден(?:ия|ие)|зарег(?:истрирован)?\s*по адресу|почтовый адрес)[:\s]+([^\n;]{10,120})/i);
+    return m ? m[1].trim() : '';
+  }
+
+  if (r1) {
+    out.counterparty = (r1 ? r1 + ': ' : '') + extractName(r1);
+    out.counterAddr  = extractAddr(r1);
+    out.sender       = (r2 ? r2 + ': ' : '') + extractName(r2);
+    out.senderAddr   = extractAddr(r2);
+  }
+
+  return out;
+}
+
+function _showPostalForm() {
+  var dlName   = (_rcLastContext && _rcLastContext.dl)       ? _rcLastContext.dl.title : 'Уведомление';
+  var caseName = (_rcLastContext && _rcLastContext.caseName) ? _rcLastContext.caseName : '';
+  var about    = dlName + (caseName ? ' по договору «' + caseName + '»' : '');
+
+  // 1. Пытаемся извлечь стороны из текста договора
+  var contractText = (document.getElementById('el-paste') || {}).value || '';
+  var parties = _extractParties(contractText);
+
+  // 2. Данные отправителя из localStorage (B2B-реквизиты)
+  var senderName = '', senderAddr = '';
+  try {
+    var b2b = JSON.parse(localStorage.getItem('zashita_b2b') || 'null');
+    if (b2b && b2b.name) { senderName = b2b.name; senderAddr = b2b.addr || ''; }
+  } catch(e) {}
+
+  // B2B из формы оплаты (если открыта сейчас)
+  if (!senderName) {
+    var nameEl = document.getElementById('b2b-name');
+    var addrEl = document.getElementById('b2b-addr');
+    if (nameEl && nameEl.value) { senderName = nameEl.value; senderAddr = addrEl ? addrEl.value : ''; }
+  }
+
+  // Приоритет: договор > localStorage > пусто
+  var recipientVal = parties.counterparty || '';
+  var recAddrVal   = parties.counterAddr  || '';
+  var senderVal    = senderName || parties.sender     || '';
+  var sendAddrVal  = senderAddr || parties.senderAddr || '';
 
   var el = document.getElementById('postal-form-overlay');
   if (!el) return;
-  document.getElementById('pf-about').value = about;
-  document.getElementById('pf-recipient').value = recipient;
+
+  document.getElementById('pf-about').value     = about;
+  document.getElementById('pf-recipient').value  = recipientVal;
+  document.getElementById('pf-rec-addr').value   = recAddrVal;
+  document.getElementById('pf-sender').value     = senderVal;
+  document.getElementById('pf-send-addr').value  = sendAddrVal;
+
+  // Подсветим незаполненные поля
+  ['pf-recipient','pf-rec-addr','pf-sender','pf-send-addr'].forEach(function(id) {
+    var inp = document.getElementById(id);
+    if (inp) inp.style.borderColor = inp.value ? 'var(--line)' : 'rgba(159,18,57,.4)';
+  });
+
   el.classList.add('on');
 }
 
