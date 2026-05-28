@@ -118,6 +118,58 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .sub-feat span{background:#f3f4f6;padding:2px 7px;border-radius:6px}
 .pay-refund-note{font-size:11px;color:var(--mut);text-align:center;margin-bottom:12px}
 .pay-refund-note a{color:var(--bg);text-decoration:none}
+
+/* ── ВЫБОР ТИПА КЛИЕНТА ── */
+.client-type-block{margin:20px 0;background:var(--card);border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.client-type-hdr{padding:14px 16px 10px;font-size:13px;font-weight:700;color:var(--dark)}
+.client-type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--line)}
+.ct-tab{padding:12px 8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;color:var(--mut);border-right:1px solid var(--line);transition:all .15s;user-select:none}
+.ct-tab:last-child{border-right:none}
+.ct-tab.act{background:var(--bg);color:#fff}
+.ct-tab .ct-tab-ico{font-size:18px;display:block;margin-bottom:3px}
+
+/* B2B форма */
+.b2b-form{display:none;padding:16px;border-top:1px solid var(--line)}
+.b2b-form.on{display:block}
+.b2b-row{display:grid;gap:10px;margin-bottom:0}
+.b2b-row.two{grid-template-columns:1fr 1fr}
+.b2b-field{display:flex;flex-direction:column;gap:5px}
+.b2b-field label{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.b2b-field input{border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.b2b-field input:focus{border-color:var(--bg)}
+.b2b-field input.err{border-color:#9f1239}
+.b2b-hint{font-size:11px;color:var(--mut);margin-top:2px}
+.b2b-divider{margin:14px 0;border:none;border-top:1px solid var(--line)}
+
+/* Загрузка документов B2B */
+.b2b-docs-label{font-size:12px;font-weight:700;color:var(--dark);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.5px}
+.b2b-docs-note{font-size:12px;color:var(--mut);margin-bottom:10px}
+.b2b-upload-area{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.b2b-upload-btn{border:1.5px dashed var(--line);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;background:#fafafa;transition:all .15s;position:relative;overflow:hidden}
+.b2b-upload-btn:hover{border-color:var(--bg);background:var(--tint)}
+.b2b-upload-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.b2b-upload-btn .ubtn-ico{font-size:22px;display:block;margin-bottom:5px}
+.b2b-upload-btn .ubtn-lbl{font-size:12px;font-weight:600;color:var(--dark)}
+.b2b-upload-btn .ubtn-sub{font-size:11px;color:var(--mut);margin-top:2px}
+.b2b-upload-btn.has-file{border-color:var(--ok);border-style:solid;background:#f0fdf4}
+.b2b-upload-btn.has-file .ubtn-lbl{color:var(--ok)}
+.b2b-files-list{margin-top:8px}
+.b2b-file-chip{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:8px;padding:4px 8px;font-size:12px;margin:3px 3px 0 0}
+.b2b-file-chip .rm{cursor:pointer;color:var(--mut);font-size:11px;margin-left:2px}
+.b2b-file-chip .rm:hover{color:#9f1239}
+
+/* Camera preview */
+.b2b-camera-wrap{display:none;margin-top:10px}
+.b2b-camera-wrap.on{display:block}
+.b2b-video{width:100%;border-radius:10px;background:#000;max-height:240px;object-fit:cover}
+.b2b-camera-controls{display:flex;gap:8px;margin-top:8px}
+.b2b-snap-btn{flex:1;background:var(--bg);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer}
+.b2b-cancel-btn{background:#f3f4f6;color:var(--dark);border:none;border-radius:9px;padding:10px 14px;font-size:13px;cursor:pointer}
+.b2b-canvas{display:none}
+.b2b-photo-preview{display:none;margin-top:8px;position:relative}
+.b2b-photo-preview img{width:100%;border-radius:10px;border:1.5px solid var(--ok)}
+.b2b-photo-preview .rm-photo{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
 /* ЮKassa modal */
 .yk-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:flex-end;justify-content:center}
 .yk-overlay.on{display:flex}
@@ -1461,7 +1513,102 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </div>
     </div>
 
-    <div class="field"><label>Куда прислать результат</label><input id="pay-contact" placeholder="Telegram или email для чека"></div>
+    <!-- ── ВЫБОР ТИПА КЛИЕНТА ── -->
+    <div class="client-type-block" id="client-type-block">
+      <div class="client-type-hdr">Кто оплачивает?</div>
+      <div class="client-type-tabs">
+        <div class="ct-tab act" id="ctt-fl" onclick="setClientType('fl')">
+          <span class="ct-tab-ico">🙋</span>Физлицо
+        </div>
+        <div class="ct-tab" id="ctt-ip" onclick="setClientType('ip')">
+          <span class="ct-tab-ico">💼</span>ИП
+        </div>
+        <div class="ct-tab" id="ctt-ooo" onclick="setClientType('ooo')">
+          <span class="ct-tab-ico">🏢</span>ООО / АО
+        </div>
+      </div>
+
+      <!-- B2B форма (ИП и ООО) -->
+      <div class="b2b-form" id="b2b-form">
+
+        <!-- Общие поля -->
+        <div class="b2b-row" style="margin-bottom:10px">
+          <div class="b2b-field">
+            <label>Название / ФИО ИП</label>
+            <input id="b2b-name" placeholder="ООО «Ромашка» или ИП Иванов И.И.">
+          </div>
+        </div>
+        <div class="b2b-row two" style="margin-bottom:10px">
+          <div class="b2b-field">
+            <label>ИНН</label>
+            <input id="b2b-inn" placeholder="10 или 12 цифр" maxlength="12" inputmode="numeric">
+            <span class="b2b-hint">ИП — 12 цифр, ООО — 10 цифр</span>
+          </div>
+          <div class="b2b-field" id="b2b-kpp-wrap">
+            <label>КПП</label>
+            <input id="b2b-kpp" placeholder="9 цифр" maxlength="9" inputmode="numeric">
+            <span class="b2b-hint">Только для ООО / АО</span>
+          </div>
+        </div>
+        <div class="b2b-row" style="margin-bottom:10px">
+          <div class="b2b-field">
+            <label>Юридический адрес</label>
+            <input id="b2b-addr" placeholder="г. Москва, ул. Ленина, д. 1, оф. 10">
+          </div>
+        </div>
+        <div class="b2b-row" style="margin-bottom:0">
+          <div class="b2b-field">
+            <label>Email для документов (счёт, акт)</label>
+            <input id="b2b-email" type="email" placeholder="bухгалтерия@company.ru">
+          </div>
+        </div>
+
+        <hr class="b2b-divider">
+
+        <!-- Загрузка подтверждающих документов -->
+        <div class="b2b-docs-label">Подтверждающие документы <span style="font-weight:400;text-transform:none;letter-spacing:0">(необязательно)</span></div>
+        <div class="b2b-docs-note">Свидетельство ИП, выписка ЕГРЮЛ или приказ о назначении руководителя — ускорит оформление закрывающих документов.</div>
+
+        <div class="b2b-upload-area">
+          <!-- Загрузка файла -->
+          <div class="b2b-upload-btn" id="b2b-file-btn">
+            <input type="file" id="b2b-file-input" accept=".pdf,.jpg,.jpeg,.png,.docx"
+              multiple onchange="b2bFileSelected(this)">
+            <span class="ubtn-ico">📎</span>
+            <div class="ubtn-lbl">Загрузить файл</div>
+            <div class="ubtn-sub">PDF, JPG, PNG, DOCX</div>
+          </div>
+          <!-- Фото с камеры -->
+          <div class="b2b-upload-btn" id="b2b-camera-btn" onclick="b2bOpenCamera()">
+            <span class="ubtn-ico">📷</span>
+            <div class="ubtn-lbl">Сфотографировать</div>
+            <div class="ubtn-sub">Камера устройства</div>
+          </div>
+        </div>
+
+        <!-- Список загруженных файлов -->
+        <div class="b2b-files-list" id="b2b-files-list"></div>
+
+        <!-- Камера -->
+        <div class="b2b-camera-wrap" id="b2b-camera-wrap">
+          <video class="b2b-video" id="b2b-video" autoplay playsinline muted></video>
+          <canvas class="b2b-canvas" id="b2b-canvas"></canvas>
+          <div class="b2b-camera-controls">
+            <button class="b2b-snap-btn" onclick="b2bSnap()">📸 Сделать снимок</button>
+            <button class="b2b-cancel-btn" onclick="b2bCloseCamera()">Отмена</button>
+          </div>
+        </div>
+
+        <!-- Предпросмотр фото -->
+        <div class="b2b-photo-preview" id="b2b-photo-preview">
+          <img id="b2b-photo-img" src="" alt="Фото документа">
+          <button class="rm-photo" onclick="b2bRemovePhoto()" title="Удалить">✕</button>
+        </div>
+
+      </div><!-- /b2b-form -->
+    </div><!-- /client-type-block -->
+
+    <div class="field"><label>Куда прислать результат</label><input id="pay-contact" placeholder="Telegram или email для чека и документов"></div>
     <div class="pdn">Нажимая «Оплатить», вы соглашаетесь с <a href="oferta.html" target="_blank">офертой</a> и <a href="privacy.html" target="_blank">обработкой ПДн</a>. Данные договора остаются на вашем устройстве.</div>
     <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="ykOpen()">Оплатить 490 ₽</button>
   </div>
@@ -2882,7 +3029,35 @@ function toast(msg){
 }
 function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);
-  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); var rm=document.getElementById('rchat-msgs'); if(rm)rm.innerHTML=''; var s1=document.getElementById('el-step1'); if(s1)s1.style.display=''; var ic=document.getElementById('intake-custom'); if(ic)ic.value=''; };window.scrollTo(0,0);}
+  if(id==='start') { _hchatDone=false; var m=document.getElementById('hchat-msgs'); if(m){m.innerHTML='';} var r=document.getElementById('hchat-replies'); if(r)r.style.display='none'; var ir=document.getElementById('hchat-input-row'); if(ir)ir.style.display='none'; setTimeout(initHeroChat,300); var rm=document.getElementById('rchat-msgs'); if(rm)rm.innerHTML=''; var s1=document.getElementById('el-step1'); if(s1)s1.style.display=''; var ic=document.getElementById('intake-custom'); if(ic)ic.value=''; };
+  if(id==='pay') { setTimeout(_initPayScreen, 80); }
+  window.scrollTo(0,0);}
+
+function _initPayScreen() {
+  // Восстановить сохранённые реквизиты B2B
+  try {
+    var saved = JSON.parse(localStorage.getItem('zashita_b2b') || 'null');
+    if (saved && saved.type) {
+      setClientType(saved.type);
+      var set = function(elId, val){ var el=document.getElementById(elId); if(el&&val) el.value=val; };
+      set('b2b-name',  saved.name);
+      set('b2b-inn',   saved.inn);
+      set('b2b-kpp',   saved.kpp);
+      set('b2b-addr',  saved.addr);
+      set('b2b-email', saved.email);
+    }
+  } catch(e){}
+  // Баланс
+  var credits = parseInt(localStorage.getItem('zashita_credits') || '0');
+  var balEl = document.getElementById('pay-bal-credits');
+  if (balEl) balEl.textContent = credits;
+  var useBtn = document.getElementById('pay-bal-use-btn');
+  if (useBtn) useBtn.style.display = credits > 0 ? '' : 'none';
+  var subEl = document.getElementById('pay-bal-sub');
+  if (subEl) subEl.textContent = credits > 0
+    ? 'Можно списать кредит вместо оплаты'
+    : 'Пополните баланс или оплатите разово';
+}
 /* ── СВОЙ ЗАПРОС ── */
 let _customOpen = false;
 let _voiceRec = null;
@@ -3046,6 +3221,156 @@ function selectPlan(n) {
   }
 }
 
+
+/* ── ВЫБОР ТИПА КЛИЕНТА + B2B ФОРМА ── */
+
+var _clientType = 'fl'; // fl | ip | ooo
+var _b2bFiles   = [];   // {name, size, dataUrl}
+var _b2bPhoto   = null; // dataUrl
+var _cameraStream = null;
+
+function setClientType(type) {
+  _clientType = type;
+  ['fl','ip','ooo'].forEach(function(t){
+    var el = document.getElementById('ctt-' + t);
+    if (el) el.classList.toggle('act', t === type);
+  });
+  var form = document.getElementById('b2b-form');
+  if (form) form.classList.toggle('on', type !== 'fl');
+  // КПП — только для ООО/АО
+  var kppWrap = document.getElementById('b2b-kpp-wrap');
+  if (kppWrap) kppWrap.style.display = (type === 'ooo') ? '' : 'none';
+  // placeholder ИНН
+  var inn = document.getElementById('b2b-inn');
+  if (inn) inn.placeholder = (type === 'ooo') ? '10 цифр' : '12 цифр';
+}
+
+function _validateB2B() {
+  if (_clientType === 'fl') return true;
+  var name = (document.getElementById('b2b-name').value || '').trim();
+  var inn  = (document.getElementById('b2b-inn').value  || '').trim();
+  var ok   = true;
+  if (!name) { document.getElementById('b2b-name').classList.add('err'); ok = false; }
+  else         document.getElementById('b2b-name').classList.remove('err');
+  var innLen = _clientType === 'ooo' ? 10 : 12;
+  if (!inn || inn.length !== innLen || !/^\d+$/.test(inn)) {
+    document.getElementById('b2b-inn').classList.add('err'); ok = false;
+  } else {
+    document.getElementById('b2b-inn').classList.remove('err');
+  }
+  if (!ok) toast('⚠️ Заполните обязательные поля: Название и ИНН');
+  return ok;
+}
+
+function _getB2BData() {
+  if (_clientType === 'fl') return null;
+  return {
+    type:   _clientType,
+    name:   (document.getElementById('b2b-name').value  || '').trim(),
+    inn:    (document.getElementById('b2b-inn').value   || '').trim(),
+    kpp:    (document.getElementById('b2b-kpp').value   || '').trim(),
+    addr:   (document.getElementById('b2b-addr').value  || '').trim(),
+    email:  (document.getElementById('b2b-email').value || '').trim(),
+    files:  _b2bFiles.map(function(f){ return {name: f.name, size: f.size}; }),
+    photo:  !!_b2bPhoto,
+  };
+}
+
+/* Файлы */
+function b2bFileSelected(input) {
+  var files = Array.from(input.files || []);
+  files.forEach(function(file){
+    if (file.size > 10 * 1024 * 1024) { toast('Файл ' + file.name + ' слишком большой (макс 10 МБ)'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      _b2bFiles.push({ name: file.name, size: file.size, dataUrl: e.target.result });
+      _renderB2BFiles();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+  var btn = document.getElementById('b2b-file-btn');
+  if (btn) btn.classList.toggle('has-file', _b2bFiles.length > 0);
+}
+
+function _renderB2BFiles() {
+  var list = document.getElementById('b2b-files-list');
+  if (!list) return;
+  list.innerHTML = _b2bFiles.map(function(f, i){
+    var kb = Math.round(f.size / 1024);
+    return '<div class="b2b-file-chip">📎 ' + f.name + ' <span style="color:var(--mut)">(' + kb + ' КБ)</span>' +
+      '<span class="rm" onclick="b2bRemoveFile(' + i + ')">✕</span></div>';
+  }).join('');
+}
+
+function b2bRemoveFile(idx) {
+  _b2bFiles.splice(idx, 1);
+  _renderB2BFiles();
+  var btn = document.getElementById('b2b-file-btn');
+  if (btn) btn.classList.toggle('has-file', _b2bFiles.length > 0);
+}
+
+/* Камера */
+function b2bOpenCamera() {
+  var wrap = document.getElementById('b2b-camera-wrap');
+  if (!wrap) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    // Fallback: file input с capture
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*'; inp.capture = 'environment';
+    inp.onchange = function(){ b2bFileSelected(inp); };
+    inp.click();
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(function(stream){
+      _cameraStream = stream;
+      var video = document.getElementById('b2b-video');
+      if (video) { video.srcObject = stream; }
+      wrap.classList.add('on');
+      var btn = document.getElementById('b2b-camera-btn');
+      if (btn) btn.style.display = 'none';
+    })
+    .catch(function(e){
+      toast('Нет доступа к камере: ' + (e.message || e));
+    });
+}
+
+function b2bSnap() {
+  var video  = document.getElementById('b2b-video');
+  var canvas = document.getElementById('b2b-canvas');
+  if (!video || !canvas) return;
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  _b2bPhoto = canvas.toDataURL('image/jpeg', 0.85);
+  b2bCloseCamera();
+  // Показываем превью
+  var prev = document.getElementById('b2b-photo-preview');
+  var img  = document.getElementById('b2b-photo-img');
+  if (prev && img) { img.src = _b2bPhoto; prev.style.display = 'block'; }
+  var btn = document.getElementById('b2b-camera-btn');
+  if (btn) btn.classList.add('has-file');
+}
+
+function b2bCloseCamera() {
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(function(t){ t.stop(); });
+    _cameraStream = null;
+  }
+  var wrap  = document.getElementById('b2b-camera-wrap');
+  if (wrap) wrap.classList.remove('on');
+  var btn = document.getElementById('b2b-camera-btn');
+  if (btn) btn.style.display = '';
+}
+
+function b2bRemovePhoto() {
+  _b2bPhoto = null;
+  var prev = document.getElementById('b2b-photo-preview');
+  if (prev) prev.style.display = 'none';
+  var btn = document.getElementById('b2b-camera-btn');
+  if (btn) btn.classList.remove('has-file');
+}
 
 /* ── ЮKASSA ВИДЖЕТ ── */
 function ykOpen() {
@@ -3775,6 +4100,11 @@ function useBalance() {
 
 // ЮKassa modal
 function ykOpen() {
+  // Валидация B2B перед открытием
+  if (!_validateB2B()) return;
+  // Сохраняем реквизиты в localStorage для будущих заказов
+  var b2b = _getB2BData();
+  if (b2b) localStorage.setItem('zashita_b2b', JSON.stringify(b2b));
   _updatePayBtn();
   document.getElementById('yk-overlay').classList.add('on');
 }
