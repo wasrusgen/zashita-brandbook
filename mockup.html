@@ -890,6 +890,20 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .hc-text-inp:focus{border-color:#9f1239}
 .hc-send-btn{background:#9f1239;color:#fff;border:none;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
 .hc-send-btn:hover{background:#7f1d2e}
+.hc-mic-btn{background:transparent;border:1.5px solid #e5e7eb;color:#6b7280;border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.hc-mic-btn:hover{border-color:#9f1239;color:#9f1239}
+.hc-mic-btn.recording{background:#fee2e2;border-color:#9f1239;color:#9f1239;animation:micPulse .7s ease-in-out infinite}
+@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.svc-order-card{margin:10px 0 14px 48px;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.svc-ico{font-size:26px;margin-bottom:8px}
+.svc-name{font-size:15px;font-weight:700;color:#1f2937;margin-bottom:4px}
+.svc-desc{font-size:12px;color:#6b7280;margin-bottom:8px;line-height:1.45}
+.svc-price{font-size:18px;font-weight:700;color:#9f1239}
+.svc-time{font-size:12px;font-weight:400;color:#6b7280}
+.svc-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.svc-btn-detail{padding:7px 16px;font-size:13px;background:transparent;border:1.5px solid #9f1239;color:#9f1239;border-radius:20px;cursor:pointer;transition:all .15s;font-family:inherit}
+.svc-btn-detail:hover{background:#fff5f7}
+.svc-detail-inp-row{display:flex;gap:8px;margin-top:10px;align-items:center}
 .hero-tw-cur{color:rgba(255,255,255,.5);font-size:18px;flex-shrink:0;line-height:1;animation:twBlink .65s step-start infinite}
 @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-tw-text{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);line-height:1.4}
@@ -1161,6 +1175,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
             <div class="hc-reply" onclick="heroChatReply('question')">💬 Другой вопрос</div>
           </div>
           <div class="hero-chat-input-row" id="hchat-input-row" style="display:none">
+            <button class="hc-mic-btn" id="hcmic-btn" onclick="toggleVoice('hchat-inp','hcmic-btn')" title="Голосовой ввод">🎙</button>
             <input class="hc-text-inp" id="hchat-inp" placeholder="Или напишите своими словами..."
               onkeydown="if(event.key==='Enter')heroChatSend()">
             <button class="hc-send-btn" onclick="heroChatSend()">→</button>
@@ -1189,6 +1204,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
             <div class="hc-reply" onclick="go('pay')">💳 Пополнить баланс</div>
           </div>
           <div class="hero-chat-input-row" id="rchat-input-row" style="display:none">
+            <button class="hc-mic-btn" id="rcmic-btn" onclick="toggleVoice('rchat-inp','rcmic-btn')" title="Голосовой ввод">🎙</button>
             <input class="hc-text-inp" id="rchat-inp" placeholder="Чем могу помочь сегодня?"
               onkeydown="if(event.key==='Enter')retChatSend()">
             <button class="hc-send-btn" onclick="retChatSend()">→</button>
@@ -3181,11 +3197,35 @@ function elenaIntent(intent) {
   // create — переходим к wizard созданию документа
   if (intent === 'create') { go('cabinet'); setTimeout(function(){ tab('create'); }, 200); return; }
 
-  // check / dispute / power — переходим к загрузке
+  // power — карточка услуги с ценой и CTA (не upload-форма!)
+  if (intent === 'power') {
+    document.querySelectorAll('#el-step1, #el-step-create').forEach(function(el){ el.style.display='none'; });
+    var wrap = document.querySelector('.chatwrap');
+    var old = document.getElementById('el-service-power');
+    if (old) old.remove();
+    var div = document.createElement('div');
+    div.id = 'el-service-power';
+    div.innerHTML =
+      '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+        '<div class="bubble"><div class="nm">Елена</div>Составлю доверенность — нотариально или в простой письменной форме. Обычно готово за 15 минут после уточнения деталей.</div></div>' +
+      '<div class="svc-order-card">' +
+        '<div class="svc-ico">📑</div>' +
+        '<div class="svc-name">Доверенность</div>' +
+        '<div class="svc-desc">Разовая или генеральная · на авто, недвижимость, суд, получение документов</div>' +
+        '<div class="svc-price">от 990 ₽ <span class="svc-time">· готово за 15 мин</span></div>' +
+        '<div class="svc-actions">' +
+          '<button class="btn btn-p" style="padding:8px 18px;font-size:13px" onclick="go(\'pay\')">🛒 Заказать и оплатить</button>' +
+          '<button class="svc-btn-detail" onclick="_showSvcDetail(this)">💬 Описать детали</button>' +
+        '</div>' +
+      '</div>';
+    if (wrap) { wrap.appendChild(div); div.scrollIntoView({behavior:'smooth'}); }
+    return;
+  }
+
+  // check / dispute — переходим к загрузке
   var ackMap = {
     check:   'Отлично — проверю договор 📄 Найду все риски и объясню каждый понятно.',
     dispute: 'Хорошо — подготовлю протокол разногласий 📋 Загрузите договор, уберём невыгодные пункты.',
-    power:   'Доверенность — без проблем 📑 Загрузите образец или расскажите кому и какие полномочия.',
     custom:  'Понял вас. Загрузите документ или опишите подробнее — разберёмся.',
   };
   document.querySelectorAll('#el-step1, #el-step-create').forEach(function(el){ el.style.display='none'; });
@@ -3656,7 +3696,8 @@ var _HC_REPLIES = {
   check:    { user: 'Хочу проверить договор',    elena: 'Отлично! Загрузите договор или вставьте текст — найду все риски за секунды 🔍', intent: 'check' },
   create:   { user: 'Нужно составить документ',  elena: 'Расскажите какой документ нужен — договор, доверенность, претензию? Составлю под Ваши параметры ✍️', intent: 'create' },
   dispute:  { user: 'Протокол разногласий',       elena: 'Загрузите договор контрагента — подготовлю протокол с обоснованием каждого изменения 📋', intent: 'dispute' },
-  question: { user: 'Есть вопрос',                elena: 'Спрашивайте — отвечу без лишних формальностей 💬', intent: 'question' }
+  question: { user: 'Есть вопрос',                elena: 'Спрашивайте — отвечу без лишних формальностей 💬', intent: 'question' },
+  power:    { user: 'Нужна доверенность',          elena: 'Составлю доверенность за 15 минут — сразу перейдём к оформлению или расскажите детали 📑', intent: 'power' }
 };
 
 function _hcAddTyping() {
@@ -3974,13 +4015,53 @@ function retChatSend() {
   }, 300);
 }
 
+/* ── СЕРВИСНАЯ КАРТОЧКА (доверенность и др.) ── */
+function _showSvcDetail(btn) {
+  var card = btn.closest('.svc-order-card');
+  if (!card || card.querySelector('.svc-detail-inp-row')) return;
+  btn.style.display = 'none';
+  var row = document.createElement('div');
+  row.className = 'svc-detail-inp-row';
+  row.innerHTML =
+    '<input id="svc-detail-inp" placeholder="Кому? Какие полномочия? Напр: продажа авто, получение документов…" ' +
+      'style="flex:1;border:1.5px solid #e5e7eb;border-radius:11px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit" ' +
+      'onkeydown="if(event.key===\'Enter\')_sendSvcDetail()">' +
+    '<button class="hc-send-btn" onclick="_sendSvcDetail()">→</button>';
+  card.appendChild(row);
+  setTimeout(function(){ var i=document.getElementById('svc-detail-inp'); if(i)i.focus(); }, 60);
+}
+
+function _sendSvcDetail() {
+  var inp = document.getElementById('svc-detail-inp');
+  var txt = inp ? inp.value.trim() : '';
+  if (!txt) { if(inp) inp.focus(); return; }
+  var wrap = document.querySelector('.chatwrap');
+  // Пузырь пользователя
+  var uDiv = document.createElement('div');
+  uDiv.className = 'msg msg-user';
+  uDiv.innerHTML = '<div class="bubble user">' + txt + '</div>';
+  if (wrap) wrap.appendChild(uDiv);
+  // Скрываем карточку
+  var card = document.querySelector('#el-service-power .svc-order-card');
+  if (card) card.style.display = 'none';
+  // Ответ Елены
+  setTimeout(function(){
+    var eDiv = document.createElement('div');
+    eDiv.className = 'msg';
+    eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>Принято! Подготовлю черновик доверенности по вашему описанию — просмотрите и оплатите после согласования.' +
+      '<br><button class="btn btn-p" style="margin-top:10px;padding:8px 18px;font-size:13px" onclick="go(\'pay\')">Оплатить 990 ₽ →</button></div>';
+    if (wrap) { wrap.appendChild(eDiv); eDiv.scrollIntoView({behavior:'smooth'}); }
+  }, 800);
+}
+
 /* ── ГОЛОСОВОЙ ВВОД ── */
 var _voiceActive = false;
 var _voiceRecog = null;
 
-function toggleVoice(targetId) {
+function toggleVoice(targetId, btnId) {
   var inputId = targetId || 'intake-custom';
-  var btn = document.getElementById('voice-btn');
+  var btn = document.getElementById(btnId || 'voice-btn');
 
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
@@ -4001,7 +4082,7 @@ function toggleVoice(targetId) {
 
   _voiceRecog.onstart = function() {
     _voiceActive = true;
-    if (btn) { btn.classList.add('recording'); btn.textContent = '🔴'; }
+    if (btn) { btn.classList.add('recording'); btn.textContent = '🔴'; btn.title = 'Остановить'; }
     var hint = document.getElementById('voice-hint');
     if (hint) hint.textContent = '🎙 Говорите…';
   };
@@ -4017,14 +4098,14 @@ function toggleVoice(targetId) {
 
   _voiceRecog.onend = function() {
     _voiceActive = false;
-    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤'; }
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙'; btn.title = 'Голосовой ввод'; }
     var hint = document.getElementById('voice-hint');
     if (hint) hint.textContent = '';
   };
 
   _voiceRecog.onerror = function(e) {
     _voiceActive = false;
-    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤'; }
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙'; btn.title = 'Голосовой ввод'; }
     var hint = document.getElementById('voice-hint');
     if (hint) hint.textContent = e.error === 'not-allowed' ? '⚠ Разрешите доступ к микрофону' : '⚠ Ошибка записи: ' + e.error;
   };
