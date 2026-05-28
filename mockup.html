@@ -391,6 +391,35 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .msp-date-hdr{height:28px;position:relative;border-bottom:1px solid #c8c8d8;background:#e8e8f0}
 .msp-date-tick{position:absolute;top:0;bottom:0;display:flex;align-items:center;font-size:10px;font-weight:700;color:#555;padding-left:4px;border-left:1px solid #c8c8d8;white-space:nowrap}
 
+/* ── ELENA INTAKE v2 ── */
+.intake-v2{margin:0 0 80px}
+.intent-chips{display:flex;gap:10px;margin:4px 0 4px 51px;flex-wrap:wrap}
+.intent-chip{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;flex:1;min-width:160px;transition:border-color .15s,transform .1s}
+.intent-chip:hover{border-color:var(--bg);transform:translateY(-1px)}
+.intent-chip:active{transform:translateY(0)}
+.intent-chip .ic-ico{font-size:20px;margin-bottom:4px}
+.intent-chip .ic-lbl{font-weight:700;color:var(--ink)}
+.intent-chip .ic-sub{font-size:11px;color:var(--mut);font-weight:400;margin-top:2px}
+.voice-input-row{display:flex;gap:8px;margin:12px 0 12px 51px;align-items:center}
+.voice-input-row input{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:11px 14px;font-size:14px;font-family:inherit;outline:none;background:#fff;color:var(--ink)}
+.voice-input-row input:focus{border-color:var(--bg)}
+.voice-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.voice-btn:hover{border-color:var(--bg);background:var(--tint)}
+.voice-btn.recording{background:#fee2e2;border-color:#ef4444;animation:voicePulse .8s ease infinite}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+.voice-btn.no-support{display:none}
+.send-btn{width:44px;height:44px;border-radius:11px;border:none;background:var(--bg);color:#fff;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0}
+.send-btn:hover{background:var(--bghv)}
+.voice-hint{font-size:11px;color:var(--mut);margin:0 0 8px 51px}
+/* Шаг составления */
+.create-step{margin:8px 0 80px 0}
+.create-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 16px 51px}
+.create-type-card{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px;cursor:pointer;transition:border-color .15s}
+.create-type-card:hover{border-color:var(--bg)}
+.create-type-card .ctc-ico{font-size:24px;margin-bottom:6px}
+.create-type-card .ctc-name{font-weight:700;font-size:13px}
+.create-type-card .ctc-sub{font-size:11px;color:var(--mut);margin-top:2px}
+
 /* ── RETURNING CLIENT ── */
 .ret-greet{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:24px;letter-spacing:-.5px}
 .ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
@@ -1960,6 +1989,152 @@ window.addEventListener('DOMContentLoaded', checkReturning);
     if (el) render();
   });
 })();
+
+/* ── ELENA INTAKE v2 ── */
+function elenaIntent(intent) {
+  var custom = document.getElementById('intake-custom').value.trim();
+
+  // Маршрутизация по intent
+  if (intent === 'check' || intent === 'dispute') {
+    // → существующий флоу анализа
+    var ackMap = {
+      'check':   'Хорошо — загрузите договор или вставьте текст, разберём вместе.',
+      'dispute': 'Понял — нужен протокол разногласий. Сначала загрузите договор, я выделю спорные пункты.',
+    };
+    setMode('mid');
+    document.getElementById('el-ack').innerHTML = ackMap[intent] || '';
+    document.getElementById('el-step1').style.display = 'none';
+    document.getElementById('el-step-create') && (document.getElementById('el-step-create').style.display = 'none');
+    document.getElementById('el-step-upload').style.display = '';
+    return;
+  }
+
+  if (intent === 'create') {
+    document.getElementById('el-step1').style.display = 'none';
+    document.getElementById('el-step-create').style.display = '';
+    return;
+  }
+
+  if (intent === 'power') {
+    document.getElementById('el-step1').style.display = 'none';
+    document.getElementById('el-step-create').style.display = '';
+    // Прокрутим к карточке доверенности
+    setTimeout(function(){ var el = document.querySelector('.create-type-card'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 100);
+    return;
+  }
+
+  if (intent === 'custom') {
+    if (!custom) { document.getElementById('intake-custom').focus(); return; }
+    // Простая маршрутизация по ключевым словам
+    var low = custom.toLowerCase();
+    var isCheck = /провер|анализ|риск|посмотр/.test(low);
+    var isCreate = /состав|написа|подготов|создай|сделай/.test(low);
+    var isPower = /доверенност/.test(low);
+    if (isPower || isCreate) {
+      statTrack('custom', custom);
+      document.getElementById('el-step1').style.display = 'none';
+      document.getElementById('el-step-create').style.display = '';
+    } else {
+      // По умолчанию — анализ
+      statTrack('custom', custom);
+      setMode('mid');
+      document.getElementById('el-ack').innerHTML = 'Понял: «' + custom + '». Разберёмся — загрузите договор.';
+      document.getElementById('el-step1').style.display = 'none';
+      document.getElementById('el-step-create') && (document.getElementById('el-step-create').style.display = 'none');
+      document.getElementById('el-step-upload').style.display = '';
+    }
+    return;
+  }
+}
+
+function elenaCreate(type) {
+  var msgs = {
+    contract: 'Договор — отличный выбор. Уточните: какой тип и между кем? Например: «договор оказания услуг между ИП и физлицом». Чем точнее — тем лучше результат.',
+    power:    'Доверенность готовлю быстро. Укажите: кто доверяет, кому, и что именно разрешает делать (продать авто, представлять в суде, получить документы)?',
+    claim:    'Претензию составлю под вашу ситуацию. Опишите: к кому претензия, что нарушили и какой результат хотите (возврат денег, замена товара, неустойка)?',
+    other:    'Расскажите что нужно составить — постараюсь помочь или подберу ближайший шаблон.',
+  };
+  var msg = msgs[type] || msgs.other;
+  document.getElementById('el-step-create').style.display = 'none';
+  // Показываем ответ Елены и поле ввода
+  var wrap = document.querySelector('.chatwrap');
+  var div = document.createElement('div');
+  div.innerHTML = '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>' + msg + '</div></div>' +
+    '<div class="voice-input-row" style="margin-left:0">' +
+      '<input id="create-input" placeholder="Опишите детали…" style="flex:1;border:1.5px solid var(--line);border-radius:11px;padding:11px 14px;font-size:14px;font-family:inherit;outline:none">' +
+      '<button class="voice-btn" onclick="toggleVoice(\'create-input\')" title="Голосовой ввод">🎤</button>' +
+      '<button class="send-btn" onclick="toast(\'✍️ Принято — начинаю составлять документ по вашему запросу\')">→</button>' +
+    '</div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+/* ── ГОЛОСОВОЙ ВВОД ── */
+var _voiceActive = false;
+var _voiceRecog = null;
+
+function toggleVoice(targetId) {
+  var inputId = targetId || 'intake-custom';
+  var btn = document.getElementById('voice-btn');
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    var hint = document.getElementById('voice-hint');
+    if (hint) hint.textContent = '⚠ Голосовой ввод не поддерживается в этом браузере';
+    return;
+  }
+
+  if (_voiceActive) {
+    if (_voiceRecog) _voiceRecog.stop();
+    return;
+  }
+
+  _voiceRecog = new SR();
+  _voiceRecog.lang = 'ru-RU';
+  _voiceRecog.interimResults = true;
+  _voiceRecog.continuous = false;
+
+  _voiceRecog.onstart = function() {
+    _voiceActive = true;
+    if (btn) { btn.classList.add('recording'); btn.textContent = '🔴'; }
+    var hint = document.getElementById('voice-hint');
+    if (hint) hint.textContent = '🎙 Говорите…';
+  };
+
+  _voiceRecog.onresult = function(e) {
+    var transcript = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    var inp = document.getElementById(inputId);
+    if (inp) inp.value = transcript;
+  };
+
+  _voiceRecog.onend = function() {
+    _voiceActive = false;
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤'; }
+    var hint = document.getElementById('voice-hint');
+    if (hint) hint.textContent = '';
+  };
+
+  _voiceRecog.onerror = function(e) {
+    _voiceActive = false;
+    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤'; }
+    var hint = document.getElementById('voice-hint');
+    if (hint) hint.textContent = e.error === 'not-allowed' ? '⚠ Разрешите доступ к микрофону' : '⚠ Ошибка записи: ' + e.error;
+  };
+
+  _voiceRecog.start();
+}
+
+// Скрыть mic если нет поддержки
+window.addEventListener('DOMContentLoaded', function() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    var btn = document.getElementById('voice-btn');
+    if (btn) btn.classList.add('no-support');
+  }
+});
 
 /* ── СТАТУС ЗАКАЗА ── */
 const OS_DEADLINES = {
