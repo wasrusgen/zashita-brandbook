@@ -79,7 +79,67 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .plan .pd{font-size:13px;color:var(--mut);margin-top:4px}
 .field{margin:14px 0}.field label{font-size:12px;font-weight:600;display:block;margin-bottom:5px}
 .field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit}
-.pdn{font-size:11px;color:var(--mut);margin:10px 0 16px}.pdn a{color:var(--bg)}
+.pdn{font-size:11px;color:var(--mut);margin:10px 0 16px}
+/* ── PAY HYBRID ── */
+.pay-bal{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);color:#fff;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.pay-bal-ico{font-size:22px;flex-shrink:0}
+.pay-bal-body{flex:1}
+.pay-bal-lbl{font-size:11px;opacity:.75;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.pay-bal-val{font-size:20px;font-weight:800;line-height:1.1}
+.pay-bal-sub{font-size:11px;opacity:.75;margin-top:2px}
+.pay-bal-use{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.pay-bal-use:hover{background:rgba(255,255,255,.3)}
+.pay-tabs{display:flex;gap:8px;margin-bottom:20px}
+.pay-tab{flex:1;padding:10px;border:2px solid #e5e7eb;border-radius:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;background:#fff;transition:all .15s}
+.pay-tab.on{border-color:var(--bg);color:var(--bg);background:#fef2f2}
+.pay-pane{display:none}
+.pay-pane.on{display:block}
+.pkg-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.pkg-card{border:2px solid #e5e7eb;border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .15s;position:relative}
+.pkg-card:hover{border-color:#d1d5db}
+.pkg-card.sel{border-color:var(--bg);background:#fff5f5}
+.pkg-card.rec::before{content:"Выгоднее всего";position:absolute;top:-1px;right:14px;background:var(--bg);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:0 0 6px 6px}
+.pkg-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.pkg-name{font-size:14px;font-weight:700;color:var(--ink)}
+.pkg-price{font-size:18px;font-weight:800;color:var(--bg)}
+.pkg-desc{font-size:12px;color:var(--mut)}
+.pkg-per{font-size:11px;color:#9ca3af;margin-top:2px}
+.sub-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.sub-card{border:2px solid #e5e7eb;border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .15s;position:relative}
+.sub-card:hover{border-color:#d1d5db}
+.sub-card.sel{border-color:var(--bg);background:#fff5f5}
+.sub-card.rec::before{content:"Популярно";position:absolute;top:-1px;right:14px;background:var(--bg);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:0 0 6px 6px}
+.sub-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.sub-name{font-size:14px;font-weight:700;color:var(--ink)}
+.sub-price{font-size:18px;font-weight:800;color:var(--bg)}
+.sub-period{font-size:11px;color:#9ca3af;margin-left:3px}
+.sub-desc{font-size:12px;color:var(--mut)}
+.sub-feat{font-size:11px;color:#6b7280;margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.sub-feat span{background:#f3f4f6;padding:2px 7px;border-radius:6px}
+.pay-refund-note{font-size:11px;color:var(--mut);text-align:center;margin-bottom:12px}
+.pay-refund-note a{color:var(--bg);text-decoration:none}
+/* ЮKassa modal */
+.yk-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:flex-end;justify-content:center}
+.yk-overlay.on{display:flex}
+.yk-modal{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.yk-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.yk-ttl{font-size:16px;font-weight:800;color:var(--ink)}
+.yk-close{font-size:20px;cursor:pointer;color:#9ca3af;background:none;border:none;padding:4px}
+.yk-amount{font-size:28px;font-weight:800;color:var(--bg);text-align:center;margin-bottom:20px}
+.yk-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.yk-method{border:2px solid #e5e7eb;border-radius:12px;padding:12px;cursor:pointer;text-align:center;transition:all .15s}
+.yk-method:hover,.yk-method.sel{border-color:var(--bg);background:#fff5f5}
+.yk-method-ico{font-size:22px;margin-bottom:4px}
+.yk-method-lbl{font-size:11px;font-weight:700;color:var(--ink)}
+.yk-sbp{background:linear-gradient(135deg,#00b27a,#00913c);color:#fff;border:none!important}
+.yk-sbp .yk-method-lbl{color:#fff}
+.yk-card-form{margin-bottom:16px}
+.yk-card-form input{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:14px;box-sizing:border-box;margin-bottom:8px}
+.yk-card-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.yk-pay-btn{width:100%;background:var(--bg);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+.yk-pay-btn:hover{background:var(--bghv)}
+.yk-secure{font-size:10px;color:#9ca3af;text-align:center;margin-top:8px}.pdn a{color:var(--bg)}
 
 /* ── кабинет (общий каркас) ── */
 .app{display:flex;min-height:100vh;background:#f4f5f7}
@@ -250,6 +310,66 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .dl-empty-ico{font-size:40px;margin-bottom:12px}
 .dl-empty-txt{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--ink)}
 .dl-empty-sub{font-size:12px}
+/* ── ADMIN SCREEN ── */
+.admin-wrap{padding:24px 20px;max-width:900px;margin:0 auto}
+.admin-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:600px){.admin-kpi{grid-template-columns:1fr 1fr}}
+.akpi{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:14px 16px}
+.akpi-num{font-size:24px;font-weight:800;line-height:1;margin-bottom:4px}
+.akpi-lbl{font-size:11px;color:var(--mut);font-weight:600}
+.akpi-trend{font-size:11px;margin-top:3px}
+.akpi-trend.up{color:#16a34a}
+.akpi-trend.dn{color:#dc2626}
+.admin-section{margin-bottom:24px}
+.admin-section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.admin-section-ttl{font-size:15px;font-weight:800;color:var(--ink)}
+.admin-section-link{font-size:12px;color:var(--bg);cursor:pointer;font-weight:600}
+.pay-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1.5px solid #e5e7eb}
+.pay-table th{background:#f9fafb;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;padding:8px 12px;text-align:left}
+.pay-table td{padding:10px 12px;font-size:13px;border-top:1px solid #f3f4f6;color:var(--ink)}
+.pay-table tr:hover td{background:#fafafa}
+.pay-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
+.pay-badge.paid{background:#dcfce7;color:#166534}
+.pay-badge.ref{background:#fee2e2;color:#991b1b}
+.pay-badge.pend{background:#fef3c7;color:#92400e}
+.refund-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+.refund-card.urgent{border-left:3px solid #ef4444}
+.refund-body{flex:1}
+.refund-ttl{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.refund-meta{font-size:11px;color:var(--mut)}
+.refund-amt{font-size:14px;font-weight:800;color:#ef4444;flex-shrink:0;text-align:right}
+.refund-actions{display:flex;gap:6px;margin-top:8px}
+.refund-btn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;border:1.5px solid;cursor:pointer}
+.refund-btn.approve{border-color:#16a34a;color:#16a34a;background:#f0fdf4}
+.refund-btn.decline{border-color:#dc2626;color:#dc2626;background:#fef2f2}
+.admin-chart{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:24px}
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:80px;margin-top:8px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;min-height:4px;transition:height .3s}
+.chart-bar.cur{background:var(--bg)}
+.chart-bar:not(.cur){background:#fecaca}
+.chart-lbl{display:flex;gap:3px;margin-top:4px}
+.chart-lbl span{flex:1;font-size:9px;color:var(--mut);text-align:center;overflow:hidden}
+/* Balance tab */
+.bal-hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px;padding:20px;color:#fff;margin-bottom:20px;text-align:center}
+.bal-hero-num{font-size:48px;font-weight:800;line-height:1}
+.bal-hero-lbl{font-size:13px;opacity:.8;margin-top:4px}
+.bal-hero-sub{font-size:12px;opacity:.65;margin-top:6px}
+.bal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.bal-action-btn{padding:12px;border:2px solid #e5e7eb;border-radius:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);background:#fff;transition:all .15s}
+.bal-action-btn:hover{border-color:var(--bg);color:var(--bg)}
+.pay-hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6}
+.phi-left{}
+.phi-desc{font-size:13px;font-weight:600;color:var(--ink)}
+.phi-date{font-size:11px;color:var(--mut);margin-top:2px}
+.phi-right{text-align:right;flex-shrink:0}
+.phi-amt{font-size:14px;font-weight:700}
+.phi-amt.cr{color:#16a34a}
+.phi-amt.db{color:#ef4444}
+.phi-status{font-size:10px;color:var(--mut);margin-top:2px}
+.ref-form{background:#fff5f5;border:1.5px solid #fecaca;border-radius:12px;padding:14px;margin-top:16px}
+.ref-form h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.ref-form textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px;box-sizing:border-box;height:70px;resize:none;margin-bottom:8px}
+.ref-form-hint{font-size:11px;color:var(--mut);margin-bottom:10px}
 .dl-summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .dl-sum-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;flex:1;min-width:100px;text-align:center}
 .dl-sum-num{font-size:22px;font-weight:800;line-height:1}
@@ -1182,21 +1302,69 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </ul>
     </div>
 
-    <!-- 3 плана -->
-    <div id="pay-plan-1" class="plan" onclick="selectPlan(1)">
-      <span class="pp" id="p1-price">1 490 ₽</span>
-      <div class="pn" id="p1-name">Без комментариев</div>
-      <div class="pd" id="p1-desc">Все спорные пункты — готовый список изменений без пояснений</div>
+    <!-- Баланс -->
+    <div class="pay-bal" id="pay-bal-block">
+      <div class="pay-bal-ico">💳</div>
+      <div class="pay-bal-body">
+        <div class="pay-bal-lbl">Ваш баланс</div>
+        <div class="pay-bal-val"><span id="pay-bal-credits">0</span> кредитов</div>
+        <div class="pay-bal-sub" id="pay-bal-sub">Пополните баланс ниже или оплатите разово</div>
+      </div>
+      <button class="pay-bal-use" id="pay-bal-use-btn" onclick="useBalance()" style="display:none">Списать 1 кредит</button>
     </div>
-    <div id="pay-plan-2" class="plan sel" onclick="selectPlan(2)">
-      <span class="pp" id="p2-price">2 480 ₽</span>
-      <div class="pn" id="p2-name">С комментариями</div>
-      <div class="pd" id="p2-desc">Все 12 пунктов + пояснение зачем каждое изменение. Контрагент понимает логику — меньше споров.</div>
+
+    <!-- Переключатель: разовая / подписка -->
+    <div class="pay-tabs">
+      <div class="pay-tab on" id="ptab-once" onclick="payTab('once')">Разовая покупка</div>
+      <div class="pay-tab" id="ptab-sub" onclick="payTab('sub')">Подписка 💛</div>
     </div>
-    <div id="pay-plan-3" class="plan" onclick="selectPlan(3)">
-      <span class="pp" id="p3-price">от 3 900 ₽</span>
-      <div class="pn" id="p3-name">Партнёрская редакция</div>
-      <div class="pd" id="p3-desc">Чистый договор, учитывающий интересы обеих сторон. Контрагент подпишет без лишних раундов переговоров + Елена сопровождает до подписания.</div>
+
+    <!-- Разовая -->
+    <div class="pay-pane on" id="ppane-once">
+      <div class="pkg-grid">
+        <div class="pkg-card" id="pkg-1" onclick="selectPkg(1,249)">
+          <div class="pkg-top"><span class="pkg-name">Одна проверка</span><span class="pkg-price">249 ₽</span></div>
+          <div class="pkg-desc">1 кредит — только для этого договора</div>
+          <div class="pkg-per">249 ₽ за кредит</div>
+        </div>
+        <div class="pkg-card rec" id="pkg-2" onclick="selectPkg(2,490)">
+          <div class="pkg-top"><span class="pkg-name">Пакет Старт · 3 проверки</span><span class="pkg-price">490 ₽</span></div>
+          <div class="pkg-desc">3 кредита — первый сразу на этот договор</div>
+          <div class="pkg-per">163 ₽ за кредит · экономия 34%</div>
+        </div>
+        <div class="pkg-card" id="pkg-3" onclick="selectPkg(3,1290)">
+          <div class="pkg-top"><span class="pkg-name">Пакет Бизнес · 10 проверок</span><span class="pkg-price">1 290 ₽</span></div>
+          <div class="pkg-desc">10 кредитов — хватит на несколько месяцев</div>
+          <div class="pkg-per">129 ₽ за кредит · экономия 48%</div>
+        </div>
+        <div class="pkg-card" id="pkg-4" onclick="selectPkg(4,2990)">
+          <div class="pkg-top"><span class="pkg-name">Пакет Корпоратив · 30 проверок</span><span class="pkg-price">2 990 ₽</span></div>
+          <div class="pkg-desc">30 кредитов — для команды или активных сделок</div>
+          <div class="pkg-per">100 ₽ за кредит · экономия 60%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Подписка -->
+    <div class="pay-pane" id="ppane-sub">
+      <div class="sub-grid">
+        <div class="sub-card" id="sub-1" onclick="selectSub(1,990)">
+          <div class="sub-top"><span class="sub-name">Старт</span><span class="sub-price">990 ₽<span class="sub-period">/мес</span></span></div>
+          <div class="sub-desc">До 10 проверок в месяц</div>
+          <div class="sub-feat"><span>Проверка рисков</span><span>Список изменений</span></div>
+        </div>
+        <div class="sub-card rec" id="sub-2" onclick="selectSub(2,1990)">
+          <div class="sub-top"><span class="sub-name">Бизнес</span><span class="sub-price">1 990 ₽<span class="sub-period">/мес</span></span></div>
+          <div class="sub-desc">До 30 проверок + комментарии Елены</div>
+          <div class="sub-feat"><span>Всё из Старта</span><span>Обоснование изменений</span><span>Сроки из договоров</span></div>
+        </div>
+        <div class="sub-card" id="sub-3" onclick="selectSub(3,4900)">
+          <div class="sub-top"><span class="sub-name">Безлимит</span><span class="sub-price">4 900 ₽<span class="sub-period">/мес</span></span></div>
+          <div class="sub-desc">Без ограничений · партнёрские редакции</div>
+          <div class="sub-feat"><span>Всё из Бизнес</span><span>Партнёрская редакция</span><span>Приоритетная поддержка</span></div>
+        </div>
+      </div>
+      <div class="pay-refund-note">Отмена подписки — в любой момент. Неиспользованный остаток возвращается пропорционально. <a href="#">Условия возврата →</a></div>
     </div>
 
     <!-- Аргументация Елены за 2 дорогих -->
@@ -1209,9 +1377,9 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       </div>
     </div>
 
-    <div class="field"><label>Куда прислать результат</label><input placeholder="Telegram или телефон"></div>
+    <div class="field"><label>Куда прислать результат</label><input id="pay-contact" placeholder="Telegram или email для чека"></div>
     <div class="pdn">Нажимая «Оплатить», вы соглашаетесь с <a href="oferta.html" target="_blank">офертой</a> и <a href="privacy.html" target="_blank">обработкой ПДн</a>. Данные договора остаются на вашем устройстве.</div>
-    <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="ykOpen()">Оплатить 2 480 ₽</button>
+    <button class="btn btn-p" id="pay-price-btn" style="width:100%" onclick="ykOpen()">Оплатить 490 ₽</button>
   </div>
 </section>
 
@@ -1303,7 +1471,9 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <a id="t-sroki" onclick="tab('sroki')">⏱️ Сроки</a>
       <a id="t-shab" onclick="tab('shab')">📋 Шаблоны</a>
       <a id="t-create" onclick="tab('create')">✍️ Составить документ</a>
+      <a id="t-balance" onclick="tab('balance')">💳 Баланс и оплата</a>
       <a onclick="go('start')">↩ Выйти (в начало)</a>
+      <a onclick="go('admin')" style="color:#ef4444;font-weight:700">⚙️ Администратор</a>
       <div class="side-clock">
         <div class="side-clock-day" id="sc-day">Среда</div>
         <div class="side-clock-date" id="sc-date">28 мая 2025</div>
@@ -1935,6 +2105,38 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
       </div></div>
 
+
+      <!-- Баланс и оплата -->
+      <div class="tabpane" id="p-balance">
+        <div class="main-body">
+          <div class="crumb">Кабинет</div><h1>Баланс и оплата</h1>
+          <!-- Hero balance -->
+          <div class="bal-hero">
+            <div class="bal-hero-num"><span id="bal-credits-num">0</span></div>
+            <div class="bal-hero-lbl">кредитов на балансе</div>
+            <div class="bal-hero-sub" id="bal-sub-status">Подписка не активна</div>
+          </div>
+          <!-- Actions -->
+          <div class="bal-actions">
+            <div class="bal-action-btn" onclick="go('pay')">➕ Пополнить баланс</div>
+            <div class="bal-action-btn" id="bal-refund-toggle" onclick="toggleRefundForm()">↩ Запросить возврат</div>
+          </div>
+          <!-- Refund form -->
+          <div class="ref-form" id="ref-form" style="display:none">
+            <h4>Заявка на возврат средств</h4>
+            <div class="ref-form-hint">Возврат производится за неиспользованные кредиты в течение 10 рабочих дней согласно оферте.</div>
+            <textarea id="ref-reason" placeholder="Причина возврата (необязательно)..."></textarea>
+            <button class="btn" style="width:100%;background:var(--bg);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer" onclick="submitRefund()">Отправить заявку</button>
+          </div>
+          <!-- History -->
+          <div class="admin-section" style="margin-top:8px">
+            <div class="admin-section-hdr">
+              <div class="admin-section-ttl">История платежей</div>
+            </div>
+            <div id="bal-history"></div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </section>
@@ -2360,7 +2562,8 @@ function toast(msg){
   el.classList.add('show'); clearTimeout(_toastT);
   _toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
-function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  if(id==='admin' && typeof _initAdmin==='function') setTimeout(_initAdmin,50);;window.scrollTo(0,0);}
 /* ── СВОЙ ЗАПРОС ── */
 let _customOpen = false;
 let _voiceRec = null;
@@ -3081,6 +3284,279 @@ window.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('dl-list')) renderDeadlines();
 });
 
+/* ── PAY HYBRID ── */
+var _payMode = 'once'; // once | sub
+var _selPkg = 2;       // selected package id
+var _selSub = 2;       // selected sub id
+var _selPkgPrice = 490;
+var _selSubPrice = 1990;
+var _ykMethod = 'sbp';
+
+var _PKG_PRICES = {1:249, 2:490, 3:1290, 4:2990};
+var _PKG_CREDITS = {1:1, 2:3, 3:10, 4:30};
+var _SUB_PRICES = {1:990, 2:1990, 3:4900};
+
+function payTab(mode) {
+  _payMode = mode;
+  document.getElementById('ptab-once').classList.toggle('on', mode==='once');
+  document.getElementById('ptab-sub').classList.toggle('on', mode==='sub');
+  document.getElementById('ppane-once').classList.toggle('on', mode==='once');
+  document.getElementById('ppane-sub').classList.toggle('on', mode==='sub');
+  _updatePayBtn();
+}
+
+function selectPkg(id, price) {
+  _selPkg = id; _selPkgPrice = price;
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('sel'); });
+  var el = document.getElementById('pkg-'+id);
+  if (el) el.classList.add('sel');
+  _updatePayBtn();
+}
+
+function selectSub(id, price) {
+  _selSub = id; _selSubPrice = price;
+  document.querySelectorAll('.sub-card').forEach(function(c){ c.classList.remove('sel'); });
+  var el = document.getElementById('sub-'+id);
+  if (el) el.classList.add('sel');
+  _updatePayBtn();
+}
+
+function _updatePayBtn() {
+  var price = _payMode === 'once' ? _selPkgPrice : _selSubPrice;
+  var suffix = _payMode === 'sub' ? '/мес' : '';
+  var btn = document.getElementById('pay-price-btn');
+  if (btn) btn.textContent = 'Оплатить ' + price.toLocaleString('ru') + ' ₽' + suffix;
+  var ykBtn = document.getElementById('yk-pay-btn');
+  var ykAmt = document.getElementById('yk-amount');
+  if (ykBtn) ykBtn.textContent = 'Оплатить ' + price.toLocaleString('ru') + ' ₽' + suffix;
+  if (ykAmt) ykAmt.textContent = price.toLocaleString('ru') + ' ₽';
+  var ykTtl = document.getElementById('yk-ttl');
+  if (ykTtl) ykTtl.textContent = _payMode === 'sub' ? 'Подписка · первый платёж' : 'Пополнение баланса';
+}
+
+function _refreshBalance() {
+  var bal = parseInt(localStorage.getItem('zashita_credits') || '0');
+  var el = document.getElementById('pay-bal-credits');
+  var sub = document.getElementById('pay-bal-sub');
+  var btn = document.getElementById('pay-bal-use-btn');
+  if (el) el.textContent = bal;
+  if (bal > 0) {
+    if (sub) sub.textContent = 'Спишем 1 кредит на эту проверку';
+    if (btn) btn.style.display = '';
+  } else {
+    if (sub) sub.textContent = 'Пополните баланс ниже или оплатите разово';
+    if (btn) btn.style.display = 'none';
+  }
+}
+
+function useBalance() {
+  var bal = parseInt(localStorage.getItem('zashita_credits') || '0');
+  if (bal <= 0) return;
+  localStorage.setItem('zashita_credits', bal - 1);
+  // record usage
+  var hist = JSON.parse(localStorage.getItem('zashita_pay_history') || '[]');
+  hist.unshift({date: new Date().toISOString(), type: 'use', amount: 0, desc: 'Использован 1 кредит'});
+  localStorage.setItem('zashita_pay_history', JSON.stringify(hist));
+  toast('✅ 1 кредит использован — запускаю полный анализ');
+  setTimeout(function(){ go('cabinet'); tab('cases'); }, 1200);
+}
+
+// ЮKassa modal
+function ykOpen() {
+  _updatePayBtn();
+  document.getElementById('yk-overlay').classList.add('on');
+}
+function ykClose(e) {
+  if (!e || e.target === document.getElementById('yk-overlay')) {
+    document.getElementById('yk-overlay').classList.remove('on');
+  }
+}
+function ykMethod(m, el) {
+  _ykMethod = m;
+  document.querySelectorAll('.yk-method').forEach(function(x){ x.classList.remove('sel'); });
+  if (el) el.classList.add('sel');
+  document.getElementById('yk-card-form').style.display = (m === 'card') ? '' : 'none';
+}
+function fmtCard(inp) {
+  var v = inp.value.replace(/\D/g,'').substring(0,16);
+  inp.value = v.replace(/(\d{4})(?=\d)/g,'$1 ');
+}
+function ykPay() {
+  var price = _payMode === 'once' ? _selPkgPrice : _selSubPrice;
+  var credits = _payMode === 'once' ? _PKG_CREDITS[_selPkg] : 999;
+  // Mock: зачислить кредиты
+  if (_payMode === 'once') {
+    var cur = parseInt(localStorage.getItem('zashita_credits') || '0');
+    localStorage.setItem('zashita_credits', cur + credits);
+  } else {
+    localStorage.setItem('zashita_sub_plan', _selSub);
+    localStorage.setItem('zashita_sub_since', new Date().toISOString());
+  }
+  // Save to payment history
+  var hist = JSON.parse(localStorage.getItem('zashita_pay_history') || '[]');
+  hist.unshift({
+    date: new Date().toISOString(),
+    type: _payMode,
+    amount: price,
+    credits: _payMode === 'once' ? credits : null,
+    method: _ykMethod,
+    status: 'paid',
+    desc: _payMode === 'once' ? 'Пополнение баланса +' + credits + ' кредитов' : 'Подписка · ' + ['','Старт','Бизнес','Безлимит'][_selSub]
+  });
+  localStorage.setItem('zashita_pay_history', JSON.stringify(hist));
+  // Save last order for hero screen
+  localStorage.setItem('zashita_last_order', JSON.stringify({
+    ttl: 'Баланс пополнен', plan: _payMode === 'once' ? credits + ' кредитов' : 'Подписка',
+    price: price.toLocaleString('ru') + ' ₽'
+  }));
+  ykClose();
+  toast('✅ Оплата прошла — кредиты зачислены!');
+  _refreshBalance();
+  setTimeout(function(){ go('cabinet'); }, 1500);
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  // default: select pkg-2
+  selectPkg(2, 490);
+  _refreshBalance();
+});
+
+/* ── ADMIN + BALANCE ── */
+
+// ── Admin dashboard ──
+var _ADM_PAYS = [
+  {date:'28.05.2026',client:'Р.В.',type:'Пакет Бизнес',amount:1290,status:'paid'},
+  {date:'28.05.2026',client:'М.С.',type:'Подписка Бизнес',amount:1990,status:'paid'},
+  {date:'27.05.2026',client:'А.П.',type:'Разовая',amount:249,status:'paid'},
+  {date:'27.05.2026',client:'О.К.',type:'Пакет Старт',amount:490,status:'paid'},
+  {date:'26.05.2026',client:'В.Н.',type:'Подписка Старт',amount:990,status:'paid'},
+  {date:'25.05.2026',client:'Т.Ю.',type:'Пакет Бизнес',amount:1290,status:'ref'},
+];
+
+var _ADM_REFUNDS = [
+  {id:1,client:'Т.Ю.',date:'25.05.2026',amount:1290,credits:7,
+   reason:'Не понравился формат отчёта',urgent:true},
+  {id:2,client:'С.В.',date:'22.05.2026',amount:490,credits:2,
+   reason:'Дублирующая покупка',urgent:false},
+];
+
+function _initAdmin() {
+  // Chart
+  var vals = [28,32,18,45,22,38,29,52,41,34,47,56,39,44,31,58,42,37,49,53,36,41,55,62,48,44,57,59,43,47];
+  var max = Math.max.apply(null, vals);
+  var bars = document.getElementById('adm-chart');
+  var lbls = document.getElementById('adm-chart-lbl');
+  if (!bars) return;
+  bars.innerHTML = vals.map(function(v, i){
+    var h = Math.round((v/max)*100);
+    return '<div class="chart-bar'+(i===vals.length-1?' cur':'')+'" style="height:'+h+'%" title="'+v+'00 ₽"></div>';
+  }).join('');
+  if (lbls) {
+    var days = [];
+    for (var i=vals.length;i>0;i--) {
+      if (i===vals.length||i===vals.length-7||i===vals.length-14||i===vals.length-21||i===1) {
+        days.push(i+'д');
+      } else { days.push(''); }
+    }
+    lbls.innerHTML = days.map(function(d){ return '<span>'+d+'</span>'; }).join('');
+  }
+  // Payments table
+  var tbody = document.getElementById('adm-pay-table');
+  if (tbody) {
+    tbody.innerHTML = _ADM_PAYS.map(function(p){
+      var badge = p.status==='paid'?'<span class="pay-badge paid">Оплачено</span>':
+                  p.status==='ref'?'<span class="pay-badge ref">Возврат</span>':
+                  '<span class="pay-badge pend">Ожидание</span>';
+      return '<tr><td>'+p.date+'</td><td>'+p.client+'</td><td>'+p.type+'</td><td><b>'+p.amount.toLocaleString('ru')+'₽</b></td><td>'+badge+'</td></tr>';
+    }).join('');
+  }
+  // Refunds
+  var rlist = document.getElementById('adm-refunds-list');
+  if (rlist) {
+    if (_ADM_REFUNDS.length === 0) {
+      rlist.innerHTML = '<div style="text-align:center;padding:24px;color:var(--mut);font-size:13px">✅ Активных заявок нет</div>';
+    } else {
+      rlist.innerHTML = _ADM_REFUNDS.map(function(r){
+        return '<div class="refund-card'+(r.urgent?' urgent':'')+'" id="rcard-'+r.id+'">'
+          +'<div class="refund-body">'
+          +'<div class="refund-ttl">'+r.client+' · '+r.date+'</div>'
+          +'<div class="refund-meta">'+r.reason+'</div>'
+          +'<div class="refund-meta">Неиспользованных кредитов: '+r.credits+'</div>'
+          +'<div class="refund-actions">'
+          +'<button class="refund-btn approve" onclick="admRefund('+r.id+',true)">✅ Вернуть '+Math.round(r.amount*(r.credits/(r.credits+1))).toLocaleString('ru')+'₽</button>'
+          +'<button class="refund-btn decline" onclick="admRefund('+r.id+',false)">✕ Отклонить</button>'
+          +'</div></div>'
+          +'<div class="refund-amt">'+r.amount.toLocaleString('ru')+'₽</div>'
+          +'</div>';
+      }).join('');
+    }
+  }
+}
+
+function admRefund(id, approve) {
+  var card = document.getElementById('rcard-'+id);
+  if (card) card.style.opacity = '.4';
+  toast(approve ? '✅ Возврат одобрен — отправлен в ЮKassa' : '✕ Заявка отклонена — клиент уведомлён');
+  setTimeout(function(){ if(card) card.remove(); }, 800);
+}
+
+// ── Balance tab ──
+function _refreshBalanceTab() {
+  var credits = parseInt(localStorage.getItem('zashita_credits') || '0');
+  var subPlan = localStorage.getItem('zashita_sub_plan');
+  var el = document.getElementById('bal-credits-num');
+  var sub = document.getElementById('bal-sub-status');
+  if (el) el.textContent = credits;
+  if (sub) {
+    var subNames = {1:'Старт', 2:'Бизнес', 3:'Безлимит'};
+    sub.textContent = subPlan ? ('Подписка ' + (subNames[subPlan]||'') + ' активна 💛') : 'Подписка не активна';
+  }
+  // History
+  var hist = JSON.parse(localStorage.getItem('zashita_pay_history') || '[]');
+  var hel = document.getElementById('bal-history');
+  if (hel) {
+    if (!hist.length) {
+      hel.innerHTML = '<div style="text-align:center;padding:24px;color:var(--mut);font-size:13px">Платежей пока нет</div>';
+    } else {
+      hel.innerHTML = hist.slice(0,10).map(function(h){
+        var d = new Date(h.date);
+        var ds = d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();
+        var isCredit = h.type === 'use';
+        return '<div class="pay-hist-item">'
+          +'<div class="phi-left"><div class="phi-desc">'+h.desc+'</div><div class="phi-date">'+ds+'</div></div>'
+          +'<div class="phi-right"><div class="phi-amt '+(isCredit?'db':'cr')+'">'
+          +(isCredit?'−1 кредит':'+'+(h.credits||'∞')+' кредитов')+'</div>'
+          +(h.amount?'<div class="phi-status">'+h.amount.toLocaleString('ru')+'₽</div>':'')
+          +'</div></div>';
+      }).join('');
+    }
+  }
+}
+
+function toggleRefundForm() {
+  var f = document.getElementById('ref-form');
+  if (f) f.style.display = f.style.display === 'none' ? '' : 'none';
+}
+
+function submitRefund() {
+  var reason = (document.getElementById('ref-reason')||{}).value || '';
+  var credits = parseInt(localStorage.getItem('zashita_credits') || '0');
+  if (credits <= 0) { toast('⚠ Неиспользованных кредитов нет'); return; }
+  // Save refund request
+  var refs = JSON.parse(localStorage.getItem('zashita_refund_requests') || '[]');
+  refs.push({date: new Date().toISOString(), credits: credits, reason: reason, status: 'pending'});
+  localStorage.setItem('zashita_refund_requests', JSON.stringify(refs));
+  toggleRefundForm();
+  toast('✅ Заявка отправлена — ответим в течение 10 рабочих дней');
+}
+
+// Hook into tab switch
+var _origTab = typeof tab === 'function' ? tab : null;
+window.addEventListener('DOMContentLoaded', function(){
+  _initAdmin();
+  _refreshBalanceTab();
+});
+
 /* ── ГОЛОСОВОЙ ВВОД ── */
 var _voiceActive = false;
 var _voiceRecog = null;
@@ -3587,7 +4063,8 @@ window.addEventListener('DOMContentLoaded', handleHash);
 window.addEventListener('hashchange', handleHash);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
-  if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();;
+  if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();
+  if(name==='balance' && typeof _refreshBalanceTab==='function') _refreshBalanceTab();;
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
   const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab',create:'t-create'};
   const el=document.getElementById(map[name]); if(el) el.classList.add('on');
@@ -3646,4 +4123,109 @@ function tab(name){
   </div>
 </div>
 
+
+<!-- ЮKassa payment modal -->
+<div class="yk-overlay" id="yk-overlay" onclick="ykClose(event)">
+  <div class="yk-modal" onclick="event.stopPropagation()">
+    <div class="yk-hdr">
+      <div class="yk-ttl" id="yk-ttl">Оплата</div>
+      <button class="yk-close" onclick="ykClose()">✕</button>
+    </div>
+    <div class="yk-amount" id="yk-amount">490 ₽</div>
+    <div class="yk-methods">
+      <div class="yk-method yk-sbp sel" onclick="ykMethod('sbp',this)">
+        <div class="yk-method-ico">📲</div>
+        <div class="yk-method-lbl">СБП</div>
+      </div>
+      <div class="yk-method" onclick="ykMethod('card',this)">
+        <div class="yk-method-ico">💳</div>
+        <div class="yk-method-lbl">Карта</div>
+      </div>
+      <div class="yk-method" onclick="ykMethod('mir',this)">
+        <div class="yk-method-ico">🇷🇺</div>
+        <div class="yk-method-lbl">Мир Pay</div>
+      </div>
+      <div class="yk-method" onclick="ykMethod('qr',this)">
+        <div class="yk-method-ico">📱</div>
+        <div class="yk-method-lbl">QR-код</div>
+      </div>
+    </div>
+    <div class="yk-card-form" id="yk-card-form" style="display:none">
+      <input placeholder="Номер карты" maxlength="19" oninput="fmtCard(this)">
+      <div class="yk-card-row">
+        <input placeholder="ММ / ГГ" maxlength="5">
+        <input placeholder="CVV" maxlength="3" type="password">
+      </div>
+    </div>
+    <button class="yk-pay-btn" id="yk-pay-btn" onclick="ykPay()">Оплатить 490 ₽</button>
+    <div class="yk-secure">🔒 Защищено ЮKassa · 3D Secure · чек на email</div>
+  </div>
+</div>
+
+<!-- ═ ADMIN SCREEN ═ -->
+<div class="screen" id="admin">
+  <div class="topbar">
+    <img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА">
+    <span class="ttl">Кабинет администратора</span>
+    <span class="back back-link" onclick="go('start')">← выйти</span>
+  </div>
+  <div class="admin-wrap">
+    <div class="crumb">Администратор</div>
+    <h1 style="margin-bottom:20px">Дашборд</h1>
+
+    <!-- KPI -->
+    <div class="admin-kpi">
+      <div class="akpi">
+        <div class="akpi-num" style="color:var(--bg)" id="adm-rev">47 300 ₽</div>
+        <div class="akpi-lbl">Выручка за месяц</div>
+        <div class="akpi-trend up" id="adm-rev-tr">↑ +18% к прошлому</div>
+      </div>
+      <div class="akpi">
+        <div class="akpi-num" id="adm-clients">134</div>
+        <div class="akpi-lbl">Клиентов всего</div>
+        <div class="akpi-trend up">↑ +12 новых</div>
+      </div>
+      <div class="akpi">
+        <div class="akpi-num" id="adm-subs">28</div>
+        <div class="akpi-lbl">Активных подписок</div>
+        <div class="akpi-trend up">↑ +3 этой неделе</div>
+      </div>
+      <div class="akpi">
+        <div class="akpi-num" style="color:#ef4444" id="adm-refunds">2</div>
+        <div class="akpi-lbl">Заявки на возврат</div>
+        <div class="akpi-trend dn">⚠ Требуют решения</div>
+      </div>
+    </div>
+
+    <!-- Revenue chart -->
+    <div class="admin-chart">
+      <div class="admin-section-hdr">
+        <div class="admin-section-ttl">Выручка — последние 30 дней</div>
+        <div class="admin-section-link" onclick="adminChartMode()">По неделям</div>
+      </div>
+      <div class="chart-bars" id="adm-chart"></div>
+      <div class="chart-lbl" id="adm-chart-lbl"></div>
+    </div>
+
+    <!-- Recent payments -->
+    <div class="admin-section">
+      <div class="admin-section-hdr">
+        <div class="admin-section-ttl">Последние платежи</div>
+        <div class="admin-section-link">Все платежи →</div>
+      </div>
+      <table class="pay-table">
+        <thead><tr><th>Дата</th><th>Клиент</th><th>Тип</th><th>Сумма</th><th>Статус</th></tr></thead>
+        <tbody id="adm-pay-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Refund requests -->
+    <div class="admin-section">
+      <div class="admin-section-hdr">
+        <div class="admin-section-ttl">Заявки на возврат</div>
+      </div>
+      <div id="adm-refunds-list"></div>
+    </div>
+  </div>
+</div>
 </body></html>
