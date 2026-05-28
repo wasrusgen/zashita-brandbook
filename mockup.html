@@ -5017,14 +5017,14 @@ function retChatSend() {
   var t = txt.toLowerCase();
 
   // ── Вопрос о действии по активному контексту срока ──
-  var isActionQ = /что (нужно|делать|сделать)|как (быть|поступить|действовать)|помоги|что значит|объясни|расскажи подробн|дальше|следующий шаг/.test(t);
+  var isActionQ = /что (нужно|делать|сделать|предлож|посовет|рекоменд)|как (быть|поступить|действовать|решить)|помоги|что значит|объясни|расскажи|подробн|дальше|следующий шаг|с чего начат|что важно|какие шаги|как быть/.test(t);
   if (isActionQ && _rcLastContext && _rcLastContext.type === 'deadline') {
     setTimeout(function(){
       _rcAddTyping();
       setTimeout(function(){
         _rcRemoveTyping();
         var html = _buildDlAnswer(_rcLastContext);
-        _rcAddBubble(html, false, true); // true = raw html
+        _rcAddBubble(html, false, true);
         _rcShowControls();
       }, 800);
     }, 300);
@@ -5033,6 +5033,20 @@ function retChatSend() {
 
   // ── Если API доступен — спрашиваем Елену реально ──
   var isLegalQ = !/баланс|кредит|оплат|мои дела|кабинет/.test(t);
+
+  // ── API недоступен но есть контекст дедлайна — показываем шаги без редиректа ──
+  if (!_apiAvailable && _rcLastContext && _rcLastContext.type === 'deadline' && isLegalQ) {
+    setTimeout(function(){
+      _rcAddTyping();
+      setTimeout(function(){
+        _rcRemoveTyping();
+        var html = _buildDlAnswer(_rcLastContext);
+        _rcAddBubble(html, false, true);
+        _rcShowControls();
+      }, 800);
+    }, 300);
+    return;
+  }
   if (isLegalQ && _apiAvailable) {
     setTimeout(function(){
       _rcAddTyping();
