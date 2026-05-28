@@ -3790,11 +3790,14 @@ function elenaIntent(intent) {
 
   // question — показываем текстовое поле без загрузки
   if (intent === 'question') {
+    var step1El = document.getElementById('el-step1');
     document.querySelectorAll('#el-step1 .int-card').forEach(function(c){ c.style.opacity='.45'; c.style.pointerEvents='none'; });
     var qBox = document.createElement('div');
     qBox.className = 'msg';
     qBox.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Конечно — спрашивайте 💛 Опишите ситуацию, я отвечу по нормам ГК/ТК/ЗоЗПП. Или включите микрофон 🎙</div>';
-    document.getElementById('el-step1').appendChild(qBox);
+    // Если el-step1 скрыт (трансфер из mini-chat) — добавляем в chatwrap
+    var target = (step1El && step1El.style.display !== 'none') ? step1El : (document.querySelector('.chatwrap') || step1El);
+    if (target) target.appendChild(qBox);
     return;
   }
 
