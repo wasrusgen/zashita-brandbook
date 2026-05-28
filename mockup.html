@@ -1580,8 +1580,9 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         <!-- Фильтры -->
         <div class="ct-filters">
           <button class="ct-fbtn act" onclick="ctFilter('all',this)">Все</button>
-          <button class="ct-fbtn" onclick="ctFilter('open',this)">Открытые</button>
-          <button class="ct-fbtn" onclick="ctFilter('closed',this)">Закрытые</button>
+          <button class="ct-fbtn" onclick="ctFilter('active',this)">🟢 Активные</button>
+          <button class="ct-fbtn" onclick="ctFilter('dispute',this)">⚔️ В споре</button>
+          <button class="ct-fbtn" onclick="ctFilter('done',this)">✅ Завершённые</button>
           <div class="ct-filter-sep"></div>
           <button class="ct-fbtn" onclick="ctFilter('risk',this)">⚠ Срочные</button>
         </div>
@@ -3310,20 +3311,29 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 
 /* ── ТАБЛИЦА ДОГОВОРОВ ── */
 (function(){
+  // Статусная модель:
+  // active    — договор подписан, исполняется, сроки отслеживаются
+  // dispute   — спор активен: претензия / суд / взыскание
+  // wait      — ожидает оплаты или загрузки документа
+  // completed — дело закрыто (успех или соглашение)
+  // archived  — в архиве (истёк срок, отказ, не актуально)
   var CT_DATA = [
-    { ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high', riskLbl:'⚠ Высокий', status:'work',   open:true,  go:"tab('case')" },
-    { ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',  riskLbl:'Средний',    status:'work',   open:true,  go:"tab('case')" },
-    { ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',  riskLbl:'Низкий',     status:'wait',   open:true,  go:"tab('case')" },
-    { ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',  date:'12.03', dateSort:20250312, risk:'low',  riskLbl:'Низкий',     status:'done',   open:false, go:"toast('📄 Открываю архивное дело')" },
-    { ico:'📄', name:'Поставка оборудования',      type:'Поставка',date:'01.02', dateSort:20250201, risk:'mid',  riskLbl:'Средний',    status:'done',   open:false, go:"toast('📄 Открываю архивное дело')" },
+    { id:'case-kitchen', ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high', riskLbl:'⚠ Высокий', status:'active',    go:"tab('case')" },
+    { id:'case-labor',   ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',  riskLbl:'Средний',    status:'dispute',   go:"tab('case')" },
+    { id:'case-ddu',     ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',  riskLbl:'Низкий',     status:'wait',      go:"tab('case')" },
+    { id:'case-office',  ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',  date:'12.03', dateSort:20250312, risk:'low',  riskLbl:'Низкий',     status:'completed', go:"toast('📄 Открываю архивное дело')" },
+    { id:'case-supply',  ico:'📄', name:'Поставка оборудования',      type:'Поставка',date:'01.02', dateSort:20250201, risk:'mid',  riskLbl:'Средний',    status:'archived',  go:"toast('📄 Открываю архивное дело')" },
   ];
 
+  // Экспортируем для Елены
+  window._CT_DATA = CT_DATA;
+
   var STATUS_MAP = {
-    'paid':  { lbl:'Оплачено',          cls:'chip n' },
-    'wait':  { lbl:'⏳ Ожидает договор', cls:'chip w' },
-    'work':  { lbl:'🔵 В работе',        cls:'chip n' },
-    'ready': { lbl:'📥 Готово',          cls:'chip ok' },
-    'done':  { lbl:'✅ Завершён',        cls:'chip ok' },
+    'active':    { lbl:'🟢 Активен',          cls:'chip ok' },
+    'dispute':   { lbl:'⚔️ Спор',             cls:'chip d'  },
+    'wait':      { lbl:'⏳ Ожидает документ',  cls:'chip w'  },
+    'completed': { lbl:'✅ Завершён',          cls:'chip n'  },
+    'archived':  { lbl:'📦 Архив',             cls:'chip n'  },
   };
 
   var _filter = 'all';
@@ -3334,9 +3344,10 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 
   function filtered() {
     return CT_DATA.filter(function(r){
-      if (_filter === 'open')   return r.open;
-      if (_filter === 'closed') return !r.open;
-      if (_filter === 'risk')   return r.risk === 'high';
+      if (_filter === 'active')    return r.status === 'active';
+      if (_filter === 'dispute')   return r.status === 'dispute';
+      if (_filter === 'done')      return r.status === 'completed' || r.status === 'archived';
+      if (_filter === 'risk')      return r.risk === 'high';
       return true;
     }).sort(function(a,b){
       var va, vb;
@@ -3357,10 +3368,39 @@ window.addEventListener('DOMContentLoaded', checkReturning);
   function render() {
     var tbody = document.getElementById('ct-tbody');
     if (!tbody) return;
+
+    // KPI из реальных данных
+    var kpiTotal = CT_DATA.length;
+    var kpiWork  = CT_DATA.filter(function(r){ return r.status === 'active' || r.status === 'dispute' || r.status === 'wait'; }).length;
+    var kpiDone  = CT_DATA.filter(function(r){ return r.status === 'completed' || r.status === 'archived'; }).length;
+    // Срочные = active/dispute с горящими дедлайнами
+    var activeCaseIds = CT_DATA
+      .filter(function(r){ return r.status === 'active' || r.status === 'dispute'; })
+      .map(function(r){ return r.id; });
+    var today = new Date(); today.setHours(0,0,0,0);
+    var kpiUrg = 0;
+    if (typeof _DEADLINES !== 'undefined') {
+      var urgCases = new Set();
+      _DEADLINES.forEach(function(d){
+        if (!d.done && d.date && activeCaseIds.indexOf(d.caseId) !== -1) {
+          var dt = new Date(d.date); dt.setHours(0,0,0,0);
+          var diff = Math.round((dt - today) / 86400000);
+          if (diff >= -1 && diff <= 7) urgCases.add(d.caseId);
+        }
+      });
+      kpiUrg = urgCases.size;
+    }
+    var elTotal = document.getElementById('kpi-total'); if (elTotal) elTotal.textContent = kpiTotal;
+    var elWork  = document.getElementById('kpi-work');  if (elWork)  elWork.textContent  = kpiWork;
+    var elUrg   = document.getElementById('kpi-urg');   if (elUrg)   elUrg.textContent   = kpiUrg;
+    var elDone  = document.getElementById('kpi-done');  if (elDone)  elDone.textContent  = kpiDone;
+
     var rows = filtered();
     if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--mut)">Нет дел по фильтру</td></tr>'; return; }
+    var closed = ['completed','archived'];
     tbody.innerHTML = rows.map(function(r){
-      return '<tr class="'+(r.open?'':'ct-closed')+'" onclick="'+r.go+'">' +
+      var isClosed = closed.indexOf(r.status) !== -1;
+      return '<tr class="'+(isClosed?'ct-closed':'')+'" onclick="'+r.go+'">' +
         '<td class="ct-name">'+r.ico+' '+r.name+'</td>' +
         '<td><span class="ct-type-badge">'+r.type+'</span></td>' +
         '<td style="color:var(--mut)">'+r.date+'</td>' +
@@ -4239,6 +4279,33 @@ window.addEventListener('DOMContentLoaded', function(){
   }
 });
 
+/* ── CASE STATUS HELPERS ── */
+
+// Возвращает ID дел со статусом active или dispute
+function _getActiveCaseIds() {
+  var data = window._CT_DATA || [];
+  return data
+    .filter(function(c){ return c.status === 'active' || c.status === 'dispute'; })
+    .map(function(c){ return c.id; });
+}
+
+// Возвращает горящие дедлайны по активным делам
+function _getHotDeadlines(days) {
+  days = days || 7;
+  var activeCaseIds = _getActiveCaseIds();
+  var today = new Date(); today.setHours(0,0,0,0);
+  var hot = [];
+  (_DEADLINES || []).forEach(function(d){
+    if (d.done || !d.date) return;
+    if (d.caseId && activeCaseIds.indexOf(d.caseId) === -1) return;
+    var dt = new Date(d.date); dt.setHours(0,0,0,0);
+    var diff = Math.round((dt - today) / 86400000);
+    if (diff >= -1 && diff <= days) hot.push({ dl: d, diff: diff });
+  });
+  hot.sort(function(a,b){ return a.diff - b.diff; });
+  return hot;
+}
+
 /* ── RETURNING CHAT ── */
 
 function _rcAddTyping() {
@@ -4287,15 +4354,18 @@ function initReturnChat() {
   var name = '';
   if (stats.length && stats[0].name) name = stats[0].name;
 
-  // Ближайший срочный дедлайн
+  // Ближайший срочный дедлайн — только по active/dispute делам
   var urgentDL = null;
   if (typeof _DEADLINES !== 'undefined') {
+    var activeCaseIds = _getActiveCaseIds();
     var today = new Date(); today.setHours(0,0,0,0);
     _DEADLINES.forEach(function(d){
       if (d.done || !d.date) return;
+      // Пропускаем дедлайны по завершённым/архивным делам
+      if (d.caseId && activeCaseIds.indexOf(d.caseId) === -1) return;
       var dt = new Date(d.date); dt.setHours(0,0,0,0);
       var diff = Math.round((dt - today) / 86400000);
-      if (diff >= 0 && diff <= 7) {
+      if (diff >= -1 && diff <= 7) {
         if (!urgentDL || diff < urgentDL.diff) urgentDL = { dl: d, diff: diff };
       }
     });
