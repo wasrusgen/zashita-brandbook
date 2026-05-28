@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Политика обработки персональных данных — ЗАЩИТА</title>
+<title>Политика конфиденциальности — ЗАЩИТА</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="tokens.css">
 <style>
@@ -18,6 +18,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .doc-head{margin-bottom:36px;padding-bottom:24px;border-bottom:1.5px solid var(--line)}
 .doc-head h1{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
 .doc-head .meta{font-size:13px;color:var(--mut);display:flex;gap:20px;flex-wrap:wrap}
+.doc-head .meta span{display:flex;align-items:center;gap:5px}
 section{margin-bottom:32px}
 h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
 .clause{margin-bottom:10px;display:grid;grid-template-columns:48px 1fr;gap:0}
@@ -26,108 +27,382 @@ h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
 .clause-t b{color:var(--dark)}
 .note{background:var(--tint);border:1.5px solid rgba(159,18,57,.18);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--mut);margin:20px 0;line-height:1.6}
 .note b{color:var(--bg)}
-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:12px}
-th{background:var(--card);text-align:left;padding:9px 12px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);border-bottom:1.5px solid var(--line)}
-td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink)}
-tr:last-child td{border-bottom:none}
+.note.ok{background:#f0fdf4;border-color:rgba(22,163,74,.2)}
+.note.ok b{color:#15803d}
+.note.blue{background:#eff6ff;border-color:rgba(37,99,235,.2)}
+.note.blue b{color:#1d4ed8}
+.parties-box{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:18px 20px;margin-bottom:24px}
+.parties-box .row{display:flex;gap:8px;margin-bottom:6px;font-size:14px}
+.parties-box .row:last-child{margin-bottom:0}
+.parties-box .lbl{font-weight:700;min-width:160px;color:var(--dark)}
+.parties-box .val{color:var(--mut)}
+.data-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+.data-table th{background:var(--dark);color:#fff;padding:9px 12px;text-align:left;font-weight:600}
+.data-table td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--tint)}
+.data-table td:first-child{font-weight:600;color:var(--dark);white-space:nowrap;width:180px}
+.rights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.right-card{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px}
+.right-card .right-ico{font-size:20px;margin-bottom:6px}
+.right-card .right-title{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.right-card .right-desc{font-size:13px;color:var(--mut);line-height:1.5}
+.contact-block{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:20px 24px;margin-top:16px}
+.contact-block .c-row{display:flex;gap:10px;margin-bottom:8px;font-size:14px;align-items:flex-start}
+.contact-block .c-row:last-child{margin-bottom:0}
+.contact-block .c-ico{font-size:16px;min-width:24px}
+.contact-block .c-lbl{font-weight:600;color:var(--dark);min-width:120px}
+.contact-block .c-val{color:var(--mut)}
+.contact-block .c-val a{color:var(--bg);text-decoration:none}
 footer{text-align:center;font-size:12px;color:var(--mut);margin-top:48px;padding-top:20px;border-top:1px solid var(--line)}
 footer a{color:var(--bg);text-decoration:none}
+@media(max-width:600px){.rights-grid{grid-template-columns:1fr}.data-table td:first-child{width:auto;white-space:normal}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <span class="brand">ЗАЩИТА</span>
-  <span class="doc-title">Политика обработки ПДн</span>
-  <a href="mockup.html">← назад</a>
+  <span class="doc-title">Политика конфиденциальности · редакция 28.05.2026</span>
+  <a href="mockup.html">← в сервис</a>
 </div>
 
 <div class="wrap">
 
   <div class="doc-head">
-    <h1>Политика обработки персональных данных</h1>
+    <h1>Политика конфиденциальности и обработки персональных данных</h1>
     <div class="meta">
-      <span>📄 Редакция от 25.05.2026</span>
-      <span>⚖️ Оператор: ИП Васильев Р.Г.</span>
-      <span>📋 152-ФЗ</span>
+      <span>📄 Редакция от 28.05.2026</span>
+      <span>⚖️ ИП Васильев Р.Г.</span>
+      <span>🔒 152-ФЗ «О персональных данных»</span>
     </div>
   </div>
 
-  <!-- 1 -->
+  <div class="note blue">
+    <b>Важно.</b> Используя сервис ЗАЩИТА, вы соглашаетесь с настоящей Политикой.
+    Если вы не согласны с условиями обработки персональных данных — прекратите использование сервиса
+    и направьте запрос на удаление данных по адресу <b>vasrusgen@gmail.com</b>.
+  </div>
+
+  <!-- 1. Оператор -->
   <section>
-    <h2>1. Общие положения</h2>
-    <div class="clause"><span class="clause-n">1.1</span><span class="clause-t">Настоящая политика определяет порядок обработки персональных данных (далее — ПДн) оператором ИП Васильев Р.Г. (далее — Оператор) в рамках сервиса «ЗАЩИТА» в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных».</span></div>
-    <div class="clause"><span class="clause-n">1.2</span><span class="clause-t">Использование сервиса означает безоговорочное согласие с настоящей политикой. Если вы не согласны с условиями — воздержитесь от использования сервиса.</span></div>
+    <h2>1. Оператор персональных данных</h2>
+
+    <div class="parties-box">
+      <div class="row"><span class="lbl">Оператор:</span><span class="val">ИП Васильев Руслан Геннадьевич</span></div>
+      <div class="row"><span class="lbl">ОГРНИП:</span><span class="val">325784700271898</span></div>
+      <div class="row"><span class="lbl">ИНН:</span><span class="val">781909921730</span></div>
+      <div class="row"><span class="lbl">Адрес:</span><span class="val">Санкт-Петербург, Россия</span></div>
+      <div class="row"><span class="lbl">E-mail:</span><span class="val">vasrusgen@gmail.com</span></div>
+      <div class="row"><span class="lbl">Telegram:</span><span class="val">@wasrusgen1</span></div>
+      <div class="row"><span class="lbl">Сервис:</span><span class="val">ЗАЩИТА — AI-юридический помощник (wasrusgen.github.io/zashita-brandbook/)</span></div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-n">1.1</span>
+      <span class="clause-t">Настоящая Политика разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ
+      «О персональных данных», Постановлением Правительства РФ № 1119 от 01.11.2012 и иными нормативными актами РФ в сфере защиты персональных данных.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">1.2</span>
+      <span class="clause-t">Оператор обязуется пройти регистрацию в реестре операторов персональных данных Роскомнадзора до начала обработки данных в объёме, требующем уведомления согласно ст. 22 152-ФЗ.</span>
+    </div>
   </section>
 
-  <!-- 2 -->
+  <!-- 2. Состав персональных данных -->
   <section>
-    <h2>2. Состав обрабатываемых данных</h2>
-    <table>
+    <h2>2. Состав обрабатываемых персональных данных</h2>
+
+    <div class="clause">
+      <span class="clause-n">2.1</span>
+      <span class="clause-t">Оператор обрабатывает следующие категории персональных данных:</span>
+    </div>
+
+    <table class="data-table">
       <thead>
-        <tr><th>Категория данных</th><th>Что именно</th><th>Цель</th></tr>
+        <tr><th>Категория</th><th>Конкретные данные</th><th>Источник</th></tr>
       </thead>
       <tbody>
-        <tr><td>Контактные данные</td><td>Имя, телефон, e-mail / Telegram</td><td>Связь, передача результата</td></tr>
-        <tr><td>Данные из документа</td><td>ФИО, реквизиты сторон, условия договора</td><td>Анализ документа</td></tr>
-        <tr><td>Платёжные данные</td><td>Не хранятся оператором — обрабатываются платёжным сервисом</td><td>—</td></tr>
-        <tr><td>Технические данные</td><td>IP, браузер, cookies сессии</td><td>Безопасность, аналитика</td></tr>
+        <tr>
+          <td>Идентификационные</td>
+          <td>Фамилия, имя, отчество (при указании); наименование организации и должность (для B2B)</td>
+          <td>Вводятся пользователем</td>
+        </tr>
+        <tr>
+          <td>Контактные</td>
+          <td>Адрес электронной почты, номер телефона (при указании)</td>
+          <td>Вводятся пользователем</td>
+        </tr>
+        <tr>
+          <td>Платёжные реквизиты (B2B)</td>
+          <td>ИНН, КПП, наименование организации / ИП, расчётный счёт (для выставления счёта)</td>
+          <td>Вводятся пользователем</td>
+        </tr>
+        <tr>
+          <td>Содержание обращений</td>
+          <td>Тексты вопросов, загруженные документы, описания ситуаций</td>
+          <td>Вводятся пользователем</td>
+        </tr>
+        <tr>
+          <td>Технические</td>
+          <td>IP-адрес, тип браузера, дата/время обращения, cookie-идентификаторы сессии</td>
+          <td>Автоматически</td>
+        </tr>
+        <tr>
+          <td>Платёжные (транзакционные)</td>
+          <td>Факт и сумма оплаты, идентификатор транзакции ЮKassa. <b>Реквизиты карт не хранятся.</b></td>
+          <td>ЮKassa (партнёр)</td>
+        </tr>
       </tbody>
     </table>
+
+    <div class="clause">
+      <span class="clause-n">2.2</span>
+      <span class="clause-t"><b>Специальные категории ПДн</b> (раса, политические взгляды, здоровье, биометрия и т.п.) Оператором <b>не запрашиваются и не обрабатываются.</b> Если пользователь самостоятельно включает такие сведения в текст обращения, они обрабатываются исключительно в целях оказания запрошенной услуги.</span>
+    </div>
   </section>
 
-  <!-- 3 -->
+  <!-- 3. Цели обработки -->
   <section>
-    <h2>3. Цели обработки</h2>
-    <div class="clause"><span class="clause-n">3.1</span><span class="clause-t">Оказание услуг по юридическому анализу документов, переданных Пользователем.</span></div>
-    <div class="clause"><span class="clause-n">3.2</span><span class="clause-t">Коммуникация с Пользователем: передача результатов, уточнение деталей заказа.</span></div>
-    <div class="clause"><span class="clause-n">3.3</span><span class="clause-t">Улучшение качества сервиса на основе обезличенной статистики обращений.</span></div>
-    <div class="clause"><span class="clause-n">3.4</span><span class="clause-t">Исполнение требований законодательства РФ (налоговый учёт, ПДн, АМЛ).</span></div>
+    <h2>3. Цели обработки персональных данных</h2>
+
+    <div class="clause">
+      <span class="clause-n">3.1</span>
+      <span class="clause-t"><b>Исполнение договора об оказании услуг</b> — анализ документов, подготовка правовых позиций, составление документов в рамках приобретённого тарифа (основание: п. 5 ч. 1 ст. 6 152-ФЗ).</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">3.2</span>
+      <span class="clause-t"><b>Обработка платежей</b> — идентификация плательщика, выставление счёта (B2B), формирование первичных учётных документов (основание: п. 5 ч. 1 ст. 6 152-ФЗ, ФЗ № 402).</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">3.3</span>
+      <span class="clause-t"><b>Поддержка и обратная связь</b> — ответы на запросы, урегулирование споров, рассмотрение заявлений на возврат (основание: п. 5 ч. 1 ст. 6 152-ФЗ).</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">3.4</span>
+      <span class="clause-t"><b>Улучшение сервиса</b> — агрегированная и обезличенная аналитика, улучшение алгоритмов AI-помощника (основание: согласие пользователя — п. 1 ч. 1 ст. 6 152-ФЗ). Согласие добровольно, его отзыв не ограничивает доступ к услугам.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">3.5</span>
+      <span class="clause-t"><b>Соблюдение законодательства</b> — хранение документов в сроки, установленные НК РФ и ФЗ № 402 (основание: п. 3 ч. 1 ст. 6 152-ФЗ).</span>
+    </div>
   </section>
 
-  <!-- 4 -->
+  <!-- 4. Передача третьим лицам -->
   <section>
-    <h2>4. Автоматизированная обработка</h2>
-    <div class="clause"><span class="clause-n">4.1</span><span class="clause-t">Сервис применяет <b>автоматизированные системы обработки текстовой информации</b> для предварительного анализа загружаемых документов.</span></div>
-    <div class="clause"><span class="clause-n">4.2</span><span class="clause-t">Персональные данные, содержащиеся в документе, <b>обезличиваются на стороне Пользователя</b> до передачи в автоматизированную систему. Полные данные доступны только юристу Оператора.</span></div>
-    <div class="clause"><span class="clause-n">4.3</span><span class="clause-t">Наименования поставщиков программного обеспечения, задействованного в автоматизированной обработке, составляют <b>коммерческую тайну Оператора</b> и не раскрываются третьим лицам, в том числе субъектам ПДн, за исключением случаев, прямо предусмотренных законодательством РФ.</span></div>
-    <div class="clause"><span class="clause-n">4.4</span><span class="clause-t">Автоматизированное принятие решений, влекущее юридические последствия для Пользователя, <b>не производится</b>. Все значимые выводы верифицируются сотрудником Оператора (ст. 16 152-ФЗ).</span></div>
-    <div class="note"><b>Что это значит на практике:</b> ваш договор проходит автоматическую предобработку, но финальное заключение всегда проверяет живой юрист. Технология — внутренний инструмент, как калькулятор в любом офисе.</div>
+    <h2>4. Передача персональных данных третьим лицам</h2>
+
+    <div class="clause">
+      <span class="clause-n">4.1</span>
+      <span class="clause-t">Оператор <b>не продаёт и не передаёт</b> персональные данные третьим лицам в коммерческих целях.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">4.2</span>
+      <span class="clause-t"><b>ЮKassa (ООО «ЮМани»)</b> — получает данные транзакции в объёме, необходимом для проведения платежа. Платёжные реквизиты карт обрабатываются ЮKassa по стандарту PCI DSS, Оператору не передаются.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">4.3</span>
+      <span class="clause-t"><b>AI-сервисы (Anthropic, PBC, США).</b> Тексты обращений пользователя передаются в API Anthropic Claude для формирования ответов. Передача осуществляется <b>без персональных идентификаторов</b> (без имени, e-mail, телефона). Anthropic не использует API-запросы для обучения моделей по умолчанию. Пользователи, не желающие передачи текстов внешнему AI-сервису, должны воздержаться от функции AI-консультации. Передача в США осуществляется на основании согласия пользователя (ч. 4 ст. 12 152-ФЗ), выраженного акцептом настоящей Политики.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">4.4</span>
+      <span class="clause-t"><b>Государственные органы</b> — данные могут быть предоставлены по мотивированному запросу суда, прокуратуры, следственных органов в порядке, установленном законодательством РФ.</span>
+    </div>
   </section>
 
-  <!-- 5 -->
+  <!-- 5. Сроки хранения -->
   <section>
-    <h2>5. Передача данных третьим лицам</h2>
-    <div class="clause"><span class="clause-n">5.1</span><span class="clause-t">Оператор не передаёт ПДн третьим лицам без согласия субъекта, за исключением: исполнения требований законодательства; платёжного сервиса (только платёжные данные, в зашифрованном виде); технических систем обеспечения сервиса при условии обезличивания данных.</span></div>
-    <div class="clause"><span class="clause-n">5.2</span><span class="clause-t">Документы и персональные данные Пользователя не используются для обучения алгоритмов, рекламных целей или передачи рекламным партнёрам.</span></div>
+    <h2>5. Сроки хранения и удаление данных</h2>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Категория данных</th><th>Срок хранения</th><th>Основание</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>История обращений и текстов запросов</td>
+          <td>3 года с момента последнего обращения или до отзыва согласия</td>
+          <td>Договор, согласие</td>
+        </tr>
+        <tr>
+          <td>Платёжные документы (счета, акты, чеки)</td>
+          <td>5 лет</td>
+          <td>ст. 29 ФЗ № 402, ст. 23 НК РФ</td>
+        </tr>
+        <tr>
+          <td>Загруженные пользователем документы</td>
+          <td>90 дней после окончания тарифа, затем автоудаление</td>
+          <td>Минимизация данных (ч. 5 ст. 5 152-ФЗ)</td>
+        </tr>
+        <tr>
+          <td>Технические логи (IP, браузер)</td>
+          <td>90 дней</td>
+          <td>Безопасность, отладка</td>
+        </tr>
+        <tr>
+          <td>Cookie-сессии</td>
+          <td>До закрытия браузера (сессионные) или 12 месяцев (постоянные)</td>
+          <td>Согласие</td>
+        </tr>
+        <tr>
+          <td>Данные о платежах (факт, сумма, ID транзакции)</td>
+          <td>5 лет</td>
+          <td>НК РФ, ФЗ № 402</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="clause">
+      <span class="clause-n">5.1</span>
+      <span class="clause-t">По истечении срока хранения данные уничтожаются путём безвозвратного удаления из баз данных. Уничтожение фиксируется внутренним актом оператора.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">5.2</span>
+      <span class="clause-t">Пользователь вправе запросить досрочное удаление своих данных. Запрос обрабатывается в течение <b>30 дней.</b> Удаление не распространяется на данные, хранение которых обязательно по закону (платёжные документы — п. выше).</span>
+    </div>
   </section>
 
-  <!-- 6 -->
+  <!-- 6. Права субъектов -->
   <section>
-    <h2>6. Сроки хранения</h2>
-    <div class="clause"><span class="clause-n">6.1</span><span class="clause-t">Документы, переданные для анализа: хранятся в течение срока исполнения заказа + 30 дней для возможных уточнений, после чего удаляются.</span></div>
-    <div class="clause"><span class="clause-n">6.2</span><span class="clause-t">Контактные данные: в течение срока действия договорных отношений + 3 года (для целей налогового учёта).</span></div>
-    <div class="clause"><span class="clause-n">6.3</span><span class="clause-t">Обезличенная статистика (без привязки к конкретному лицу): бессрочно.</span></div>
+    <h2>6. Права субъектов персональных данных</h2>
+
+    <div class="rights-grid">
+      <div class="right-card">
+        <div class="right-ico">👁️</div>
+        <div class="right-title">Право на доступ</div>
+        <div class="right-desc">Получить подтверждение факта обработки и копию своих данных в течение 30 дней</div>
+      </div>
+      <div class="right-card">
+        <div class="right-ico">✏️</div>
+        <div class="right-title">Право на исправление</div>
+        <div class="right-desc">Потребовать уточнения неточных или неполных персональных данных</div>
+      </div>
+      <div class="right-card">
+        <div class="right-ico">🗑️</div>
+        <div class="right-title">Право на удаление</div>
+        <div class="right-desc">Потребовать удаления данных при отзыве согласия или достижении цели обработки</div>
+      </div>
+      <div class="right-card">
+        <div class="right-ico">🚫</div>
+        <div class="right-title">Право на ограничение</div>
+        <div class="right-desc">Ограничить обработку данных на период рассмотрения возражений</div>
+      </div>
+      <div class="right-card">
+        <div class="right-ico">↩️</div>
+        <div class="right-title">Право на отзыв согласия</div>
+        <div class="right-desc">Отозвать согласие в любое время без объяснения причин (ч. 2 ст. 9 152-ФЗ)</div>
+      </div>
+      <div class="right-card">
+        <div class="right-ico">⚖️</div>
+        <div class="right-title">Право на жалобу</div>
+        <div class="right-desc">Обратиться в Роскомнадзор (rkn.gov.ru) или в суд при нарушении прав</div>
+      </div>
+    </div>
+
+    <div class="clause">
+      <span class="clause-n">6.1</span>
+      <span class="clause-t">Для реализации любого права направьте обращение на <b>vasrusgen@gmail.com</b> с темой «ПДн: [тип запроса]». Ответ предоставляется в течение <b>30 дней</b> (ч. 3 ст. 20 152-ФЗ).</span>
+    </div>
   </section>
 
-  <!-- 7 -->
+  <!-- 7. Меры защиты -->
   <section>
-    <h2>7. Права субъекта персональных данных</h2>
-    <div class="clause"><span class="clause-n">7.1</span><span class="clause-t">Пользователь вправе: запросить перечень обрабатываемых ПДн; потребовать исправления неточных данных; отозвать согласие и потребовать удаления данных; обратиться с жалобой в Роскомнадзор.</span></div>
-    <div class="clause"><span class="clause-n">7.2</span><span class="clause-t">Запросы направляются на e-mail: <b>vasrusgen@gmail.com</b> или в Telegram: <b>@wasrusgen1</b>. Срок ответа — 10 рабочих дней.</span></div>
+    <h2>7. Меры по защите персональных данных</h2>
+
+    <div class="clause">
+      <span class="clause-n">7.1</span>
+      <span class="clause-t"><b>Технические меры:</b> передача данных по шифрованному каналу HTTPS (TLS 1.2+); хранение паролей в хешированном виде; ограничение доступа к БД по принципу минимальных привилегий; резервное копирование.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">7.2</span>
+      <span class="clause-t"><b>Организационные меры:</b> обработка ПДн только уполномоченными лицами; соглашения о конфиденциальности с подрядчиками; внутренние регламенты по защите ПДн.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">7.3</span>
+      <span class="clause-t">В случае инцидента безопасности Оператор уведомляет пострадавших субъектов и Роскомнадзор в сроки, установленные законодательством (ст. 21 152-ФЗ).</span>
+    </div>
   </section>
 
-  <!-- 8 -->
+  <!-- 8. Cookie -->
   <section>
-    <h2>8. Актуализация политики</h2>
-    <div class="clause"><span class="clause-n">8.1</span><span class="clause-t">Оператор вправе вносить изменения. Новая редакция публикуется в сервисе и вступает в силу с момента публикации.</span></div>
-    <div class="clause"><span class="clause-n">8.2</span><span class="clause-t">Продолжение использования сервиса после публикации новой редакции означает согласие с изменениями.</span></div>
+    <h2>8. Использование Cookie и локального хранилища</h2>
+
+    <div class="clause">
+      <span class="clause-n">8.1</span>
+      <span class="clause-t">Сервис использует cookie для поддержания сессии и корректной работы интерфейса. Данные о балансе и реквизитах хранятся в <b>localStorage браузера</b> — исключительно на устройстве пользователя, на серверы не передаются.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">8.2</span>
+      <span class="clause-t">Сторонние аналитические сервисы в текущей версии <b>не используются.</b> При их подключении пользователи будут уведомлены путём обновления Политики.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">8.3</span>
+      <span class="clause-t">Отключение cookie в настройках браузера может нарушить работу сессии и сохранение пользовательских данных.</span>
+    </div>
+  </section>
+
+  <!-- 9. Изменения -->
+  <section>
+    <h2>9. Изменение политики</h2>
+
+    <div class="clause">
+      <span class="clause-n">9.1</span>
+      <span class="clause-t">Оператор вправе вносить изменения в Политику. Новая редакция вступает в силу с момента публикации по адресу <b>wasrusgen.github.io/zashita-brandbook/privacy.html</b></span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">9.2</span>
+      <span class="clause-t">При существенных изменениях (новые цели, новый состав данных, новые получатели) Оператор уведомляет пользователей по e-mail не позднее чем за <b>10 дней</b> до вступления в силу.</span>
+    </div>
+    <div class="clause">
+      <span class="clause-n">9.3</span>
+      <span class="clause-t">Продолжение использования сервиса после вступления изменений в силу означает согласие с новой редакцией.</span>
+    </div>
+  </section>
+
+  <!-- 10. Контакты -->
+  <section>
+    <h2>10. Контакты оператора</h2>
+
+    <div class="contact-block">
+      <div class="c-row">
+        <span class="c-ico">👤</span>
+        <span class="c-lbl">Оператор:</span>
+        <span class="c-val">ИП Васильев Руслан Геннадьевич</span>
+      </div>
+      <div class="c-row">
+        <span class="c-ico">✉️</span>
+        <span class="c-lbl">E-mail:</span>
+        <span class="c-val"><a href="mailto:vasrusgen@gmail.com">vasrusgen@gmail.com</a></span>
+      </div>
+      <div class="c-row">
+        <span class="c-ico">💬</span>
+        <span class="c-lbl">Telegram:</span>
+        <span class="c-val"><a href="https://t.me/wasrusgen1">@wasrusgen1</a></span>
+      </div>
+      <div class="c-row">
+        <span class="c-ico">⏱️</span>
+        <span class="c-lbl">Срок ответа:</span>
+        <span class="c-val">30 дней с момента получения запроса (152-ФЗ ч. 3 ст. 20)</span>
+      </div>
+      <div class="c-row">
+        <span class="c-ico">🏛️</span>
+        <span class="c-lbl">Роскомнадзор:</span>
+        <span class="c-val"><a href="https://rkn.gov.ru" target="_blank">rkn.gov.ru</a> — жалобы на нарушение прав субъекта ПДн</span>
+      </div>
+    </div>
+
+    <div class="note ok" style="margin-top:20px">
+      <b>Как подать запрос.</b> Напишите на vasrusgen@gmail.com с темой: «ПДн: доступ», «ПДн: удаление», «ПДн: исправление» или «ПДн: отзыв согласия». Укажите e-mail, с которого пользуетесь сервисом. Ответим в течение 30 дней.
+    </div>
   </section>
 
   <footer>
-    © 2026 ЗАЩИТА · ИП Васильев Р.Г. ·
-    <a href="oferta.html">Публичная оферта</a> ·
-    <a href="mockup.html">← вернуться в сервис</a>
+    <p>ИП Васильев Р.Г. · ОГРНИП 325784700271898 · ИНН 781909921730</p>
+    <p style="margin-top:6px">
+      <a href="oferta.html">Публичная оферта</a> ·
+      <a href="mockup.html">Сервис ЗАЩИТА</a> ·
+      Редакция от 28.05.2026
+    </p>
   </footer>
 
 </div>
