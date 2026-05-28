@@ -484,6 +484,30 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ov-row .ov-k{color:var(--mut)}
 .ov-row .ov-v{font-weight:600}
 
+/* ── ELENA INTENT v3 ── */
+.elena-q{font-size:15px;font-weight:700;color:var(--ink);margin:4px 0 14px 51px;line-height:1.4}
+.intent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px 51px;max-width:580px}
+.int-card{background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:16px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:12px}
+.int-card:hover{border-color:var(--bg);background:var(--tint);transform:translateY(-1px);box-shadow:0 4px 14px rgba(159,18,57,.08)}
+.int-card:active{transform:none}
+.int-ico{font-size:24px;flex-shrink:0;line-height:1}
+.int-body{}
+.int-lbl{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.int-sub{font-size:11px;color:var(--mut);line-height:1.4}
+.elena-voice-row{display:flex;align-items:center;gap:10px;margin:0 0 4px 51px}
+.elena-voice-input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;max-width:440px}
+.elena-voice-input:focus{border-color:var(--bg)}
+.voice-btn-sm{background:var(--bg);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s}
+.voice-btn-sm:hover{background:var(--bghv)}
+.voice-btn-sm.pulse{animation:vPulse 1s ease-in-out infinite}
+@keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(159,18,57,.4)}50%{box-shadow:0 0 0 8px rgba(159,18,57,0)}}
+
+/* Стартовый экран — усиление Елены */
+.hero-elena-hint{background:rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
+.hero-elena-hint b{color:#fff}
+.hero-services{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.hero-svc{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap}
+
 /* ── СОСТАВИТЬ ДОКУМЕНТ ── */
 .create-steps{display:flex;align-items:center;gap:0;margin-bottom:28px}
 .cstep{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--mut);border:1.5px solid #e5e7eb;background:#fff;transition:all .2s}
@@ -903,10 +927,20 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <!-- Новый клиент -->
       <div id="hero-new">
         <h1>Договор пишут юристы другой стороны. Кто защищает вас?</h1>
-        <p>Елена разберёт каждый пункт простым языком — как друг-юрист рядом. Первые 3 риска бесплатно, без регистрации.</p>
-        <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить мой договор</button></div>
-        <div class="priv">🔒 Без регистрации · данные у вас · 3 риска бесплатно</div>
-        <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Мои дела (кабинет)</button></div>
+        <p>Елена — ваш персональный юридический ИИ. Работает 24/7, без почасовой оплаты.</p>
+        <div class="hero-services">
+          <span class="hero-svc">📄 Проверить договор</span>
+          <span class="hero-svc">✍️ Составить документ</span>
+          <span class="hero-svc">📋 Протокол разногласий</span>
+          <span class="hero-svc">📑 Доверенность</span>
+          <span class="hero-svc">✉️ Претензия</span>
+        </div>
+        <div class="hero-elena-hint">
+          <b>Как это работает:</b> нажмите кнопку → Елена спросит что вам нужно → вы загружаете документ или заполняете форму → результат за 2 минуты
+        </div>
+        <div class="cta"><button class="btn btn-p" onclick="go('elena')">Начать с Еленой →</button></div>
+        <div class="priv">🔒 Без регистрации · данные у вас · первые 3 риска бесплатно</div>
+        <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Войти в кабинет</button></div>
       </div>
       <!-- Вернувшийся клиент -->
       <div id="hero-returning" style="display:none">
@@ -929,18 +963,39 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
   <div id="elena-mode-badge"></div>
   <div class="chatwrap">
 
-    <!-- ШАГ 1: приветствие + intake -->
+    <!-- ШАГ 1: Чем могу помочь? — намерение клиента -->
     <div id="el-step1">
-      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 💛 Вы правильно делаете, что проверяете до подписи. У другой стороны есть юрист — теперь он есть и у вас. Разберёмся вместе, спокойно.</div></div>
-      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Расскажите, с чем вам помочь — подберу нужный подход:</div></div>
-      <div class="intake">
-        <div class="intake-opt" onclick="setMode('novice')"><span class="io">🙋</span><div><div>Впервые разбираюсь</div><div class="id">Хочу понять простым языком, без терминов</div></div></div>
-        <div class="intake-opt" onclick="setMode('mid')"><span class="io">📖</span><div><div>Читаю договоры, но не юрист</div><div class="id">Знаком с основами, нужны конкретные риски</div></div></div>
-        <div class="intake-opt" onclick="setMode('pro')"><span class="io">⚖️</span><div><div>Юрист / разбираюсь хорошо</div><div class="id">Нужны нормы, формулировки, аргументация</div></div></div>
-        <div class="intake-other">
-          <input id="intake-custom" placeholder="Другое — напишите своими словами..." onkeydown="if(event.key==='Enter')setMode('custom')">
-          <button onclick="setMode('custom')">→</button>
+      <div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Здравствуйте 💛 Я Елена — ваш персональный юридический ассистент. Проверяю договоры, составляю документы, защищаю ваши интересы. Что вам нужно прямо сейчас?</div></div>
+      <div class="elena-q">Чем могу помочь?</div>
+      <div class="intent-grid">
+        <div class="int-card" onclick="elenaIntent('check')">
+          <div class="int-ico">📄</div>
+          <div class="int-body"><div class="int-lbl">Проверить договор</div><div class="int-sub">Найду риски и объясню каждый пункт простым языком</div></div>
         </div>
+        <div class="int-card" onclick="elenaIntent('create')">
+          <div class="int-ico">✍️</div>
+          <div class="int-body"><div class="int-lbl">Составить документ</div><div class="int-sub">Договор, доверенность, претензию — под ваши параметры</div></div>
+        </div>
+        <div class="int-card" onclick="elenaIntent('dispute')">
+          <div class="int-ico">📋</div>
+          <div class="int-body"><div class="int-lbl">Убрать невыгодные пункты</div><div class="int-sub">Подготовлю протокол разногласий — загрузите договор</div></div>
+        </div>
+        <div class="int-card" onclick="elenaIntent('question')">
+          <div class="int-ico">💬</div>
+          <div class="int-body"><div class="int-lbl">Есть вопрос</div><div class="int-sub">Отвечу без загрузки документа — спросите текстом или голосом</div></div>
+        </div>
+        <div class="int-card" onclick="elenaIntent('power')">
+          <div class="int-ico">📑</div>
+          <div class="int-body"><div class="int-lbl">Нужна доверенность</div><div class="int-sub">Скажите кому и какие полномочия — составлю за 2 минуты</div></div>
+        </div>
+        <div class="int-card" onclick="elenaIntent('cabinet')">
+          <div class="int-ico">🗂️</div>
+          <div class="int-body"><div class="int-lbl">Я уже клиент</div><div class="int-sub">Войти в кабинет и посмотреть мои дела</div></div>
+        </div>
+      </div>
+      <div class="elena-voice-row">
+        <input class="elena-voice-input" id="intake-custom" placeholder="Или напишите своими словами..." onkeydown="if(event.key==='Enter')elenaIntent('custom')">
+        <button class="voice-btn-sm" id="voice-btn-elena" onclick="toggleVoice('intake-custom')" title="Голосовой ввод">🎙</button>
       </div>
     </div>
 
@@ -2728,59 +2783,34 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 
 /* ── ELENA INTAKE v2 ── */
 function elenaIntent(intent) {
-  var custom = document.getElementById('intake-custom').value.trim();
+  // cabinet — сразу в кабинет
+  if (intent === 'cabinet') { go('cabinet'); return; }
 
-  // Маршрутизация по intent
-  if (intent === 'check' || intent === 'dispute') {
-    // → существующий флоу анализа
-    var ackMap = {
-      'check':   'Хорошо — загрузите договор или вставьте текст, разберём вместе.',
-      'dispute': 'Понял — нужен протокол разногласий. Сначала загрузите договор, я выделю спорные пункты.',
-    };
-    setMode('mid');
-    document.getElementById('el-ack').innerHTML = ackMap[intent] || '';
-    document.getElementById('el-step1').style.display = 'none';
-    document.getElementById('el-step-create') && (document.getElementById('el-step-create').style.display = 'none');
-    document.getElementById('el-step-upload').style.display = '';
+  // question — показываем текстовое поле без загрузки
+  if (intent === 'question') {
+    document.querySelectorAll('#el-step1 .int-card').forEach(function(c){ c.style.opacity='.45'; c.style.pointerEvents='none'; });
+    var qBox = document.createElement('div');
+    qBox.className = 'msg';
+    qBox.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Конечно — спрашивайте 💛 Опишите ситуацию, я отвечу по нормам ГК/ТК/ЗоЗПП. Или включите микрофон 🎙</div>';
+    document.getElementById('el-step1').appendChild(qBox);
     return;
   }
 
-  if (intent === 'create') {
-    document.getElementById('el-step1').style.display = 'none';
-    document.getElementById('el-step-create').style.display = '';
-    return;
-  }
+  // create — переходим к wizard созданию документа
+  if (intent === 'create') { go('cabinet'); setTimeout(function(){ tab('create'); }, 200); return; }
 
-  if (intent === 'power') {
-    document.getElementById('el-step1').style.display = 'none';
-    document.getElementById('el-step-create').style.display = '';
-    // Прокрутим к карточке доверенности
-    setTimeout(function(){ var el = document.querySelector('.create-type-card'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 100);
-    return;
-  }
-
-  if (intent === 'custom') {
-    if (!custom) { document.getElementById('intake-custom').focus(); return; }
-    // Простая маршрутизация по ключевым словам
-    var low = custom.toLowerCase();
-    var isCheck = /провер|анализ|риск|посмотр/.test(low);
-    var isCreate = /состав|написа|подготов|создай|сделай/.test(low);
-    var isPower = /доверенност/.test(low);
-    if (isPower || isCreate) {
-      statTrack('custom', custom);
-      document.getElementById('el-step1').style.display = 'none';
-      document.getElementById('el-step-create').style.display = '';
-    } else {
-      // По умолчанию — анализ
-      statTrack('custom', custom);
-      setMode('mid');
-      document.getElementById('el-ack').innerHTML = 'Понял: «' + custom + '». Разберёмся — загрузите договор.';
-      document.getElementById('el-step1').style.display = 'none';
-      document.getElementById('el-step-create') && (document.getElementById('el-step-create').style.display = 'none');
-      document.getElementById('el-step-upload').style.display = '';
-    }
-    return;
-  }
+  // check / dispute / power — переходим к загрузке
+  var ackMap = {
+    check:   'Отлично — проверю договор 📄 Найду все риски и объясню каждый понятно.',
+    dispute: 'Хорошо — подготовлю протокол разногласий 📋 Загрузите договор, уберём невыгодные пункты.',
+    power:   'Доверенность — без проблем 📑 Загрузите образец или расскажите кому и какие полномочия.',
+    custom:  'Понял вас. Загрузите документ или опишите подробнее — разберёмся.',
+  };
+  document.querySelectorAll('#el-step1, #el-step-create').forEach(function(el){ el.style.display='none'; });
+  var upload = document.getElementById('el-step-upload');
+  if(upload) upload.style.display='';
+  var ack = document.getElementById('el-ack');
+  if(ack) ack.innerHTML = ackMap[intent] || '';
 }
 
 function elenaCreate(type) {
@@ -2942,6 +2972,64 @@ var _DOC_FORMS = {
       {id:'df-violation',label:'Нарушение',placeholder:'Не оплачена поставка товара на сумму 500 000 руб.',hint:'Что нарушено',col:'full'},
       {id:'df-demand',label:'Требование',placeholder:'Оплатить в течение 10 дней',hint:'Что требуете и в какой срок',col:'full'},
       {id:'df-penalty',label:'Неустойка',placeholder:'0,1% за каждый день просрочки',hint:'Размер пени по договору или ст. 395 ГК',col:'half'},
+    ]
+  },
+  supply: {
+    title: 'Договор поставки',
+    fields: [
+      {id:'df-supplier',label:'Поставщик',placeholder:'ООО «Поставщик»',hint:'Полное наименование поставщика',col:'half'},
+      {id:'df-buyer',label:'Покупатель (вы)',placeholder:'ИП Васильев Р.Г.',hint:'Ваши данные',col:'half'},
+      {id:'df-goods',label:'Товар',placeholder:'Кухонное оборудование, ассортимент по спецификации',hint:'Наименование и описание товара',col:'full'},
+      {id:'df-price',label:'Сумма поставки',placeholder:'850 000 руб. в т.ч. НДС 20%',hint:'Общая сумма и НДС',col:'half'},
+      {id:'df-shipdate',label:'Срок поставки',placeholder:'30 дней с даты оплаты',hint:'Когда должен быть доставлен товар',col:'half'},
+      {id:'df-quality',label:'Гарантия качества',placeholder:'12 месяцев с даты поставки',hint:'Срок гарантии и условия возврата',col:'half'},
+      {id:'df-penalty',label:'Неустойка за просрочку',placeholder:'0,1% в день от стоимости непоставленного',hint:'Размер пени',col:'half'},
+    ]
+  },
+  rent: {
+    title: 'Договор аренды',
+    fields: [
+      {id:'df-landlord',label:'Арендодатель',placeholder:'ООО «Бизнес-Центр Плюс»',hint:'Кто сдаёт',col:'half'},
+      {id:'df-tenant',label:'Арендатор (вы)',placeholder:'ИП Васильев Р.Г.',hint:'Ваши данные',col:'half'},
+      {id:'df-object',label:'Объект аренды',placeholder:'Офис 305, ул. Красная, 1, г. Краснодар, 45 кв.м',hint:'Адрес, площадь, кадастровый номер',col:'full'},
+      {id:'df-rent',label:'Арендная плата',placeholder:'80 000 руб./мес. без НДС',hint:'Размер и периодичность оплаты',col:'half'},
+      {id:'df-term',label:'Срок аренды',placeholder:'1 год с 01.06.2025',hint:'Дата начала и конца',col:'half'},
+      {id:'df-deposit',label:'Обеспечительный платёж',placeholder:'160 000 руб. (2 месяца)',hint:'Размер и условия возврата',col:'half'},
+      {id:'df-repair',label:'Ремонт и улучшения',placeholder:'Только с письменного согласия арендодателя',hint:'Кто несёт расходы',col:'half'},
+    ]
+  },
+  nda: {
+    title: 'NDA / Конфиденциальность',
+    fields: [
+      {id:'df-party1',label:'Сторона 1 (вы)',placeholder:'ИП Васильев Р.Г.',hint:'Ваши данные',col:'half'},
+      {id:'df-party2',label:'Сторона 2',placeholder:'ООО «Партнёр»',hint:'Контрагент',col:'half'},
+      {id:'df-info',label:'Что является конфиденциальным',placeholder:'Бизнес-планы, клиентская база, технологии производства',hint:'Конкретный перечень закрытой информации',col:'full'},
+      {id:'df-term',label:'Срок действия NDA',placeholder:'3 года с даты подписания',hint:'Период действия обязательств',col:'half'},
+      {id:'df-exceptions',label:'Исключения',placeholder:'Общедоступная информация, данные от третьих лиц',hint:'Что НЕ является конфиденциальным',col:'half'},
+      {id:'df-penalty',label:'Ответственность за разглашение',placeholder:'500 000 руб. за каждый случай',hint:'Штраф или способ расчёта убытков',col:'half'},
+    ]
+  },
+  labor: {
+    title: 'Трудовой договор',
+    fields: [
+      {id:'df-employer',label:'Работодатель',placeholder:'ИП Васильев Р.Г.',hint:'Наименование или ФИО ИП',col:'half'},
+      {id:'df-employee',label:'Работник',placeholder:'Иванова Мария Петровна',hint:'ФИО, паспортные данные',col:'half'},
+      {id:'df-position',label:'Должность',placeholder:'Менеджер по работе с клиентами',hint:'Точное наименование должности',col:'full'},
+      {id:'df-salary',label:'Оклад',placeholder:'60 000 руб./мес. до вычета НДФЛ',hint:'Размер оклада и доп. выплаты',col:'half'},
+      {id:'df-schedule',label:'График работы',placeholder:'Пн–Пт, 09:00–18:00',hint:'Режим рабочего времени',col:'half'},
+      {id:'df-start',label:'Дата начала',placeholder:'01.06.2025',hint:'Когда приступает к работе',col:'half'},
+      {id:'df-probation',label:'Испытательный срок',placeholder:'3 месяца',hint:'Или «без испытания»',col:'half'},
+    ]
+  },
+  dismiss: {
+    title: 'Соглашение о расторжении',
+    fields: [
+      {id:'df-party1',label:'Сторона 1 (вы)',placeholder:'ИП Васильев Р.Г.',hint:'Ваши данные',col:'half'},
+      {id:'df-party2',label:'Сторона 2',placeholder:'ООО «Зов Ресторанс»',hint:'Контрагент',col:'half'},
+      {id:'df-contract',label:'Расторгаемый договор',placeholder:'Агентский договор № 5 от 01.03.2025',hint:'Название, номер, дата',col:'full'},
+      {id:'df-date',label:'Дата расторжения',placeholder:'01.06.2025',hint:'Когда договор прекращает действие',col:'half'},
+      {id:'df-settlement',label:'Взаиморасчёты',placeholder:'Стороны не имеют взаимных претензий',hint:'Долги, возвраты, штрафы',col:'half'},
+      {id:'df-return',label:'Возврат имущества',placeholder:'Переданные материалы возвращены по акту',hint:'Что нужно вернуть',col:'full'},
     ]
   }
 };
