@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ЗАЩИТА — Ценовая стратегия</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #9F1239;
+  --bghv:  #7A0E2E;
+  --dark:  #3B0212;
+  --tint:  #F0E3E6;
+  --shell: #20181A;
+  --shell2:#2C1820;
+  --surf:  #F3F4F6;
+  --card:  #FFFFFF;
+  --line:  #E5E7EB;
+  --ink:   #111827;
+  --mut:   #6B7280;
+  --ok:    #4F856F;  --okbg:  #E8EFEA;
+  --warn:  #A87E3C;  --warnbg:#F2EBDD;
+  --font-ui:   'Inter', system-ui, sans-serif;
+  --font-logo: 'Montserrat', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--shell);
+  color: var(--ink);
+}
+
+/* ── DECK SHELL ── */
+.deck {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── SLIDE ── */
+.slide {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide + .slide {
+  border-top: 2px solid rgba(255,255,255,.06);
+}
+
+/* slide variants */
+.slide-cover   { background: linear-gradient(145deg, var(--shell) 0%, var(--shell2) 50%, #1a0a10 100%); color: #fff; }
+.slide-dark    { background: var(--dark); color: #fff; }
+.slide-light   { background: var(--surf); color: var(--ink); }
+.slide-accent  { background: var(--bg); color: #fff; }
+.slide-white   { background: var(--card); color: var(--ink); }
+.slide-tint    { background: var(--tint); color: var(--ink); }
+
+/* ── SLIDE NUMBER ── */
+.slide-num {
+  position: absolute;
+  top: 32px; right: 40px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: .3;
+}
+
+/* ── LOGO ── */
+.logo {
+  font-family: var(--font-logo);
+  font-weight: 800;
+  letter-spacing: 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.logo-accent { color: var(--bg); }
+.logo-divider { opacity: .3; margin: 0 10px; }
+
+/* ── TOPBAR ── */
+.slide-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+  opacity: .6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── TYPOGRAPHY ── */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+.tag-red   { background: rgba(159,18,57,.18); color: #e88fa4; }
+.tag-white { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
+.tag-dark  { background: var(--dark); color: rgba(255,255,255,.7); }
+.tag-ok    { background: var(--okbg); color: var(--ok); }
+.tag-warn  { background: var(--warnbg); color: var(--warn); }
+
+h1.hero {
+  font-family: var(--font-logo);
+  font-size: clamp(42px, 6vw, 80px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+h2.section-title {
+  font-family: var(--font-logo);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+
+h3.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.lead {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 400;
+  line-height: 1.6;
+  opacity: .75;
+  max-width: 680px;
+  margin-bottom: 40px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: .55;
+  margin-bottom: 32px;
+  letter-spacing: .3px;
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+/* ── CARDS ── */
+.card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  padding: 24px;
+}
+.card-light {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+}
+.card-accent {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 24px;
+  color: #fff;
+}
+.card-dark {
+  background: var(--dark);
+  border-radius: 16px;
+  padding: 24px;
+  color: #fff;
+}
+
+/* ── STAT ── */
+.stat-big {
+  font-family: var(--font-logo);
+  font-size: clamp(36px, 4vw, 60px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 13px;
+  opacity: .6;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ── TABLE ── */
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.price-table th {
+  background: var(--dark);
+  color: rgba(255,255,255,.8);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.price-table th:first-child { border-radius: 10px 0 0 10px; }
+.price-table th:last-child  { border-radius: 0 10px 10px 0; text-align: right; }
+.price-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.price-table td:last-child { text-align: right; }
+.price-table tr:last-child td { border-bottom: none; }
+.price-table .was { text-decoration: line-through; color: var(--mut); font-size: 12px; }
+.price-table .now { font-weight: 800; color: var(--bg); font-size: 16px; }
+.price-table .market { color: var(--mut); font-size: 13px; }
+.price-table .badge {
+  display: inline-block;
+  background: var(--okbg);
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.price-table .badge-warn {
+  background: var(--warnbg);
+  color: var(--warn);
+}
+
+/* ── COMPARISON BAR ── */
+.comp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+.comp-label { min-width: 160px; font-weight: 600; }
+.comp-bar-wrap { flex: 1; background: rgba(255,255,255,.08); border-radius: 100px; height: 10px; }
+.comp-bar { height: 10px; border-radius: 100px; }
+.comp-val { min-width: 60px; text-align: right; font-weight: 700; font-size: 13px; }
+
+/* ── POSITION AXIS ── */
+.axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32px 0 12px;
+  position: relative;
+}
+.axis::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 2px;
+  background: rgba(255,255,255,.15);
+}
+.axis-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: .4;
+  background: var(--dark);
+  padding: 0 8px;
+  position: relative;
+}
+.axis-pin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.axis-pin .pin-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 3px solid;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+}
+.axis-pin .pin-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-align: center;
+  max-width: 80px;
+  line-height: 1.3;
+}
+.axis-pin .pin-price {
+  font-size: 11px;
+  opacity: .5;
+  margin-top: 2px;
+}
+
+/* ── NICHE CARD ── */
+.niche-card {
+  background: linear-gradient(135deg, rgba(159,18,57,.15) 0%, rgba(59,2,18,.3) 100%);
+  border: 1.5px solid rgba(159,18,57,.3);
+  border-radius: 20px;
+  padding: 32px;
+}
+
+/* ── TIMELINE ── */
+.timeline { display: flex; gap: 0; margin-top: 32px; }
+.tl-step {
+  flex: 1;
+  position: relative;
+  padding: 20px 20px 20px 0;
+}
+.tl-step::before {
+  content: '';
+  position: absolute;
+  top: 30px; left: 0; right: -1px;
+  height: 2px;
+  background: rgba(255,255,255,.1);
+}
+.tl-step:first-child::before { left: 0; }
+.tl-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+.tl-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.tl-desc  { font-size: 13px; opacity: .6; line-height: 1.5; }
+
+/* ── HIGHLIGHT BOX ── */
+.hl-box {
+  background: rgba(159,18,57,.12);
+  border-left: 4px solid var(--bg);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── FOOTER ── */
+.slide-footer {
+  position: absolute;
+  bottom: 28px; left: 80px; right: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  opacity: .25;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ── DECORATIVE ── */
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(20,10,14,.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 100px;
+  padding: 8px 14px;
+  z-index: 100;
+}
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+}
+.nav-dot.active { background: var(--bg); transform: scale(1.3); }
+
+/* ── UTILS ── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.gap-4 { gap: 4px; }
+.gap-8 { gap: 8px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.mt-8  { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.text-white   { color: #fff; }
+.text-red     { color: var(--bg); }
+.text-mut     { color: var(--mut); }
+.text-ok      { color: var(--ok); }
+.text-sm      { font-size: 13px; }
+.text-xs      { font-size: 11px; }
+.fw-700       { font-weight: 700; }
+.fw-800       { font-weight: 800; }
+.opacity-50   { opacity: .5; }
+.opacity-70   { opacity: .7; }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 1 — ОБЛОЖКА
+══════════════════════════════════════════ -->
+<div class="slide slide-cover" id="s1">
+  <!-- декор -->
+  <div class="deco-circle" style="width:600px;height:600px;background:radial-gradient(circle,rgba(159,18,57,.18) 0%,transparent 70%);right:-100px;top:-100px;"></div>
+  <div class="deco-circle" style="width:300px;height:300px;background:radial-gradient(circle,rgba(159,18,57,.1) 0%,transparent 70%);left:-50px;bottom:0;"></div>
+
+  <div class="slide-num">01 / 11</div>
+
+  <div style="margin-bottom:48px">
+    <div class="logo text-white">
+      WASRUSGEN<span class="logo-divider">|</span><span class="logo-accent">ЗАЩИТА</span>
+    </div>
+  </div>
+
+  <div class="tag tag-white">Ценовая стратегия · Май 2026</div>
+
+  <h1 class="hero text-white" style="max-width:750px">
+    Почему мы<br>стоим<br><span style="color:#e8849a">столько</span>
+  </h1>
+
+  <p class="lead text-white" style="color:rgba(255,255,255,.65)">
+    Обоснование ценовой политики ЗАЩИТА на основе анализа рынка.<br>
+    AI-юрист против живого юриста — что выбирает клиент?
+  </p>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.25)">
+    <span>ЗАЩИТА · wasrusgen1.ru/protect</span>
+    <span>Конфиденциально · ИП Васильев Р.Г.</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 2 — РЫНОК: КТО КОНКУРЕНТ
+══════════════════════════════════════════ -->
+<div class="slide slide-dark" id="s2">
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">02 / 11</div>
+
+  <div class="tag tag-white">Анализ конкурентов</div>
+  <h2 class="section-title text-white">Рынок онлайн-юристов</h2>
+  <p class="subtitle text-white" style="opacity:.5;margin-bottom:32px">Россия, 2024–2026 · физические лица и малый бизнес</p>
+
+  <div class="grid-2" style="gap:16px">
+    <div class="card">
+      <div style="font-size:20px;margin-bottom:10px">⚖️</div>
+      <h3 class="card-title text-white" style="font-size:15px">Правовед.ру</h3>
+      <div class="text-sm" style="opacity:.6;margin-bottom:10px">Маркетплейс живых юристов</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px">
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Вопрос: 900–3 500 ₽</span>
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Договор: 2 000–8 000 ₽</span>
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Консульт: 1 500–5 000 ₽</span>
+      </div>
+      <div class="mt-8 text-xs" style="color:#fc8989;opacity:.8">⚠ Медленно, ответ часами. Нет AI.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:20px;margin-bottom:10px">📄</div>
+      <h3 class="card-title text-white" style="font-size:15px">FreshDoc</h3>
+      <div class="text-sm" style="opacity:.6;margin-bottom:10px">Конструктор документов (шаблоны)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px">
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Подписка: 590–1 490 ₽/мес</span>
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Разово: 300–700 ₽</span>
+      </div>
+      <div class="mt-8 text-xs" style="color:#fc8989;opacity:.8">⚠ Только шаблоны. Нет анализа. Нет диалога.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:20px;margin-bottom:10px">🤖</div>
+      <h3 class="card-title text-white" style="font-size:15px">Legatex</h3>
+      <div class="text-sm" style="opacity:.6;margin-bottom:10px">AI-анализ договоров (B2B)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px">
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Договор: 2 000–15 000 ₽</span>
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">B2B-ориентир</span>
+      </div>
+      <div class="mt-8 text-xs" style="color:#fc8989;opacity:.8">⚠ Только договоры. Физлица — не целевые.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:20px;margin-bottom:10px">📱</div>
+      <h3 class="card-title text-white" style="font-size:15px">Яндекс.Услуги / Авито</h3>
+      <div class="text-sm" style="opacity:.6;margin-bottom:10px">Фриланс-юристы</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px">
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Консульт: 300–2 000 ₽</span>
+        <span style="background:rgba(255,255,255,.08);padding:3px 8px;border-radius:6px;color:#a0aec0">Документ: 500–5 000 ₽</span>
+      </div>
+      <div class="mt-8 text-xs" style="color:#fc8989;opacity:.8">⚠ Качество непредсказуемо. Нет гарантий.</div>
+    </div>
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.2)">
+    <span>ЗАЩИТА · Анализ конкурентов</span>
+    <span>Данные: открытые источники, май 2026</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 3 — ПОЗИЦИОНИРОВАНИЕ
+══════════════════════════════════════════ -->
+<div class="slide slide-dark" id="s3">
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">03 / 11</div>
+
+  <div class="tag tag-white">Позиционирование</div>
+  <h2 class="section-title text-white">Где находится ЗАЩИТА</h2>
+  <p style="opacity:.5;font-size:15px;margin-bottom:40px">Пустое место между «дёшево и ненадёжно» и «дорого и медленно»</p>
+
+  <!-- ось цена/качество -->
+  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:36px 40px;margin-bottom:32px">
+
+    <!-- горизонтальная ось ЦЕНА -->
+    <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.4;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:20px">
+      <span>← Дешевле</span>
+      <span style="font-weight:700;letter-spacing:2px">ЦЕНА</span>
+      <span>Дороже →</span>
+    </div>
+
+    <div style="position:relative;height:80px;margin-bottom:20px">
+      <!-- track -->
+      <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:rgba(255,255,255,.12);transform:translateY(-50%)"></div>
+
+      <!-- Авито -->
+      <div style="position:absolute;left:5%;transform:translateX(-50%);text-align:center">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 8px;border:2px solid rgba(255,255,255,.2)"></div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">Авито</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3)">300–1 500 ₽</div>
+        <div style="font-size:10px;color:#fc8989;margin-top:2px">Ненадёжно</div>
+      </div>
+      <!-- Яндекс -->
+      <div style="position:absolute;left:22%;transform:translateX(-50%);text-align:center">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 8px;border:2px solid rgba(255,255,255,.2)"></div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">Яндекс.Услуги</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3)">500–2 000 ₽</div>
+        <div style="font-size:10px;color:#fc8989;margin-top:2px">Непредсказуемо</div>
+      </div>
+      <!-- ЗАЩИТА -->
+      <div style="position:absolute;left:47%;transform:translateX(-50%);text-align:center">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--bg);margin:0 auto 8px;box-shadow:0 0 20px rgba(159,18,57,.6)"></div>
+        <div style="font-size:13px;font-weight:800;color:#fff">ЗАЩИТА</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">490–3 490 ₽</div>
+        <div style="font-size:10px;color:#7fc97f;margin-top:2px">AI · Быстро · Надёжно</div>
+      </div>
+      <!-- FreshDoc -->
+      <div style="position:absolute;left:30%;transform:translateX(-50%);text-align:center">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 8px;border:2px solid rgba(255,255,255,.2)"></div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">FreshDoc</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3)">590–1 490 ₽/мес</div>
+        <div style="font-size:10px;color:#fc8989;margin-top:2px">Только шаблоны</div>
+      </div>
+      <!-- Правовед -->
+      <div style="position:absolute;left:78%;transform:translateX(-50%);text-align:center">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 8px;border:2px solid rgba(255,255,255,.2)"></div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">Правовед</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3)">1 500–8 000 ₽</div>
+        <div style="font-size:10px;color:#fc8989;margin-top:2px">Медленно</div>
+      </div>
+      <!-- Юрист аутсорс -->
+      <div style="position:absolute;left:95%;transform:translateX(-50%);text-align:center">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.3);margin:0 auto 8px;border:2px solid rgba(255,255,255,.2)"></div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">Юрист</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3)">5 000–25 000 ₽</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">Частный</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl-box">
+    <strong style="color:#e8849a">Незанятая ниша:</strong> AI-точность и круглосуточная доступность по цене вдвое ниже Правовед.ру — <strong style="color:#fff">490–3 500 ₽</strong> против 1 500–8 000 ₽ у конкурентов с живыми юристами.
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.2)">
+    <span>ЗАЩИТА · Позиционирование</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 4 — ПОЧЕМУ ТЕКУЩИЕ ЦЕНЫ ЗАНИЖЕНЫ
+══════════════════════════════════════════ -->
+<div class="slide slide-light" id="s4">
+  <div class="slide-num">04 / 11</div>
+
+  <div class="tag tag-red">Проблема</div>
+  <h2 class="section-title">Слишком дёшево —<br>это тоже плохо</h2>
+  <p style="color:var(--mut);font-size:15px;max-width:560px;margin-bottom:36px;line-height:1.6">
+    Исследования подтверждают: цена ниже рынка в 2–3 раза вызывает недоверие. Пользователь думает «что-то не так», а не «выгодно».
+  </p>
+
+  <div class="grid-3">
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:24px">
+      <div style="font-size:32px;margin-bottom:12px">🤔</div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)">Сигнал недоверия</h3>
+      <p style="font-size:13px;color:var(--mut);line-height:1.5">Правовед берёт 2 000 ₽ за договор. Мы — 990 ₽. Клиент задаётся вопросом: <em>почему так дёшево?</em></p>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:24px">
+      <div style="font-size:32px;margin-bottom:12px">💸</div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)">Занижение маржи</h3>
+      <p style="font-size:13px;color:var(--mut);line-height:1.5">При 990 ₽ за проверку договора и стоимости API ~50 ₽ — маржа есть, но нет запаса на маркетинг и поддержку.</p>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:24px">
+      <div style="font-size:32px;margin-bottom:12px">📉</div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)">Деградация ценности</h3>
+      <p style="font-size:13px;color:var(--mut);line-height:1.5">Слишком низкая цена обесценивает качество ответа — клиент не верит, что AI лучше гугла за 390 ₽.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--tint);border:1.5px solid rgba(159,18,57,.2);border-radius:14px;padding:20px 24px;margin-top:24px;display:flex;gap:16px;align-items:center">
+    <div style="font-size:28px">⚡</div>
+    <div>
+      <div style="font-weight:700;font-size:15px;color:var(--bg);margin-bottom:4px">Правило «расстояния до рынка»</div>
+      <div style="font-size:14px;color:var(--mut);line-height:1.5">Цена AI-сервиса должна быть <strong style="color:var(--ink)">в 1.5–2 раза ниже</strong> живого юриста, а не в 3–5 раз. Скидка объясняется скоростью, а не сомнением в качестве.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 5 — СРАВНЕНИЕ: БЫЛО / СТАЛО
+══════════════════════════════════════════ -->
+<div class="slide slide-white" id="s5">
+  <div class="slide-num">05 / 11</div>
+
+  <div class="tag tag-red">Разовые услуги</div>
+  <h2 class="section-title">Новая сетка: разовые</h2>
+  <p style="color:var(--mut);font-size:14px;margin-bottom:28px">Сравнение с текущими ценами и рынком конкурентов</p>
+
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>Услуга</th>
+        <th>Было</th>
+        <th>Стало</th>
+        <th>Правовед / рынок</th>
+        <th>Наша скидка vs рынка</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>💬 Вопрос AI</strong><br><span style="font-size:12px;color:var(--mut)">Лид-магнит</span></td>
+        <td><span class="was">390 ₽</span></td>
+        <td><span class="now">490 ₽</span></td>
+        <td><span class="market">900–1 500 ₽</span></td>
+        <td><span class="badge">−50% от рынка</span></td>
+      </tr>
+      <tr>
+        <td><strong>📄 Проверка договора</strong><br><span style="font-size:12px;color:var(--mut)">Ключевой продукт</span></td>
+        <td><span class="was">990 ₽</span></td>
+        <td><span class="now">1 490 ₽</span></td>
+        <td><span class="market">2 000–4 000 ₽</span></td>
+        <td><span class="badge">−50% от рынка</span></td>
+      </tr>
+      <tr>
+        <td><strong>✍️ Составление документа</strong></td>
+        <td><span class="was">1 490 ₽</span></td>
+        <td><span class="now">1 990 ₽</span></td>
+        <td><span class="market">2 000–5 000 ₽</span></td>
+        <td><span class="badge">−40% от рынка</span></td>
+      </tr>
+      <tr>
+        <td><strong>📑 Доверенность</strong></td>
+        <td><span class="was">990 ₽</span></td>
+        <td><span class="now">1 190 ₽</span></td>
+        <td><span class="market">1 500–3 000 ₽</span></td>
+        <td><span class="badge">−40% от рынка</span></td>
+      </tr>
+      <tr>
+        <td><strong>📋 Претензия</strong></td>
+        <td><span class="was">1 290 ₽</span></td>
+        <td><span class="now">1 590 ₽</span></td>
+        <td><span class="market">2 000–4 000 ₽</span></td>
+        <td><span class="badge">−50% от рынка</span></td>
+      </tr>
+      <tr>
+        <td><strong>⚖️ Разбор спора</strong><br><span style="font-size:12px;color:var(--mut)">Высокомаржинальный</span></td>
+        <td><span class="was">2 490 ₽</span></td>
+        <td><span class="now">3 490 ₽</span></td>
+        <td><span class="market">3 000–8 000 ₽</span></td>
+        <td><span class="badge badge-warn">−30% от рынка</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:16px;font-size:13px;color:var(--mut);display:flex;gap:20px">
+    <span>✅ Средний рост цены: <strong style="color:var(--ink)">+30–50%</strong></span>
+    <span>✅ Остаёмся дешевле живых юристов в <strong style="color:var(--ink)">1.5–2.5 раза</strong></span>
+    <span>✅ Маржа на маркетинг появляется</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 6 — ПОДПИСКИ
+══════════════════════════════════════════ -->
+<div class="slide slide-light" id="s6">
+  <div class="slide-num">06 / 11</div>
+
+  <div class="tag tag-red">Подписки · 30 дней</div>
+  <h2 class="section-title">Сопровождение на месяц</h2>
+  <p style="color:var(--mut);font-size:14px;margin-bottom:28px">AI-сопровождение vs найм юриста на аутсорсе: разница в 10 раз</p>
+
+  <div class="grid-3" style="gap:20px">
+    <!-- Старт -->
+    <div class="card-light" style="border-radius:20px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:16px">Старт</div>
+      <div style="font-size:13px;color:var(--mut);text-decoration:line-through;margin-bottom:4px">Было: 1 490 ₽</div>
+      <div style="font-family:var(--font-logo);font-size:42px;font-weight:900;color:var(--ink);letter-spacing:-1px;line-height:1">1 490 ₽</div>
+      <div style="font-size:13px;color:var(--mut);margin:4px 0 20px">/ 30 дней</div>
+      <div style="font-size:13px;color:var(--mut);margin-bottom:4px">≈ <strong style="color:var(--ink)">50 ₽/день</strong></div>
+      <div style="font-size:12px;color:var(--ok);font-weight:600;background:var(--okbg);border-radius:8px;padding:6px 10px;display:inline-block">Входная точка — не трогать</div>
+      <div style="margin-top:16px;font-size:13px;color:var(--mut);line-height:1.6">
+        3 проверки договоров<br>5 документов<br>Безлимитные вопросы
+      </div>
+    </div>
+    <!-- Профи -->
+    <div style="background:linear-gradient(145deg,var(--dark) 0%,var(--shell2) 100%);border-radius:20px;padding:28px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;background:var(--bg);font-size:10px;font-weight:800;letter-spacing:1.5px;padding:6px 14px;border-radius:0 20px 0 12px">ХИТ</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:16px">Профи</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.4);text-decoration:line-through;margin-bottom:4px">Было: 2 900 ₽</div>
+      <div style="font-family:var(--font-logo);font-size:42px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">3 900 ₽</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);margin:4px 0 20px">/ 30 дней</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:4px">≈ <strong style="color:#fff">130 ₽/день</strong></div>
+      <div style="font-size:12px;color:#fca5a5;font-weight:600;line-height:1.5">vs 1 500 ₽ за один визит к живому юристу</div>
+      <div style="margin-top:16px;font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">
+        10 проверок договоров<br>20 документов<br>Безлимитные вопросы<br>Приоритетный анализ
+      </div>
+    </div>
+    <!-- Максимум -->
+    <div class="card-light" style="border-radius:20px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:16px">Максимум</div>
+      <div style="font-size:13px;color:var(--mut);text-decoration:line-through;margin-bottom:4px">Было: 5 900 ₽</div>
+      <div style="font-family:var(--font-logo);font-size:42px;font-weight:900;color:var(--ink);letter-spacing:-1px;line-height:1">7 900 ₽</div>
+      <div style="font-size:13px;color:var(--mut);margin:4px 0 20px">/ 30 дней</div>
+      <div style="font-size:13px;color:var(--mut);margin-bottom:4px">≈ <strong style="color:var(--ink)">263 ₽/день</strong></div>
+      <div style="font-size:12px;color:var(--ok);font-weight:600;background:var(--okbg);border-radius:8px;padding:6px 10px;display:inline-block">Юрист аутсорс: 8 000–25 000 ₽</div>
+      <div style="margin-top:16px;font-size:13px;color:var(--mut);line-height:1.6">
+        Безлимитно всё<br>1 документ бесплатно/мес<br>Юридический совет<br>+Совет 5 специалистов
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;background:var(--tint);border:1px solid rgba(159,18,57,.15);border-radius:12px;padding:14px 20px;font-size:14px;color:var(--mut)">
+    💡 <strong style="color:var(--bg)">Ключевой аргумент продажи:</strong> Юрист на удалёнке — 8 000–25 000 ₽/мес. Профи-тариф ЗАЩИТА — <strong style="color:var(--ink)">3 900 ₽/мес</strong>. Экономия в 2–6 раз при сопоставимом качестве для большинства жизненных ситуаций.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 7 — СРАВНИТЕЛЬНЫЕ БАРЫ
+══════════════════════════════════════════ -->
+<div class="slide slide-dark" id="s7">
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">07 / 11</div>
+
+  <div class="tag tag-white">Наглядность</div>
+  <h2 class="section-title text-white">ЗАЩИТА vs конкуренты</h2>
+  <p style="opacity:.5;font-size:15px;color:#fff;margin-bottom:36px">Средняя стоимость проверки договора, ₽</p>
+
+  <div style="max-width:700px">
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:rgba(255,255,255,.5);font-size:13px">Авито / фриланс</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:22%;background:rgba(255,255,255,.2)"></div>
+      </div>
+      <span class="comp-val" style="color:rgba(255,255,255,.5)">800 ₽</span>
+    </div>
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:rgba(255,255,255,.5);font-size:13px">FreshDoc (шаблон)</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:14%;background:rgba(255,255,255,.2)"></div>
+      </div>
+      <span class="comp-val" style="color:rgba(255,255,255,.5)">500 ₽</span>
+    </div>
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:#fff;font-size:13px;font-weight:800">🔴 ЗАЩИТА (новая)</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:42%;background:var(--bg);box-shadow:0 0 12px rgba(159,18,57,.5)"></div>
+      </div>
+      <span class="comp-val" style="color:var(--bg);font-weight:800">1 490 ₽</span>
+    </div>
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:rgba(255,255,255,.4);font-size:13px">Яндекс.Услуги</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:56%;background:rgba(255,255,255,.12)"></div>
+      </div>
+      <span class="comp-val" style="color:rgba(255,255,255,.4)">2 000 ₽</span>
+    </div>
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:rgba(255,255,255,.4);font-size:13px">Правовед.ру</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:78%;background:rgba(255,255,255,.12)"></div>
+      </div>
+      <span class="comp-val" style="color:rgba(255,255,255,.4)">2 800 ₽</span>
+    </div>
+    <div class="comp-row text-white">
+      <span class="comp-label" style="color:rgba(255,255,255,.4);font-size:13px">Legatex (B2B AI)</span>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar" style="width:95%;background:rgba(255,255,255,.08)"></div>
+      </div>
+      <span class="comp-val" style="color:rgba(255,255,255,.3)">3 500+ ₽</span>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;display:flex;gap:20px">
+    <div style="background:rgba(159,18,57,.15);border:1px solid rgba(159,18,57,.3);border-radius:12px;padding:14px 20px;font-size:14px;color:rgba(255,255,255,.8)">
+      ЗАЩИТА дешевле Правовед.ру на <strong style="color:#e8849a">−47%</strong>
+    </div>
+    <div style="background:rgba(79,133,111,.1);border:1px solid rgba(79,133,111,.3);border-radius:12px;padding:14px 20px;font-size:14px;color:rgba(255,255,255,.8)">
+      Дороже FreshDoc (шаблонов) на <strong style="color:#7fc97f">+198%</strong> — обоснованно: это AI, не шаблон
+    </div>
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.2)">
+    <span>ЗАЩИТА · Конкурентный анализ цен</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 8 — ЦЕННОСТЬ ДЛЯ КЛИЕНТА
+══════════════════════════════════════════ -->
+<div class="slide slide-accent" id="s8">
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">08 / 11</div>
+
+  <div class="deco-circle" style="width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);right:-80px;bottom:-80px;"></div>
+
+  <div class="tag tag-white">Ценность</div>
+  <h2 class="section-title text-white" style="max-width:600px">Что клиент получает<br>за эти деньги</h2>
+
+  <div class="grid-4" style="margin-top:32px;gap:16px">
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:22px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">⚡</div>
+      <div style="font-size:28px;font-weight:900;font-family:var(--font-logo);margin-bottom:6px">5 мин</div>
+      <div style="font-size:13px;opacity:.7;line-height:1.4">Ответ вместо «жди несколько часов» на Правовед</div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:22px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">🕐</div>
+      <div style="font-size:28px;font-weight:900;font-family:var(--font-logo);margin-bottom:6px">24 / 7</div>
+      <div style="font-size:13px;opacity:.7;line-height:1.4">Юрист не берёт трубку в 23:00. Елена — всегда</div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:22px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">🧠</div>
+      <div style="font-size:28px;font-weight:900;font-family:var(--font-logo);margin-bottom:6px">5 → 1</div>
+      <div style="font-size:13px;opacity:.7;line-height:1.4">5 AI-специалистов параллельно для сложных дел</div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:22px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">📋</div>
+      <div style="font-size:28px;font-weight:900;font-family:var(--font-logo);margin-bottom:6px">≤ 2×</div>
+      <div style="font-size:13px;opacity:.7;line-height:1.4">Дешевле любого живого юриста при сопоставимом результате</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:20px 24px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px">Ключевое сообщение для маркетинга:</div>
+    <div style="font-size:18px;line-height:1.6;opacity:.9">
+      «Юрист за 1 490 ₽ готов за 5 минут, работает круглосуточно и помнит все ваши дела.»
+    </div>
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.3)">
+    <span>ЗАЩИТА · Ценностное предложение</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 9 — НИШЕВЫЕ ПРОДУКТЫ
+══════════════════════════════════════════ -->
+<div class="slide slide-dark" id="s9">
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">09 / 11</div>
+
+  <div class="tag tag-white">Новые продукты</div>
+  <h2 class="section-title text-white">Незанятые ниши</h2>
+  <p style="opacity:.5;font-size:15px;color:#fff;margin-bottom:36px">Вертикальные продукты под конкретный жизненный сценарий</p>
+
+  <div class="grid-2" style="gap:24px">
+
+    <div class="niche-card">
+      <div style="font-size:28px;margin-bottom:14px">🏠</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px">Ниша 1</div>
+      <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px">Подписка «Арендатор»</h3>
+      <div style="font-family:var(--font-logo);font-size:36px;font-weight:900;color:var(--bg);margin-bottom:16px;letter-spacing:-1px">990 ₽/мес</div>
+      <p style="font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:16px">
+        Только аренда. Проверка/составление договора аренды, претензии к УК, защита залога, расторжение, уведомление о непродлении.
+      </p>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6">
+        <div style="margin-bottom:4px">🎯 Целевая: съёмщики жилья и офисов</div>
+        <div style="margin-bottom:4px">📊 Рынок аренды в РФ: 5+ млн активных договоров</div>
+        <div>⚔️ Конкурент с нишевым продуктом: <strong style="color:#e8849a">не существует</strong></div>
+      </div>
+    </div>
+
+    <div class="niche-card">
+      <div style="font-size:28px;margin-bottom:14px">💼</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px">Ниша 2</div>
+      <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px">Пакет «При увольнении»</h3>
+      <div style="font-family:var(--font-logo);font-size:36px;font-weight:900;color:var(--bg);margin-bottom:16px;letter-spacing:-1px">2 990 ₽</div>
+      <p style="font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:16px">
+        Event-based бандл: трудовой договор + расчёт компенсации + претензия работодателю + шаблон жалобы в ГИТ.
+      </p>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6">
+        <div style="margin-bottom:4px">🎯 Целевая: сотрудники при увольнении/сокращении</div>
+        <div style="margin-bottom:4px">⚡ Высокая эмоциональная срочность = высокая конверсия</div>
+        <div>⚔️ Конкурент с event-бандлом: <strong style="color:#e8849a">не существует</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;background:rgba(255,255,255,.05);border-radius:12px;padding:14px 20px;font-size:14px;color:rgba(255,255,255,.5)">
+    💡 Обе ниши могут стать <strong style="color:#fff">отдельными лендингами</strong> с таргетированной рекламой — «защита арендатора» и «уволили — что делать»
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.2)">
+    <span>ЗАЩИТА · Новые продукты</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 10 — РОАДМАП ВНЕДРЕНИЯ
+══════════════════════════════════════════ -->
+<div class="slide slide-light" id="s10">
+  <div class="slide-num">10 / 11</div>
+
+  <div class="tag tag-red">Роадмап</div>
+  <h2 class="section-title">План внедрения<br>новых цен</h2>
+
+  <div class="timeline">
+    <div class="tl-step">
+      <div class="tl-num">1</div>
+      <div class="tl-title">Фаза 1 · Сейчас</div>
+      <div class="tl-desc">Обновить прайс в прототипе. Добавить зачёркнутые старые цены как «было».</div>
+    </div>
+    <div class="tl-step">
+      <div class="tl-num">2</div>
+      <div class="tl-title">Фаза 2 · Запуск</div>
+      <div class="tl-desc">Первые 50 клиентов — по новым ценам. Собрать отзывы, конверсия платной страницы.</div>
+    </div>
+    <div class="tl-step">
+      <div class="tl-num">3</div>
+      <div class="tl-title">Фаза 3 · +30 дней</div>
+      <div class="tl-desc">Запустить лендинг «Арендатор» как отдельный продукт. Тест CPC в Яндекс.Директ.</div>
+    </div>
+    <div class="tl-step">
+      <div class="tl-num">4</div>
+      <div class="tl-title">Фаза 4 · +60 дней</div>
+      <div class="tl-desc">A/B тест: бандл «При увольнении» vs разовые тарифы. Зафиксировать лучшую конверсию.</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:32px;gap:16px">
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px;text-align:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">Целевой LTV</div>
+      <div style="font-family:var(--font-logo);font-size:32px;font-weight:900;color:var(--bg)">12 000 ₽</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:4px">на клиента / год</div>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px;text-align:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">Break-even</div>
+      <div style="font-family:var(--font-logo);font-size:32px;font-weight:900;color:var(--bg)">~30</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:4px">клиентов Профи/мес</div>
+    </div>
+    <div style="background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px;text-align:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">Маржа API</div>
+      <div style="font-family:var(--font-logo);font-size:32px;font-weight:900;color:var(--bg)">85%+</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:4px">при цене 1 490 ₽/договор</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     СЛАЙД 11 — ИТОГ
+══════════════════════════════════════════ -->
+<div class="slide slide-cover" id="s11">
+  <div class="deco-circle" style="width:500px;height:500px;background:radial-gradient(circle,rgba(159,18,57,.2) 0%,transparent 70%);right:-80px;top:50%;transform:translateY(-50%);"></div>
+
+  <div class="slide-num" style="color:rgba(255,255,255,.3)">11 / 11</div>
+
+  <div class="tag tag-white">Итог</div>
+  <h2 class="section-title text-white" style="max-width:680px;margin-bottom:32px">Три главных вывода</h2>
+
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:720px">
+    <div style="display:flex;gap:20px;align-items:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px">
+      <div style="font-family:var(--font-logo);font-size:36px;font-weight:900;color:var(--bg);min-width:48px;line-height:1">01</div>
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px">Поднять цены — это не жадность, это доверие</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.5">Текущие цены ниже рынка в 2–3 раза. Правило: AI-скидка — 40–50% от живого юриста, не больше.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px">
+      <div style="font-family:var(--font-logo);font-size:36px;font-weight:900;color:var(--bg);min-width:48px;line-height:1">02</div>
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px">Подписки — главный продукт, разовые — воронка</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.5">Профи 3 900 ₽/мес — целевой тариф. Разбор спора 3 490 ₽ — лид на подписку для сложных ситуаций.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px">
+      <div style="font-family:var(--font-logo);font-size:36px;font-weight:900;color:var(--bg);min-width:48px;line-height:1">03</div>
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px">Нишевые продукты — быстрый рост без войны цен</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.5">«Арендатор» 990 ₽/мес и «При увольнении» 2 990 ₽ — незанятые ниши с высокой эмоциональной срочностью.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer" style="color:rgba(255,255,255,.2)">
+    <span class="logo text-white">WASRUSGEN<span class="logo-divider">|</span><span class="logo-accent">ЗАЩИТА</span></span>
+    <span>wasrusgen1.ru/protect · i@wasrusgen.ru</span>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ── NAV DOTS ── -->
+<nav class="nav" id="nav"></nav>
+
+<script>
+// Генерируем точки навигации
+var slides = document.querySelectorAll('.slide');
+var nav = document.getElementById('nav');
+slides.forEach(function(s, i){
+  var btn = document.createElement('button');
+  btn.className = 'nav-dot';
+  btn.title = 'Слайд ' + (i+1);
+  btn.addEventListener('click', function(){
+    s.scrollIntoView({ behavior: 'smooth' });
+  });
+  nav.appendChild(btn);
+});
+
+// Подсвечиваем активную точку
+var dots = nav.querySelectorAll('.nav-dot');
+var observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      var idx = Array.from(slides).indexOf(e.target);
+      dots.forEach(function(d){ d.classList.remove('active'); });
+      if(dots[idx]) dots[idx].classList.add('active');
+    }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(function(s){ observer.observe(s); });
+
+// Клавиши ← →
+document.addEventListener('keydown', function(e){
+  var active = -1;
+  dots.forEach(function(d,i){ if(d.classList.contains('active')) active = i; });
+  if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
+    if(active < slides.length - 1) slides[active+1].scrollIntoView({behavior:'smooth'});
+  }
+  if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
+    if(active > 0) slides[active-1].scrollIntoView({behavior:'smooth'});
+  }
+});
+</script>
+
+</body>
+</html>
