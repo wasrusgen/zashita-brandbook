@@ -484,6 +484,53 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 .ov-row .ov-k{color:var(--mut)}
 .ov-row .ov-v{font-weight:600}
 
+/* ── КАРТОЧКА ДЕЛА v2 ── */
+
+/* Прогресс-шаги */
+.case-progress{display:flex;align-items:flex-start;gap:0;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
+.cp-step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:90px;position:relative}
+.cp-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:#e5e7eb;z-index:0}
+.cp-step.done .cp-step:not(:last-child)::after,.cp-step.act::after,.cp-step.done::after{background:var(--bg)}
+.cps-dot{width:28px;height:28px;border-radius:50%;border:2px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:1;position:relative;flex-shrink:0}
+.cp-step.done .cps-dot{background:var(--bg);border-color:var(--bg);color:#fff}
+.cp-step.act .cps-dot{background:#fff;border-color:var(--bg);box-shadow:0 0 0 3px rgba(159,18,57,.15)}
+.cp-step.pend .cps-dot{background:#f9fafb;border-color:#d1d5db;color:#9ca3af}
+.cps-lbl{font-size:10px;font-weight:600;margin-top:6px;text-align:center;color:var(--mut);max-width:80px;line-height:1.3}
+.cp-step.done .cps-lbl{color:var(--bg)}
+.cp-step.act .cps-lbl{color:var(--ink);font-weight:700}
+.cps-date{font-size:9px;color:var(--mut);margin-top:2px;text-align:center}
+.cp-step.act .cps-date{color:var(--bg)}
+
+/* Риски */
+.risk-summary{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.risk-sum-item{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700}
+.risk-sum-item.crit{border-color:#fecaca;background:#fff5f5;color:#991b1b}
+.risk-sum-item.mid{border-color:#fde68a;background:#fffbeb;color:#92400e}
+.risk-sum-item.low{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+
+.risk-list{display:flex;flex-direction:column;gap:8px;max-width:760px}
+.risk-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;cursor:pointer;transition:box-shadow .12s}
+.risk-item:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.risk-item.crit{border-left:4px solid #ef4444}
+.risk-item.mid{border-left:4px solid #f59e0b}
+.risk-item.low{border-left:4px solid #22c55e}
+.risk-item-hdr{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.risk-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;flex-shrink:0;white-space:nowrap}
+.risk-badge.crit{background:#fee2e2;color:#991b1b}
+.risk-badge.mid{background:#fef3c7;color:#92400e}
+.risk-badge.low{background:#dcfce7;color:#166534}
+.risk-num{font-size:11px;color:var(--mut);flex-shrink:0}
+.risk-title{font-size:13px;font-weight:700;color:var(--ink);flex:1}
+.risk-norm{font-size:11px;color:var(--mut);margin-bottom:6px}
+.risk-rec{font-size:12px;color:var(--ink);line-height:1.5;background:#f8f9fa;border-radius:7px;padding:7px 10px}
+
+/* Документы: upload zone */
+.doc-upload-btn{display:flex;align-items:center;gap:10px;border:2px dashed #d1d5db;border-radius:12px;padding:14px 18px;margin-bottom:14px;cursor:pointer;transition:border-color .15s;max-width:700px;background:#fafafa}
+.doc-upload-btn:hover{border-color:var(--bg);background:#fff7f8}
+.doc-upload-ico{font-size:22px}
+.doc-upload-txt{font-size:13px;font-weight:600;color:var(--mut)}
+.doc-upload-txt span{display:block;font-size:11px;font-weight:400;margin-top:1px}
+
 /* ── RETURNING CLIENT ── */
 .ret-greet{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:24px;letter-spacing:-.5px}
 .ret-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:22px}
@@ -1100,12 +1147,48 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         <!-- Вкладки -->
         <div class="case-tabs">
           <div class="case-tab on" onclick="caseTab('overview',this)">Обзор</div>
+          <div class="case-tab" onclick="caseTab('risks',this)">Риски <span style="background:#fee2e2;color:#991b1b;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:700">12</span></div>
           <div class="case-tab" onclick="caseTab('docs',this)">Документы <span style="background:#e5e7eb;border-radius:8px;padding:1px 6px;font-size:10px">5</span></div>
           <div class="case-tab" onclick="caseTab('timeline',this)">История</div>
         </div>
 
         <!-- Обзор -->
         <div class="case-pane on" id="cp-overview">
+
+          <!-- Прогресс дела -->
+          <div class="case-progress">
+            <div class="cp-step done">
+              <div class="cps-dot">✓</div>
+              <div class="cps-lbl">Загружен</div>
+              <div class="cps-date">23.05</div>
+            </div>
+            <div class="cp-step done">
+              <div class="cps-dot">✓</div>
+              <div class="cps-lbl">Экспертиза</div>
+              <div class="cps-date">23.05</div>
+            </div>
+            <div class="cp-step done">
+              <div class="cps-dot">✓</div>
+              <div class="cps-lbl">Новая редакция</div>
+              <div class="cps-date">24.05</div>
+            </div>
+            <div class="cp-step act">
+              <div class="cps-dot">⏳</div>
+              <div class="cps-lbl">Протокол</div>
+              <div class="cps-date">сейчас</div>
+            </div>
+            <div class="cp-step pend">
+              <div class="cps-dot">→</div>
+              <div class="cps-lbl">Ответ контрагенту</div>
+              <div class="cps-date">до 29.05</div>
+            </div>
+            <div class="cp-step pend">
+              <div class="cps-dot">✍</div>
+              <div class="cps-lbl">Подписание</div>
+              <div class="cps-date">—</div>
+            </div>
+          </div>
+
           <div class="overview-grid">
             <div class="ov-card">
               <div class="ov-card-ttl">Параметры дела</div>
@@ -1116,7 +1199,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
               <div class="ov-row"><span class="ov-k">Статус</span><span class="ov-v">🔵 В работе</span></div>
             </div>
             <div class="ov-card">
-              <div class="ov-card-ttl">Прогресс сделки</div>
+              <div class="ov-card-ttl">Текущий этап</div>
               <div class="ov-row"><span class="ov-k">✅ Экспертиза</span><span class="ov-v" style="color:#16a34a">Готово</span></div>
               <div class="ov-row"><span class="ov-k">✅ Новая редакция</span><span class="ov-v" style="color:#16a34a">Получена</span></div>
               <div class="ov-row"><span class="ov-k">⏳ Протокол</span><span class="ov-v" style="color:#d97706">На согласовании</span></div>
@@ -1127,8 +1210,146 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <div class="enote" style="margin-top:4px"><img src="logos/elena-photo.jpg"><div class="et">Протокол разногласий готов — осталось согласовать и отправить контрагенту до 29.05. Я напомню накануне 💛</div></div>
         </div>
 
+        <!-- Риски -->
+        <div class="case-pane" id="cp-risks">
+          <div class="risk-summary">
+            <div class="risk-sum-item crit">🔴 5 критических</div>
+            <div class="risk-sum-item mid">🟡 4 средних</div>
+            <div class="risk-sum-item low">🟢 3 низких</div>
+          </div>
+          <div class="risk-list">
+
+            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — одностороннее изменение условий')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge crit">🔴 Критический</span>
+                <span class="risk-num">#1</span>
+                <span class="risk-title">Одностороннее изменение условий</span>
+              </div>
+              <div class="risk-norm">п. 4.2 договора · ст. 450 ГК РФ</div>
+              <div class="risk-rec">Агент вправе менять вознаграждение без вашего согласования. Необходимо добавить условие: «изменения вступают в силу только при письменном согласии обеих сторон».</div>
+            </div>
+
+            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — неограниченная ответственность')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge crit">🔴 Критический</span>
+                <span class="risk-num">#2</span>
+                <span class="risk-title">Неограниченная ответственность принципала</span>
+              </div>
+              <div class="risk-norm">п. 8.1 договора · ст. 393 ГК РФ</div>
+              <div class="risk-rec">Размер убытков, которые агент может взыскать с вас, не ограничен. Необходимо установить верхний предел — например, размер вознаграждения за 3 месяца.</div>
+            </div>
+
+            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — автопролонгация')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge crit">🔴 Критический</span>
+                <span class="risk-num">#3</span>
+                <span class="risk-title">Автопролонгация без уведомления</span>
+              </div>
+              <div class="risk-norm">п. 9.3 договора · ст. 621 ГК РФ</div>
+              <div class="risk-rec">Договор автоматически продлевается на год, если ни одна из сторон не уведомила об отказе. Срок уведомления и форма не указаны — риск непреднамеренного продления.</div>
+            </div>
+
+            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — сдача-приёмка')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge crit">🔴 Критический</span>
+                <span class="risk-num">#4</span>
+                <span class="risk-title">Отсутствие порядка сдачи-приёмки</span>
+              </div>
+              <div class="risk-norm">п. 5 договора · ст. 720 ГК РФ</div>
+              <div class="risk-rec">Не описано как принимается исполнение по агентскому поручению — нет формы акта, сроков подписания. При споре суд может признать услугу принятой по умолчанию.</div>
+            </div>
+
+            <div class="risk-item crit" onclick="toast('📋 Открываю детальный анализ риска — подсудность')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge crit">🔴 Критический</span>
+                <span class="risk-num">#5</span>
+                <span class="risk-title">Невыгодная подсудность (юрисдикция)</span>
+              </div>
+              <div class="risk-norm">п. 11.2 договора · ст. 37 АПК РФ</div>
+              <div class="risk-rec">Споры рассматриваются по месту нахождения агента (Москва). Вам придётся судиться в другом городе. Необходимо указать суд по вашему месту нахождения.</div>
+            </div>
+
+            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — сроки отчётности')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge mid">🟡 Средний</span>
+                <span class="risk-num">#6</span>
+                <span class="risk-title">Размытые сроки отчётности агента</span>
+              </div>
+              <div class="risk-norm">п. 6.1 договора · ст. 1008 ГК РФ</div>
+              <div class="risk-rec">Нет конкретных дат предоставления агентских отчётов — «в разумный срок». Зафиксируйте: например, 5-е число каждого месяца.</div>
+            </div>
+
+            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — расторжение')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge mid">🟡 Средний</span>
+                <span class="risk-num">#7</span>
+                <span class="risk-title">Нет срока уведомления при расторжении</span>
+              </div>
+              <div class="risk-norm">п. 9.2 договора · ст. 1010 ГК РФ</div>
+              <div class="risk-rec">При досрочном расторжении порядок уведомления не прописан. Рекомендую указать минимум 30 дней письменного уведомления.</div>
+            </div>
+
+            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — НДС')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge mid">🟡 Средний</span>
+                <span class="risk-num">#8</span>
+                <span class="risk-title">Вознаграждение без указания НДС</span>
+              </div>
+              <div class="risk-norm">п. 3.1 договора · НК РФ ст. 168</div>
+              <div class="risk-rec">Не указано, включает ли сумма вознаграждения НДС. Риск доначисления налога и штрафов при проверке. Добавьте: «в т.ч. НДС 20%» или «НДС не облагается».</div>
+            </div>
+
+            <div class="risk-item mid" onclick="toast('📋 Открываю детальный анализ риска — субагентирование')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge mid">🟡 Средний</span>
+                <span class="risk-num">#9</span>
+                <span class="risk-title">Право субагентирования без согласования</span>
+              </div>
+              <div class="risk-norm">п. 3.4 договора · ст. 1009 ГК РФ</div>
+              <div class="risk-rec">Агент вправе привлекать субагентов без вашего ведома. Добавьте условие: «только с письменного согласия принципала».</div>
+            </div>
+
+            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — форс-мажор')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge low">🟢 Низкий</span>
+                <span class="risk-num">#10</span>
+                <span class="risk-title">Расплывчатый перечень форс-мажора</span>
+              </div>
+              <div class="risk-norm">п. 10 договора · ст. 401 ГК РФ</div>
+              <div class="risk-rec">Перечень форс-мажорных обстоятельств не соответствует стандарту МТПП. Рекомендую использовать типовой перечень с конкретными событиями.</div>
+            </div>
+
+            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — ЭДО')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge low">🟢 Низкий</span>
+                <span class="risk-num">#11</span>
+                <span class="risk-title">Нет упоминания ЭДО и ЭЦП</span>
+              </div>
+              <div class="risk-norm">п. 12 договора · 63-ФЗ</div>
+              <div class="risk-rec">Электронный документооборот и электронные подписи не предусмотрены. При дистанционном взаимодействии могут возникнуть проблемы с признанием документов.</div>
+            </div>
+
+            <div class="risk-item low" onclick="toast('📋 Открываю детальный анализ риска — реквизиты')">
+              <div class="risk-item-hdr">
+                <span class="risk-badge low">🟢 Низкий</span>
+                <span class="risk-num">#12</span>
+                <span class="risk-title">Нет обязанности уведомлять об изменении реквизитов</span>
+              </div>
+              <div class="risk-norm">п. 12.3 договора</div>
+              <div class="risk-rec">При смене банковских реквизитов агента вы можете оплатить «не туда» и остаться должником. Добавьте: уведомление за 5 рабочих дней с подтверждением получения.</div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Документы -->
         <div class="case-pane" id="cp-docs">
+          <div class="doc-upload-btn" onclick="toast('📎 Выберите файл — договор, письмо или любой документ по делу. Данные остаются на вашем устройстве')">
+            <div class="doc-upload-ico">📎</div>
+            <div class="doc-upload-txt">Загрузить документ в дело
+              <span>PDF, DOCX, JPG · до 50 МБ · данные остаются на вашем устройстве</span>
+            </div>
+          </div>
           <div style="max-width:700px">
             <div class="docrow" onclick="toast('Открываю исходный договор v1')">📄 Исходный договор <span class="ver">v1</span></div>
             <div class="docrow" onclick="toast('Открываю редакцию v2')">📝 Новая редакция <span class="ver">v2</span></div>
