@@ -4649,18 +4649,25 @@ function _rcAddTyping() {
 function _rcRemoveTyping() {
   var el = document.getElementById('rc-typing'); if (el) el.remove();
 }
-function _rcAddBubble(html, isUser) {
+function _rcAddBubble(content, isUser, isRawHtml) {
   var msgs = document.getElementById('rchat-msgs');
   if (!msgs) return;
   var row = document.createElement('div');
   row.className = 'hc-msg' + (isUser ? ' hc-user-msg' : '');
+  var inner = isRawHtml ? content : _rcEscape(content);
   if (!isUser) {
-    row.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble">' + html + '</div>';
+    row.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble">' + inner + '</div>';
   } else {
-    row.innerHTML = '<div class="hc-bubble">' + html + '</div>';
+    row.innerHTML = '<div class="hc-bubble">' + inner + '</div>';
   }
   msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
 }
+function _rcEscape(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>');
+}
+
 function _rcShowControls() {
   var r = document.getElementById('rchat-replies');
   var i = document.getElementById('rchat-input-row');
@@ -4732,11 +4739,24 @@ function initReturnChat() {
     context += (context ? ' ' : '') + 'Подписка <b>' + (sNames[subPlan]||'') + '</b> активна.';
   }
 
+  // Сохраняем контекст — чтобы ответить на "Что нужно сделать?"
+  if (urgentDL) {
+    _rcLastContext = {
+      type: 'deadline',
+      dl:   urgentDL.dl,
+      diff: urgentDL.diff,
+      caseName: urgentDL.dl.caseName || ''
+    };
+  }
+
   var callToAction = '';
   if (urgentDL) {
-    callToAction = '⚠️ Срочно: <b>' + urgentDL.dl.title + '</b> — через ' + urgentDL.diff
-      + (urgentDL.diff === 1 ? ' день' : urgentDL.diff < 5 ? ' дня' : ' дней')
-      + '. Нужно действовать.';
+    var diffLabel = urgentDL.diff < 0
+      ? 'просрочен на ' + Math.abs(urgentDL.diff) + ' дн.'
+      : urgentDL.diff === 0 ? 'сегодня'
+      : 'через ' + urgentDL.diff + (urgentDL.diff === 1 ? ' день' : urgentDL.diff < 5 ? ' дня' : ' дней');
+    callToAction = '⚠️ Срочно: <b>' + urgentDL.dl.title + '</b> — ' + diffLabel
+      + '. Напишите «что нужно сделать» — объясню конкретные шаги.';
   } else if (pendingRefund) {
     callToAction = 'Ваша заявка на возврат в обработке — ответим в течение 10 рабочих дней.';
   } else if (!credits && !subPlan) {
@@ -4783,6 +4803,115 @@ function initReturnChat() {
   }
 }
 
+// Контекст последнего сообщения Елены в returning chat
+// { type: 'deadline', dl: {title, type, date, quote, diff}, caseName }
+var _rcLastContext = null;
+
+// Конкретные шаги по типу срока
+var _DL_ACTIONS = {
+  payment: {
+    steps: [
+      'Проверьте реквизиты для оплаты в тексте договора',
+      'Проведите платёж — сохраните квитанцию или выписку',
+      'Направьте подтверждение оплаты контрагенту (скан/скриншот)',
+      'Если уже просрочено — платите немедленно, день просрочки = начисление пени'
+    ],
+    warn: 'Просрочка оплаты — основание для начисления пени и потенциального расторжения договора.'
+  },
+  notification: {
+    steps: [
+      'Составьте письменное уведомление (могу помочь — нажмите «Составить»)',
+      'Отправьте заказным письмом с уведомлением о вручении — это фиксирует дату',
+      'Продублируйте на email контрагента с запросом подтверждения получения',
+      'Сохраните чек об отправке и трек-номер'
+    ],
+    warn: 'Устное уведомление не имеет юридической силы — только письменное с подтверждением доставки.'
+  },
+  renewal: {
+    steps: [
+      'Решите: хотите продлить договор или нет?',
+      'Если НЕ продлеваете — направьте уведомление об отказе от продления до истечения срока',
+      'Если продлеваете — никаких действий не нужно, договор продлится автоматически',
+      'Проверьте условия пролонгации: на тех же условиях или изменятся?'
+    ],
+    warn: 'Пропустить срок уведомления = автоматическое продление на тех же условиях ещё на весь период.'
+  },
+  termination: {
+    steps: [
+      'Проверьте основание расторжения — оно должно быть в договоре или ГК РФ (ст. 450)',
+      'Составьте уведомление о расторжении с указанием основания и даты (могу помочь)',
+      'Направьте заказным письмом с уведомлением о вручении',
+      'Зафиксируйте передачу имущества / возврат предоплаты актом'
+    ],
+    warn: 'Расторжение без соблюдения порядка = риск иска о возмещении убытков.'
+  },
+  penalty: {
+    steps: [
+      'Зафиксируйте факт нарушения — скриншоты, переписка, акты',
+      'Рассчитайте размер пени по формуле из договора',
+      'Направьте претензию с требованием оплатить пени и основной долг',
+      'Установите срок ответа — 10–30 дней, затем иск'
+    ],
+    warn: 'Без письменной претензии суд может снизить неустойку по ст. 333 ГК РФ.'
+  },
+  other: {
+    steps: [
+      'Изучите конкретный пункт договора, к которому относится срок',
+      'Определите что именно нужно сделать: подписать, оплатить, уведомить или передать',
+      'Зафиксируйте исполнение письменно — акт, квитанция, письмо',
+      'Сохраните все подтверждения'
+    ],
+    warn: ''
+  }
+};
+
+function _getDlActionType(dl) {
+  if (!dl) return 'other';
+  var t = (dl.type || '').toLowerCase();
+  var title = (dl.title || '').toLowerCase();
+  if (/оплат|платёж|payment/.test(t + title))       return 'payment';
+  if (/уведомл|notification/.test(t + title))        return 'notification';
+  if (/пролонг|продлен|renewal/.test(t + title))     return 'renewal';
+  if (/расторж|termination/.test(t + title))         return 'termination';
+  if (/пен|штраф|penalty/.test(t + title))           return 'penalty';
+  return 'other';
+}
+
+function _buildDlAnswer(ctx) {
+  var dl = ctx.dl;
+  var actionType = _getDlActionType(dl);
+  var actions = _DL_ACTIONS[actionType] || _DL_ACTIONS.other;
+
+  var diffText = '';
+  if (dl.diff < 0)       diffText = '⚠️ Просрочен на ' + Math.abs(dl.diff) + ' дн.';
+  else if (dl.diff === 0) diffText = '🔴 Срок истекает сегодня';
+  else                    diffText = '🕐 Осталось ' + dl.diff + ' дн.';
+
+  var stepsHtml = actions.steps.map(function(s, i){
+    return '<div style="display:flex;gap:10px;margin-bottom:8px">' +
+      '<span style="background:var(--bg);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</span>' +
+      '<span style="font-size:14px;line-height:1.5">' + s + '</span></div>';
+  }).join('');
+
+  var warnHtml = actions.warn
+    ? '<div style="background:#fff5f7;border-left:3px solid #9f1239;border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:#6b7280;margin-top:10px">' + actions.warn + '</div>'
+    : '';
+
+  var ctaHtml =
+    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">' +
+      (actionType === 'notification' || actionType === 'termination'
+        ? '<button class="btn btn-p" style="padding:7px 14px;font-size:13px" onclick="go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)">✍️ Составить документ</button>'
+        : '') +
+      '<button class="btn btn-o" style="padding:7px 14px;font-size:13px" onclick="go(\'cabinet\');tab(\'sroki\')">📋 Все сроки</button>' +
+    '</div>';
+
+  return '<div class="nm">Елена</div>' +
+    '<b>' + dl.title + '</b> — ' + diffText +
+    (dl.quote ? '<div style="font-size:12px;color:#6b7280;font-style:italic;margin:6px 0 10px">' + dl.quote + '</div>' : '<br><br>') +
+    '<b>Что нужно сделать:</b><div style="margin-top:8px">' + stepsHtml + '</div>' +
+    warnHtml + ctaHtml;
+}
+
 function retChatSend() {
   var inp = document.getElementById('rchat-inp');
   if (!inp) return;
@@ -4792,18 +4921,75 @@ function retChatSend() {
   var i = document.getElementById('rchat-input-row');
   if (r) r.style.display = 'none'; if (i) i.style.display = 'none';
   _rcAddBubble(txt, true);
+
   var t = txt.toLowerCase();
+
+  // ── Вопрос о действии по активному контексту срока ──
+  var isActionQ = /что (нужно|делать|сделать)|как (быть|поступить|действовать)|помоги|что значит|объясни|расскажи подробн|дальше|следующий шаг/.test(t);
+  if (isActionQ && _rcLastContext && _rcLastContext.type === 'deadline') {
+    setTimeout(function(){
+      _rcAddTyping();
+      setTimeout(function(){
+        _rcRemoveTyping();
+        var html = _buildDlAnswer(_rcLastContext);
+        _rcAddBubble(html, false, true); // true = raw html
+        _rcShowControls();
+      }, 800);
+    }, 300);
+    return;
+  }
+
+  // ── Если API доступен — спрашиваем Елену реально ──
+  var isLegalQ = !/баланс|кредит|оплат|мои дела|кабинет/.test(t);
+  if (isLegalQ && _apiAvailable) {
+    setTimeout(function(){
+      _rcAddTyping();
+      var ctx = _rcLastContext && _rcLastContext.type === 'deadline'
+        ? '\n[Контекст: клиент спрашивает о сроке «' + _rcLastContext.dl.title + '» по договору ' + (_rcLastContext.caseName || '') + ']'
+        : '';
+      fetch(API_BASE + '/api/elena', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          text: txt + ctx,
+          intent: 'question',
+          history: _chatHistory.slice(-6),
+          deadlines: _contractDeadlines
+        })
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        _rcRemoveTyping();
+        var reply = data.reply || '...';
+        _chatHistory.push({role:'user', content: txt});
+        _chatHistory.push({role:'assistant', content: reply});
+        _rcAddBubble(reply, false);
+        _rcShowControls();
+      })
+      .catch(function(){
+        _rcRemoveTyping();
+        _rcFallbackReply(t);
+      });
+    }, 300);
+    return;
+  }
+
+  // ── Fallback — шаблонные редиректы ──
+  _rcFallbackReply(t);
+}
+
+function _rcFallbackReply(t) {
   var intent = 'question';
-  if (/срок|уведомл|дедлайн/.test(t)) intent = 'deadlines';
-  else if (/баланс|кредит|оплат/.test(t)) intent = 'pay';
+  if (/срок|уведомл|дедлайн/.test(t))         intent = 'deadlines';
+  else if (/баланс|кредит|оплат/.test(t))       intent = 'pay';
   else if (/новый|загруз|проверит|договор/.test(t)) intent = 'new';
-  else if (/дела|кабинет/.test(t)) intent = 'cabinet';
+  else if (/дела|кабинет/.test(t))              intent = 'cabinet';
   var replies = {
     deadlines: { elena: 'Открываю ваши сроки — всё самое срочное там 📋', action: function(){ go('cabinet'); tab('sroki'); } },
-    pay:       { elena: 'Показываю баланс и варианты пополнения 💳', action: function(){ go('pay'); } },
-    new:       { elena: 'Отличное решение! Загружайте новый документ — разберём 🔍', action: function(){ go('elena'); } },
+    pay:       { elena: 'Показываю варианты пополнения 💳', action: function(){ go('pay'); } },
+    new:       { elena: 'Загружайте новый документ — разберём 🔍', action: function(){ go('elena'); } },
     cabinet:   { elena: 'Открываю ваши дела 📂', action: function(){ go('cabinet'); } },
-    question:  { elena: 'Хорошо! Перехожу к Елене — она ответит на любой юридический вопрос 💬', action: function(){ go('elena'); } }
+    question:  { elena: 'Перехожу к полному чату — там отвечу подробнее 💬', action: function(){ go('elena'); } }
   };
   var resp = replies[intent] || replies.question;
   setTimeout(function(){
@@ -4811,7 +4997,8 @@ function retChatSend() {
     setTimeout(function(){
       _rcRemoveTyping();
       _rcAddBubble(resp.elena, false);
-      setTimeout(resp.action, 900);
+      if (resp.action) setTimeout(resp.action, 900);
+      _rcShowControls();
     }, 700);
   }, 300);
 }
