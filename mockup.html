@@ -4839,9 +4839,9 @@ var _DL_ACTIONS = {
   notification: {
     steps: [
       'Составьте письменное уведомление (могу помочь — нажмите «Составить»)',
-      'Отправьте заказным письмом с уведомлением о вручении — это фиксирует дату',
+      'Отправьте заказным письмом с уведомлением о вручении — это фиксирует дату <button onclick="event.stopPropagation();_showPostalForm()" style="background:var(--tint);color:var(--bg);border:1.5px solid rgba(159,18,57,.25);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;vertical-align:middle;margin-left:6px">📄 Бланк ф.119</button>',
       'Продублируйте на email контрагента с запросом подтверждения получения',
-      'Сохраните чек об отправке и трек-номер'
+      'Введите трек-номер после отправки:<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap"><input id="postal-track-input" placeholder="14 цифр..." maxlength="14" style="border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;width:160px;outline:none" oninput="_filterDigits(this)" /><button onclick="_saveTrackNumber()" style="background:var(--bg);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📮 Отследить</button></div>'
     ],
     warn: 'Устное уведомление не имеет юридической силы — только письменное с подтверждением доставки.'
   },
@@ -4858,7 +4858,7 @@ var _DL_ACTIONS = {
     steps: [
       'Проверьте основание расторжения — оно должно быть в договоре или ГК РФ (ст. 450)',
       'Составьте уведомление о расторжении с указанием основания и даты (могу помочь)',
-      'Направьте заказным письмом с уведомлением о вручении',
+      'Направьте заказным письмом с уведомлением о вручении <button onclick="event.stopPropagation();_showPostalForm()" style="background:var(--tint);color:var(--bg);border:1.5px solid rgba(159,18,57,.25);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;vertical-align:middle;margin-left:6px">📄 Бланк ф.119</button>',
       'Зафиксируйте передачу имущества / возврат предоплаты актом'
     ],
     warn: 'Расторжение без соблюдения порядка = риск иска о возмещении убытков.'
@@ -4944,6 +4944,103 @@ function _buildDlAnswer(ctx) {
     '<b>Что нужно сделать:</b><div style="margin-top:8px">' + stepsHtml + '</div>' +
     warnHtml + ctaHtml;
 }
+
+// ── ПОЧТА РОССИИ: бланк ф.119 и трекинг ──────────────────────────────────────
+
+function _filterDigits(el) {
+  el.value = el.value.replace(/[^0-9]/g, '');
+}
+
+function _showPostalForm() {
+  var dlName = (_rcLastContext && _rcLastContext.dl) ? _rcLastContext.dl.title : 'Уведомление';
+  var caseName = (_rcLastContext && _rcLastContext.caseName) ? _rcLastContext.caseName : '';
+  var about = dlName + (caseName ? ' по договору «' + caseName + '»' : '');
+
+  // Pre-fill recipient from contract context (в проде — из разбора договора)
+  var recipient = (_rcLastContext && _rcLastContext.dl && _rcLastContext.dl.party)
+    ? _rcLastContext.dl.party : '';
+
+  var el = document.getElementById('postal-form-overlay');
+  if (!el) return;
+  document.getElementById('pf-about').value = about;
+  document.getElementById('pf-recipient').value = recipient;
+  el.classList.add('on');
+}
+
+function _postalClose() {
+  var el = document.getElementById('postal-form-overlay');
+  if (el) el.classList.remove('on');
+}
+
+function _postalPrint() {
+  var recipient   = document.getElementById('pf-recipient').value   || '____________________';
+  var recAddr     = document.getElementById('pf-rec-addr').value     || '____________________';
+  var sender      = document.getElementById('pf-sender').value       || '____________________';
+  var sendAddr    = document.getElementById('pf-send-addr').value    || '____________________';
+  var about       = document.getElementById('pf-about').value        || '____________________';
+
+  var w = window.open('','_blank','width=700,height=600');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<title>Бланк ф.119 — Уведомление о вручении</title>'+
+    '<style>'+
+    'body{font-family:Arial,sans-serif;font-size:13px;padding:24px;max-width:600px;margin:0 auto;color:#111}'+
+    'h2{font-size:16px;text-align:center;margin-bottom:4px}'+
+    '.sub{text-align:center;font-size:11px;color:#666;margin-bottom:20px}'+
+    '.row{border-bottom:1px solid #111;min-height:24px;margin-bottom:10px;padding-bottom:3px}'+
+    '.lbl{font-size:10px;color:#555;margin-bottom:2px}'+
+    '.val{font-size:13px}'+
+    '.box{border:1px solid #111;padding:8px;margin-bottom:10px;min-height:40px;font-size:11px;color:#888}'+
+    '.footer{margin-top:24px;font-size:10px;color:#888;border-top:1px solid #ccc;padding-top:10px}'+
+    '.logo{text-align:center;font-size:10px;color:#9F1239;font-weight:700;margin-bottom:16px;letter-spacing:1px}'+
+    '@media print{.no-print{display:none}}'+
+    '</style></head><body>'+
+    '<div class="logo">ЗАЩИТА · AI-юридический помощник · wasrusgen1.ru/protect</div>'+
+    '<h2>УВЕДОМЛЕНИЕ О ВРУЧЕНИИ</h2>'+
+    '<div class="sub">Форма ф.119 · Почтовые правила РФ</div>'+
+    '<div class="lbl">Кому (получатель)</div><div class="row val">'+recipient+'</div>'+
+    '<div class="lbl">Адрес получателя</div><div class="row val">'+recAddr+'</div>'+
+    '<div class="lbl">О вложении</div><div class="row val">'+about+'</div>'+
+    '<div style="height:16px"></div>'+
+    '<div class="lbl">Отправитель</div><div class="row val">'+sender+'</div>'+
+    '<div class="lbl">Адрес отправителя (для возврата уведомления)</div><div class="row val">'+sendAddr+'</div>'+
+    '<div style="height:16px"></div>'+
+    '<div class="box">Для служебных отметок почтового отделения:<br><br><br></div>'+
+    '<div class="footer">'+
+    'Дата вручения: _____________ &nbsp;&nbsp; Подпись получателя: _____________<br>'+
+    'Сгенерировано сервисом ЗАЩИТА · i@wasrusgen.ru · Отчётный документ хранить вместе с делом'+
+    '</div>'+
+    '<div style="margin-top:20px;text-align:center" class="no-print">'+
+    '<button onclick="window.print()" style="background:#9f1239;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">🖨️ Распечатать бланк</button>'+
+    '</div>'+
+    '</body></html>');
+  w.document.close();
+}
+
+function _saveTrackNumber() {
+  var input = document.getElementById('postal-track-input');
+  var num = input ? input.value.replace(/\D/g,'') : '';
+  if (!num || num.length < 8) { toast('Введите трек-номер (минимум 8 цифр)'); return; }
+
+  // Сохраняем в контекст дела
+  if (_rcLastContext) _rcLastContext.trackNumber = num;
+
+  var url = 'https://www.pochta.ru/tracking#' + num;
+  var html = '<div class="nm">Елена</div>' +
+    'Трек-номер <b>' + num + '</b> сохранён в дело 📦<br><br>' +
+    '<a href="' + url + '" target="_blank" ' +
+    'style="display:inline-flex;align-items:center;gap:7px;background:var(--tint);color:var(--bg);'+
+    'border:1.5px solid rgba(159,18,57,.25);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;text-decoration:none">'+
+    '📮 Отследить на Почте России →</a>'+
+    '<div style="font-size:12px;color:var(--mut);margin-top:10px">'+
+    'Когда придёт бумажное уведомление о вручении — это ваше <b>официальное подтверждение даты</b>. '+
+    'Сохраните его как документ по делу.</div>';
+
+  _rcAddBubble(html, false, true);
+  _rcShowControls();
+  if (input) input.value = '';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function _rcTransferToElena(intent) {
   // Переносим контекст дедлайна в полный экран Елены
@@ -5835,4 +5932,66 @@ function tab(name){
     </div>
   </div>
 </div>
+
+<!-- ── МОДАЛКА: БЛАНК Ф.119 (Почта России) ── -->
+<style>
+#postal-form-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:flex-end;justify-content:center}
+#postal-form-overlay.on{display:flex}
+</style>
+<div id="postal-form-overlay" onclick="if(event.target===this)_postalClose()">
+  <div onclick="event.stopPropagation()"
+    style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:22px 20px 32px;position:relative;box-shadow:0 -8px 40px rgba(0,0,0,.18);animation:slideUp .22s ease;max-height:90vh;overflow-y:auto">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--ink)">📄 Бланк ф.119</div>
+        <div style="font-size:12px;color:var(--mut)">Уведомление о вручении · Почта России</div>
+      </div>
+      <button onclick="_postalClose()" style="background:var(--surf);border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;color:var(--mut)">✕</button>
+    </div>
+
+    <div style="background:var(--tint);border-radius:10px;padding:10px 13px;font-size:12px;color:var(--dark);margin-bottom:16px;line-height:1.5">
+      Заполните поля — бланк откроется готовым к печати. Прикрепите к письму на почте, сотрудник заполнит трек-номер.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">ПОЛУЧАТЕЛЬ (контрагент)</label>
+        <input id="pf-recipient" placeholder="ООО Ромашка / Иванов Иван Иванович"
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">АДРЕС ПОЛУЧАТЕЛЯ</label>
+        <input id="pf-rec-addr" placeholder="119034, г. Москва, ул. Пречистенка, д. 1"
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:4px">О ВЛОЖЕНИИ</label>
+        <input id="pf-about" placeholder="Уведомление о расторжении договора аренды..."
+          style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+      </div>
+      <div style="border-top:1px solid var(--line);padding-top:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--slate);margin-bottom:8px">ВАШИ ДАННЫЕ (для возврата уведомления)</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input id="pf-sender" placeholder="Ваше имя / название организации"
+            style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+          <input id="pf-send-addr" placeholder="Ваш почтовый адрес"
+            style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--ink)">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button onclick="_postalPrint()"
+        style="flex:1;background:var(--bg);color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        🖨️ Открыть и распечатать
+      </button>
+      <button onclick="_postalClose()"
+        style="background:var(--surf);color:var(--mut);border:1.5px solid var(--line);border-radius:11px;padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+        Отмена
+      </button>
+    </div>
+  </div>
+</div>
+
 </body></html>
