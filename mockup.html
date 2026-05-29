@@ -3821,10 +3821,36 @@ function elenaIntent(intent) {
     return;
   }
 
-  // create — Елена сразу спрашивает "Какой документ?" без вступлений
+  // create — Елена начинает разговор, НЕ показывает пикер
+  // Пикер (4 карточки) появляется только если тип документа неизвестен и пользователь уже ответил
   if (intent === 'create') {
-    document.getElementById('el-step1').style.display = 'none';
+    var step1c = document.getElementById('el-step1');
+    if (step1c) step1c.style.display = 'none';
     var wrap = document.querySelector('.chatwrap');
+    if (!wrap) return;
+    // Добавляем сообщение Елены + поле ввода
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'msg';
+    msgDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>' +
+      'Составлю документ. Расскажите коротко: кто стороны и о чём договариваетесь?' +
+      '<div style="color:var(--mut);font-size:12px;margin-top:4px">Например: «ИП оказывает услуги дизайна физлицу» или «аренда офиса между двумя ООО»</div>' +
+      '</div></div>';
+    wrap.appendChild(msgDiv);
+    _elenaShowInput();
+    // Меняем placeholder на нужный
+    setTimeout(function(){
+      var inp = document.getElementById('intake-custom-cont');
+      if (inp) inp.placeholder = 'Опишите кто стороны и о чём договор...';
+    }, 100);
+    return;
+  }
+
+  // _LEGACY_PICKER — показывается только при явном вызове (устаревший путь)
+  if (intent === 'create_picker') {
+    var step1x = document.getElementById('el-step1');
+    if (step1x) step1x.style.display = 'none';
+    var wrapx = document.querySelector('.chatwrap');
     var old = document.getElementById('el-create-picker'); if (old) old.remove();
     var div = document.createElement('div');
     div.id = 'el-create-picker';
@@ -3845,7 +3871,7 @@ function elenaIntent(intent) {
           '<div class="dt-ico">✏️</div><div class="dt-lbl">Другое</div>' +
           '<div class="dt-sub">расписка, соглашение, акт, заявление</div></div>' +
       '</div>';
-    if (wrap) { wrap.appendChild(div); div.scrollIntoView({behavior:'smooth'}); }
+    if (wrapx) { wrapx.appendChild(div); div.scrollIntoView({behavior:'smooth'}); }
     return;
   }
 
