@@ -1415,6 +1415,17 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
   </div>
   <div class="actbar" id="el-actbar" style="display:none"><div class="inner"><button class="btn btn-p" style="flex:1" onclick="go('pay')">Получить полный разбор</button></div></div>
+
+  <!-- Постоянный чат-бар — показывается когда el-step1 скрыт -->
+  <div id="el-chat-bar" style="display:none;position:sticky;bottom:0;background:#fff;border-top:1.5px solid var(--line);padding:12px 18px;z-index:10">
+    <div class="elena-dialog-row">
+      <input class="elena-main-inp" id="el-chat-inp"
+        placeholder="Напишите вопрос или описание ситуации..."
+        onkeydown="if(event.key==='Enter')_elChatSend()">
+      <button class="voice-btn-sm" onclick="toggleVoice('el-chat-inp')" title="Голосовой ввод">🎙</button>
+      <button class="elena-go-btn" onclick="_elChatSend()">→</button>
+    </div>
+  </div>
 </section>
 
 <!-- ═ 3. ОПЛАТА ═ -->
@@ -5891,58 +5902,62 @@ function _rcTransferToElena(intent) {
   }
 }
 
-// Показывает поле ввода в chatwrap без picker'а (для продолжения разговора после deadline-перехода)
+// Показывает постоянный чат-бар внизу экрана Елены
 function _elenaShowInput() {
-  var wrap = document.querySelector('.chatwrap') || document.getElementById('el-step1');
-  if (!wrap) return;
-  var old = document.getElementById('el-continue-input');
-  if (old) { var oi = old.querySelector('input'); if (oi) { oi.focus(); } return; }
-  var div = document.createElement('div');
-  div.id = 'el-continue-input';
-  div.className = 'elena-dialog-wrap';
-  div.style.cssText = 'margin-top:12px;margin-bottom:80px';
-  div.innerHTML = '<div class="elena-dialog-row">'
-    + '<input class="elena-main-inp" id="intake-custom-cont" placeholder="Уточните детали..." '
-    + 'onkeydown="if(event.key===\'Enter\')_elenaContinueSend()">'
-    + '<button class="voice-btn-sm" onclick="toggleVoice(\'intake-custom-cont\')" title="Голосовой ввод">🎙</button>'
-    + '<button class="elena-go-btn" onclick="_elenaContinueSend()">→</button>'
-    + '</div>';
-  wrap.appendChild(div);
-  div.scrollIntoView({behavior:'smooth'});
-  setTimeout(function(){ var i = document.getElementById('intake-custom-cont'); if (i) i.focus(); }, 300);
+  var bar = document.getElementById('el-chat-bar');
+  if (bar) {
+    bar.style.display = '';
+    setTimeout(function(){
+      var inp = document.getElementById('el-chat-inp');
+      if (inp) inp.focus();
+    }, 200);
+  }
 }
 
-function _elenaContinueSend() {
-  var inp = document.getElementById('intake-custom-cont');
+// Отправка из чат-бара
+function _elChatSend() {
+  var inp = document.getElementById('el-chat-inp');
   if (!inp) return;
   var txt = inp.value.trim(); if (!txt) return;
   inp.value = '';
-  var wrap = document.querySelector('.chatwrap') || document.getElementById('el-step1');
+
+  var wrap = document.querySelector('.chatwrap');
   if (!wrap) return;
+
   // Пузырь пользователя
   var uDiv = document.createElement('div');
   uDiv.className = 'msg msg-user';
-  uDiv.innerHTML = '<div class="bubble user">' + txt.replace(/</g,'&lt;') + '</div>';
-  var cont = document.getElementById('el-continue-input');
-  if (cont) wrap.insertBefore(uDiv, cont); else wrap.appendChild(uDiv);
-  if (cont) cont.remove();
+  uDiv.innerHTML = '<div class="bubble user">' + txt.replace(/</g, '&lt;') + '</div>';
+  wrap.appendChild(uDiv);
+  wrap.scrollTop = wrap.scrollHeight;
+
   // Елена отвечает
-  _hcAddTyping();
-  _elenaApi(txt, 'create', function(apiReply, apiActions) {
-    _hcRemoveTyping();
-    var reply = apiReply || 'Уточните, пожалуйста, детали документа.';
+  var tDiv = document.createElement('div');
+  tDiv.className = 'msg'; tDiv.id = 'el-chat-typing';
+  tDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '<div class="hc-typing-dots"><span></span><span></span><span></span></div></div>';
+  wrap.appendChild(tDiv);
+  wrap.scrollTop = wrap.scrollHeight;
+
+  _elenaApi(txt, 'question', function(apiReply, apiActions) {
+    var t = document.getElementById('el-chat-typing'); if (t) t.remove();
+    var reply = apiReply || 'Уточните, пожалуйста.';
     _chatHistory.push({role:'user', content: txt});
     _chatHistory.push({role:'assistant', content: reply});
+    _saveHistory();
+
     var eDiv = document.createElement('div');
     eDiv.className = 'msg';
-    eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
-      + '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
+    eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
     wrap.appendChild(eDiv);
     if (apiActions && apiActions.length) _renderElenaActions(apiActions, wrap);
     wrap.scrollTop = wrap.scrollHeight;
-    _elenaShowInput();
   });
 }
+
+// _elenaContinueSend → заменён на _elChatSend через постоянный чат-бар
 
 function _getElenaCtxReply(intent, dl) {
   var name = dl.title || 'срок';
