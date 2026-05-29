@@ -5361,9 +5361,15 @@ function _rcTransferToElena(intent) {
         wrap.appendChild(eDiv);
         wrap.scrollTop = wrap.scrollHeight;
 
-        // Показываем поле ввода Елены
+        // Показываем поле ввода Елены.
+        // Если пришли из дедлайна с intent=create — НЕ показываем generic picker
+        // (Елена уже сказала что за документ нужен). Просто открываем чат-поле.
         setTimeout(function(){
-          elenaIntent(intent);
+          if (intent === 'create' && _rcLastContext && _rcLastContext.dl) {
+            _elenaShowInput();  // только поле ввода, без picker
+          } else {
+            elenaIntent(intent);
+          }
         }, 600);
       });
     }, 120);
@@ -5373,9 +5379,71 @@ function _rcTransferToElena(intent) {
   }
 }
 
+// Показывает поле ввода в chatwrap без picker'а (для продолжения разговора после deadline-перехода)
+function _elenaShowInput() {
+  var wrap = document.querySelector('.chatwrap') || document.getElementById('el-step1');
+  if (!wrap) return;
+  var old = document.getElementById('el-continue-input');
+  if (old) { var oi = old.querySelector('input'); if (oi) { oi.focus(); } return; }
+  var div = document.createElement('div');
+  div.id = 'el-continue-input';
+  div.className = 'elena-dialog-wrap';
+  div.style.cssText = 'margin-top:12px;margin-bottom:80px';
+  div.innerHTML = '<div class="elena-dialog-row">'
+    + '<input class="elena-main-inp" id="intake-custom-cont" placeholder="Уточните детали..." '
+    + 'onkeydown="if(event.key===\'Enter\')_elenaContinueSend()">'
+    + '<button class="voice-btn-sm" onclick="toggleVoice(\'intake-custom-cont\')" title="Голосовой ввод">🎙</button>'
+    + '<button class="elena-go-btn" onclick="_elenaContinueSend()">→</button>'
+    + '</div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){ var i = document.getElementById('intake-custom-cont'); if (i) i.focus(); }, 300);
+}
+
+function _elenaContinueSend() {
+  var inp = document.getElementById('intake-custom-cont');
+  if (!inp) return;
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  var wrap = document.querySelector('.chatwrap') || document.getElementById('el-step1');
+  if (!wrap) return;
+  // Пузырь пользователя
+  var uDiv = document.createElement('div');
+  uDiv.className = 'msg msg-user';
+  uDiv.innerHTML = '<div class="bubble user">' + txt.replace(/</g,'&lt;') + '</div>';
+  var cont = document.getElementById('el-continue-input');
+  if (cont) wrap.insertBefore(uDiv, cont); else wrap.appendChild(uDiv);
+  if (cont) cont.remove();
+  // Елена отвечает
+  _hcAddTyping();
+  _elenaApi(txt, 'create', function(apiReply) {
+    _hcRemoveTyping();
+    var reply = apiReply || 'Уточните, пожалуйста, детали документа.';
+    _chatHistory.push({role:'user', content: txt});
+    _chatHistory.push({role:'assistant', content: reply});
+    var eDiv = document.createElement('div');
+    eDiv.className = 'msg';
+    eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
+      + '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
+    wrap.appendChild(eDiv);
+    wrap.scrollTop = wrap.scrollHeight;
+    _elenaShowInput(); // снова показываем поле для следующего ответа
+  });
+}
+
 function _getElenaCtxReply(intent, dl) {
   var name = dl.title || 'срок';
-  if (intent === 'create')   return 'Понял — нужно составить документ по сроку «' + name + '». Уточните детали — подготовлю.';
+  if (intent === 'create') {
+    // Определяем что за документ нужен из названия дедлайна
+    var n = (name || '').toLowerCase();
+    if (/уведомит|уведомлен/.test(n))
+      return 'Понял — нужно подготовить уведомление по сроку «' + name + '». Кому адресуем и что именно сообщаем?';
+    if (/претензи/.test(n))
+      return 'Подготовлю претензию по сроку «' + name + '». Уточните: какая сумма требования и что именно нарушено?';
+    if (/оплат|оплачен/.test(n))
+      return 'По сроку «' + name + '» — нужно подготовить документ об оплате. Это счёт, акт или что-то другое?';
+    return 'Понял — нужно составить документ по сроку «' + name + '». Опишите что именно — подготовлю.';
+  }
   if (intent === 'dispute')  return 'Разберёмся со сроком «' + name + '». Расскажите что именно произошло — дам конкретный план.';
   return 'Продолжаем по сроку «' + name + '». Что именно хотите уточнить?';
 }
