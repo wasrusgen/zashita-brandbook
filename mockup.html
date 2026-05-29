@@ -2744,6 +2744,8 @@ function startScan() {
             done: false
           };
         });
+        // Сохраняем в localStorage — переживёт перезагрузку страницы
+        try { localStorage.setItem('zashita_deadlines', JSON.stringify(_DEADLINES)); } catch(e){}
       }
     })
     .catch(function(e){ console.warn('API /deadlines:', e); });
@@ -2819,6 +2821,7 @@ function _setSignedDate(mode) {
         return {id:idx+100, caseId:'case-new', caseName:(data.meta&&data.meta.type)||'Договор',
                 title:dl.title, type:dl.type||'Другое', date:dl.date, quote:dl.quote||'', done:false};
       });
+      try { localStorage.setItem('zashita_deadlines', JSON.stringify(_DEADLINES)); } catch(e){}
       // Показываем что горит
       var hot = data.deadlines.filter(function(dl){ return dl.status === 'overdue' || dl.status === 'critical'; });
       if (hot.length) {
@@ -3959,28 +3962,15 @@ function elenaCreate(type) {
 //   "Извлеки все сроки из договора: даты оплат, уведомлений, пролонгации,
 //    расторжения, штрафных триггеров. Формат: [{title, type, date, quote}]"
 
-var _DEADLINES = [
-  { id:1, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
-    title:'Оплата аренды за май',
-    type:'Оплата', date:'2026-05-25',
-    quote:'«Арендная плата вносится не позднее 25-го числа текущего месяца»',
-    done:false },
-  { id:2, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
-    title:'Уведомить арендодателя о непродлении',
-    type:'Уведомление', date:'2026-06-04',
-    quote:'«Сторона обязана уведомить о намерении не продлевать договор не менее чем за 30 дней»',
-    done:false },
-  { id:3, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
-    title:'Плановое продление договора',
-    type:'Пролонгация', date:'2026-07-01',
-    quote:'«Договор пролонгируется автоматически на 12 месяцев при отсутствии уведомления»',
-    done:false },
-  { id:4, caseId:'case-kitchen', caseName:'Кухня · Договор аренды',
-    title:'Оплата обеспечительного депозита (возврат)',
-    type:'Оплата', date:'2026-07-15',
-    quote:'«Обеспечительный платёж возвращается в течение 45 дней после окончания аренды»',
-    done:false },
-];
+// Дедлайны загружаются из localStorage (сохраняются после анализа договора).
+// Демо-данные НЕ показываются реальным пользователям.
+var _DEADLINES = (function() {
+  try {
+    var saved = localStorage.getItem('zashita_deadlines');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return []; // новый пользователь — пустой список
+})();
 
 var _dlFilter = 'all';
 var _dlDone = new Set();
@@ -4578,9 +4568,10 @@ function _buildElenaContext() {
 // Парсит [ДЕЙСТВИЯ: ...] из ответа Елены и возвращает {text, actions[]}
 function _parseElenaActions(reply) {
   if (!reply) return { text: reply, actions: [] };
-  var match = reply.match(/\[ДЕЙСТВИЯ:\s*([^\]]+)\]/);
+  // Ищем [ДЕЙСТВИЯ:...] — возможно обёрнут в ** ** или другой markdown
+  var match = reply.match(/\*{0,2}\[ДЕЙСТВИЯ:\s*([^\]]+)\]\*{0,2}/);
   if (!match) return { text: reply, actions: [] };
-  var text = reply.replace(match[0], '').trim();
+  var text = reply.replace(match[0], '').replace(/\n{3,}/g, '\n\n').trim();
   var actions = match[1].split('·').map(function(a){ return a.trim(); }).filter(Boolean);
   return { text: text, actions: actions };
 }
