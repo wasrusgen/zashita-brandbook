@@ -2205,13 +2205,50 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         <div class="dl-list" id="dl-list"></div>
       </div></div>
       <!-- Шаблоны -->
-      <div class="tabpane" id="p-shab"><div class="main-body"><div class="crumb">Кабинет</div><h1>Шаблоны</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg"><div class="et"><b>Готовые документы — заполню под ваш случай.</b> Составлять с нуля не нужно 💛</div></div>
-        <div class="tpls">
-          <div class="tpl" onclick="toast('✍️ Заполняю «Протокол разногласий» под ваш договор — Елена рядом')"><div class="ti">📝</div><div class="tn">Протокол разногласий</div><div class="td">убрать невыгодные пункты</div></div>
-          <div class="tpl" onclick="toast('✍️ Заполняю «Претензию» под ваш случай — оплата / неустойка')"><div class="ti">✉️</div><div class="tn">Претензия</div><div class="td">оплата / неустойка</div></div>
-          <div class="tpl" onclick="toast('✍️ Заполняю «Ответ на претензию» — отобьём требование по закону')"><div class="ti">🛡️</div><div class="tn">Ответ на претензию</div><div class="td">отбить требование</div></div>
-          <div class="tpl" onclick="toast('✍️ Заполняю «Расторжение» — выйдем без потерь')"><div class="ti">🚪</div><div class="tn">Расторжение</div><div class="td">выйти без потерь</div></div>
+      <div class="tabpane" id="p-shab"><div class="main-body">
+        <div class="crumb">Кабинет</div><h1>Шаблоны</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg">
+          <div class="et"><b>Заполню под ваш случай автоматически.</b> Данные из ваших договоров — уточню только что нужно 💛</div>
+        </div>
+
+        <!-- Контекстные шаблоны — рендерятся динамически -->
+        <div id="shab-context" style="margin-bottom:16px"></div>
+
+        <!-- Все шаблоны -->
+        <div class="elena-q-lbl" style="margin-bottom:10px">Все шаблоны:</div>
+        <div class="tpls" id="shab-all">
+          <div class="tpl" onclick="_startTemplate('notice_no_renewal')">
+            <div class="ti">📬</div><div class="tn">Уведомление о непродлении</div>
+            <div class="td">аренда · за 30 дней до окончания</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('claim_payment')">
+            <div class="ti">✉️</div><div class="tn">Претензия об оплате</div>
+            <div class="td">взыскать долг · ст. 395 ГК</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('claim_quality')">
+            <div class="ti">⚠️</div><div class="tn">Претензия о качестве</div>
+            <div class="td">товар / работы · ЗоЗПП / ст. 723 ГК</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('response_claim')">
+            <div class="ti">🛡️</div><div class="tn">Ответ на претензию</div>
+            <div class="td">отбить требование · с аргументами</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('deposit_return')">
+            <div class="ti">💰</div><div class="tn">Требование о возврате депозита</div>
+            <div class="td">после окончания аренды</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('termination_agreement')">
+            <div class="ti">🚪</div><div class="tn">Соглашение о расторжении</div>
+            <div class="td">по соглашению сторон · без суда</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('act_acceptance')">
+            <div class="ti">✅</div><div class="tn">Акт приёмки-передачи</div>
+            <div class="td">подряд / услуги · фиксируем факт</div>
+          </div>
+          <div class="tpl" onclick="_startTemplate('power_of_attorney')">
+            <div class="ti">📑</div><div class="tn">Доверенность</div>
+            <div class="td">в суд · на авто · для сделок</div>
+          </div>
         </div>
       </div></div>
       <!-- Составить документ -->
@@ -4279,6 +4316,260 @@ function _fmtDate(dateStr) {
   var m = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
   var p = dateStr.split('-');
   return p[2].replace(/^0/,'') + ' ' + m[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+// ── ШАБЛОНЫ — контекст + генерация ──────────────────────────────────────────
+
+var _TEMPLATE_META = {
+  notice_no_renewal: { icon:'📬', name:'Уведомление о непродлении', triggers:['аренда','непродлени','уведомит'] },
+  claim_payment:     { icon:'✉️', name:'Претензия об оплате',       triggers:['не платит','долг','оплат','задолженн'] },
+  claim_quality:     { icon:'⚠️', name:'Претензия о качестве',      triggers:['качеств','брак','дефект','неисправ'] },
+  deposit_return:    { icon:'💰', name:'Требование о возврате депозита', triggers:['депозит','обеспечительн'] },
+  termination_agreement: { icon:'🚪', name:'Соглашение о расторжении', triggers:['расторг','выйти'] },
+};
+
+// Рендерит контекстные шаблоны при открытии вкладки
+function renderContextTemplates() {
+  var el = document.getElementById('shab-context');
+  if (!el) return;
+
+  var suggested = [];
+
+  // 1. Из активных дедлайнов
+  (_DEADLINES || []).forEach(function(d) {
+    if (d.done) return;
+    var t = (d.title || '').toLowerCase();
+    Object.keys(_TEMPLATE_META).forEach(function(key) {
+      var meta = _TEMPLATE_META[key];
+      if (meta.triggers.some(function(tr){ return t.includes(tr); })) {
+        var st = _dlStatus(d.date);
+        if (st.days <= 14) { // только срочные
+          suggested.push({ key: key, source: 'deadline', dl: d, urgency: st });
+        }
+      }
+    });
+  });
+
+  // 2. Из истории чата
+  var history = _chatHistory.slice(-20);
+  var histText = history.map(function(m){ return m.content || ''; }).join(' ').toLowerCase();
+  Object.keys(_TEMPLATE_META).forEach(function(key) {
+    var meta = _TEMPLATE_META[key];
+    var alreadyIn = suggested.some(function(s){ return s.key === key; });
+    if (!alreadyIn && meta.triggers.some(function(tr){ return histText.includes(tr); })) {
+      suggested.push({ key: key, source: 'chat' });
+    }
+  });
+
+  if (!suggested.length) { el.innerHTML = ''; return; }
+
+  var html = '<div class="elena-q-lbl" style="margin-bottom:10px">💡 Рекомендую для вашей ситуации:</div>' +
+    '<div class="tpls">';
+
+  suggested.slice(0, 3).forEach(function(s) {
+    var meta = _TEMPLATE_META[s.key];
+    var badge = '';
+    if (s.source === 'deadline' && s.urgency) {
+      var cls = s.urgency.cls === 'overdue' ? 'crit' : s.urgency.cls === 'soon' ? 'warn' : 'ok';
+      badge = '<span class="risk-badge ' + cls + '" style="font-size:10px;margin-left:6px">' +
+              s.urgency.badge + '</span>';
+    } else if (s.source === 'chat') {
+      badge = '<span style="font-size:10px;color:var(--mut);margin-left:6px">из разговора</span>';
+    }
+    html += '<div class="tpl" style="border-color:var(--bg)" onclick="_startTemplate(\'' + s.key + '\')">' +
+      '<div class="ti">' + meta.icon + '</div>' +
+      '<div class="tn">' + meta.name + badge + '</div>' +
+      '<div class="td">Нажмите — Елена уточнит и заполнит</div>' +
+      '</div>';
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// Запускает флоу: уточнение → генерация
+var _tplCurrent = null; // текущий шаблон в процессе заполнения
+
+function _startTemplate(templateKey) {
+  var meta = _TEMPLATE_META[templateKey] || { name: templateKey, icon: '📄' };
+  _tplCurrent = { key: templateKey, parties: {}, contract_data: {}, extra: '' };
+
+  // Собираем что уже знаем
+  var contracts = _getContracts();
+  var ctx = _buildElenaContext();
+  var postalData = typeof _postalData !== 'undefined' ? _postalData : null;
+
+  // Пытаемся предзаполнить из данных клиента
+  if (postalData && postalData.sender) {
+    _tplCurrent.parties.from_name = postalData.sender;
+    _tplCurrent.parties.from_addr = postalData.senderAddr;
+    _tplCurrent.parties.to_name   = postalData.counterparty;
+    _tplCurrent.parties.to_addr   = postalData.counterAddr;
+  } else {
+    var b2b = null;
+    try { b2b = JSON.parse(localStorage.getItem('zashita_b2b') || 'null'); } catch(e){}
+    if (b2b && b2b.name) _tplCurrent.parties.from_name = b2b.name;
+  }
+
+  // Данные из последнего договора
+  if (contracts.length) {
+    var c = contracts[0];
+    _tplCurrent.contract_data.type = c.type;
+    _tplCurrent.contract_data.counterparty = c.counterparty;
+    if (c.end) _tplCurrent.contract_data.end_date = c.end;
+  }
+
+  // Показываем модальный флоу уточнения
+  _showTemplateClarify(meta);
+}
+
+function _showTemplateClarify(meta) {
+  var old = document.getElementById('tpl-modal'); if (old) old.remove();
+
+  // Определяем какой вопрос задаём
+  var fromName = _tplCurrent.parties.from_name || '';
+  var toName   = _tplCurrent.parties.to_name   || _tplCurrent.contract_data.counterparty || '';
+
+  var question = '';
+  if (fromName && toName) {
+    question = 'Документ от <b>' + fromName + '</b> → <b>' + toName + '</b>. Всё верно?';
+  } else if (fromName) {
+    question = 'От вас (<b>' + fromName + '</b>). Кому адресуем? Укажите получателя.';
+  } else {
+    question = 'Кто отправитель и получатель документа?';
+  }
+
+  var modal = document.createElement('div');
+  modal.id = 'tpl-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:660px;padding:24px;max-height:85vh;overflow-y:auto">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+        '<img src="logos/elena-photo.jpg" style="width:36px;height:36px;border-radius:50%">' +
+        '<div>' +
+          '<div style="font-weight:700;font-size:14px">Елена · ' + (meta.icon||'📄') + ' ' + (meta.name||'Документ') + '</div>' +
+          '<div style="font-size:12px;color:var(--mut)">Уточню данные и заполню за секунды</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'tpl-modal\').remove()" style="margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut)">✕</button>' +
+      '</div>' +
+
+      '<div style="font-size:14px;margin-bottom:14px">' + question + '</div>' +
+
+      '<div style="display:flex;flex-direction:column;gap:10px">' +
+        '<input id="tpl-from" class="elena-main-inp" placeholder="Отправитель (ваше ФИО / название компании)" value="' + (fromName||'') + '">' +
+        '<input id="tpl-to" class="elena-main-inp" placeholder="Получатель (ФИО / название контрагента)" value="' + (toName||'') + '">' +
+        '<input id="tpl-extra" class="elena-main-inp" placeholder="Дополнительно: номер договора, сумма, дата... (необязательно)">' +
+      '</div>' +
+
+      '<div style="margin-top:16px;display:flex;gap:10px">' +
+        '<button class="btn btn-p" style="flex:1;padding:11px" onclick="_generateFromModal()">✨ Заполнить автоматически</button>' +
+        '<button class="btn btn-o" style="padding:11px 16px" onclick="document.getElementById(\'tpl-modal\').remove()">Отмена</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  setTimeout(function(){
+    var inp = document.getElementById('tpl-from');
+    if (inp && !inp.value) inp.focus();
+    else { var t = document.getElementById('tpl-to'); if (t && !t.value) t.focus(); }
+  }, 200);
+}
+
+function _generateFromModal() {
+  if (!_tplCurrent) return;
+
+  var fromVal  = (document.getElementById('tpl-from')  || {}).value || '';
+  var toVal    = (document.getElementById('tpl-to')    || {}).value || '';
+  var extraVal = (document.getElementById('tpl-extra') || {}).value || '';
+
+  if (!fromVal && !toVal) { toast('Укажите хотя бы одну из сторон'); return; }
+
+  _tplCurrent.parties.from_name = fromVal;
+  _tplCurrent.parties.to_name   = toVal;
+  _tplCurrent.extra = extraVal;
+
+  // Закрываем модал, показываем progress
+  var modal = document.getElementById('tpl-modal');
+  if (modal) modal.innerHTML =
+    '<div style="background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:660px;padding:40px;text-align:center">' +
+      '<img src="logos/elena-photo.jpg" style="width:48px;height:48px;border-radius:50%;margin-bottom:12px">' +
+      '<div style="font-weight:700;margin-bottom:6px">Елена заполняет документ…</div>' +
+      '<div style="color:var(--mut);font-size:13px">Обычно занимает 5-10 секунд</div>' +
+    '</div>';
+
+  fetch(API_BASE + '/api/generate', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      template:      _tplCurrent.key,
+      parties:       _tplCurrent.parties,
+      contract_data: _tplCurrent.contract_data,
+      extra:         _tplCurrent.extra
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    var m = document.getElementById('tpl-modal'); if (m) m.remove();
+    if (data.error) { toast('Ошибка: ' + data.error); return; }
+    _showGeneratedDoc(data);
+  })
+  .catch(function(e){
+    var m = document.getElementById('tpl-modal'); if (m) m.remove();
+    toast('Ошибка генерации: ' + e.message);
+  });
+}
+
+function _showGeneratedDoc(data) {
+  var old = document.getElementById('tpl-result'); if (old) old.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'tpl-result';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:16px;width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column">' +
+      '<div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px">' +
+        '<div style="flex:1">' +
+          '<div style="font-weight:700;font-size:15px">📄 ' + (data.title || 'Документ') + '</div>' +
+          '<div style="font-size:12px;color:var(--mut)">Готов · ' + (data.date || '') + ' · проверьте перед использованием</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'tpl-result\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut)">✕</button>' +
+      '</div>' +
+      '<div style="padding:20px;overflow-y:auto;flex:1">' +
+        '<pre id="tpl-doc-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.7;color:#1a1a2e">' +
+          (data.text || '').replace(/</g,'&lt;') +
+        '</pre>' +
+      '</div>' +
+      '<div style="padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button class="btn btn-p" style="padding:9px 18px;font-size:13px" onclick="_printDoc()">🖨️ Распечатать</button>' +
+        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_copyDoc()">📋 Скопировать</button>' +
+        '<button class="svc-btn-detail" style="font-size:13px" onclick="_startTemplate(_tplCurrent&&_tplCurrent.key)">✏️ Изменить данные</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+
+  // Сохраняем в досье
+  _updateDossier({ decisions: ['Составлен документ: ' + (data.title||data.template)] });
+}
+
+function _printDoc() {
+  var text = document.getElementById('tpl-doc-text');
+  if (!text) return;
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>Документ</title>' +
+    '<style>body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;padding:40px;max-width:700px;margin:0 auto}' +
+    'pre{white-space:pre-wrap;font-family:inherit}</style></head>' +
+    '<body><pre>' + text.innerHTML + '</pre>' +
+    '<script>window.print();<\/script></body></html>');
+  w.document.close();
+}
+
+function _copyDoc() {
+  var text = document.getElementById('tpl-doc-text');
+  if (!text) return;
+  navigator.clipboard.writeText(text.textContent || text.innerText)
+    .then(function(){ toast('✅ Скопировано в буфер'); })
+    .catch(function(){ toast('Скопируйте текст вручную'); });
 }
 
 function renderDeadlines() {
@@ -6639,7 +6930,8 @@ window.addEventListener('hashchange', handleHash);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();
-  if(name==='balance' && typeof _refreshBalanceTab==='function') _refreshBalanceTab();;
+  if(name==='shab'  && typeof renderContextTemplates==='function') renderContextTemplates();
+  if(name==='balance' && typeof _refreshBalanceTab==='function') _refreshBalanceTab();
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
   const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab',create:'t-create'};
   const el=document.getElementById(map[name]); if(el) el.classList.add('on');
