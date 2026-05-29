@@ -4575,6 +4575,55 @@ function _buildElenaContext() {
   };
 }
 
+// Парсит [ДЕЙСТВИЯ: ...] из ответа Елены и возвращает {text, actions[]}
+function _parseElenaActions(reply) {
+  if (!reply) return { text: reply, actions: [] };
+  var match = reply.match(/\[ДЕЙСТВИЯ:\s*([^\]]+)\]/);
+  if (!match) return { text: reply, actions: [] };
+  var text = reply.replace(match[0], '').trim();
+  var actions = match[1].split('·').map(function(a){ return a.trim(); }).filter(Boolean);
+  return { text: text, actions: actions };
+}
+
+// Определяет что делать по клику на кнопку действия
+function _elenaActionClick(label) {
+  var l = label.toLowerCase();
+  if (/уведомлени|составить|претензи|подготовить/.test(l)) {
+    // Переходим к созданию документа
+    var up = document.getElementById('el-step-upload');
+    if (up) { up.style.display = ''; up.scrollIntoView({behavior:'smooth'}); }
+    else { go('elena'); setTimeout(function(){ elenaIntent('create'); }, 80); }
+  } else if (/кабинет|зафиксировать/.test(l)) {
+    go('cabinet'); tab('sroki');
+  } else if (/напоминани/.test(l)) {
+    go('cabinet'); tab('sroki');
+  } else if (/проверить договор/.test(l)) {
+    var up2 = document.getElementById('el-step-upload');
+    if (up2) { up2.style.display = ''; up2.scrollIntoView({behavior:'smooth'}); }
+    else { go('elena'); setTimeout(function(){ elenaIntent('check'); }, 80); }
+  } else {
+    // Уточнить детали — фокус на input
+    var inp = document.getElementById('el-continue-input') || document.getElementById('intake-custom');
+    if (inp) { var i = inp.tagName === 'INPUT' ? inp : inp.querySelector('input'); if (i) i.focus(); }
+  }
+}
+
+// Рисует кнопки действий после пузыря Елены
+function _renderElenaActions(actions, container) {
+  if (!actions || !actions.length) return;
+  var bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0 51px';
+  actions.forEach(function(label) {
+    var btn = document.createElement('button');
+    btn.className = 'svc-btn-detail';
+    btn.style.cssText = 'font-size:13px;padding:7px 14px';
+    btn.textContent = label;
+    btn.onclick = function(){ _elenaActionClick(label); };
+    bar.appendChild(btn);
+  });
+  container.appendChild(bar);
+}
+
 function _elenaApi(txt, intent, callback) {
   /* Вызывает /api/elena. При ошибке — fallback на шаблон. */
   if (!_apiAvailable) { callback(null); return; }
@@ -4595,14 +4644,17 @@ function _elenaApi(txt, intent, callback) {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if (d.reply) {
+      var parsed = _parseElenaActions(d.reply);
       _chatHistory.push({role:'user', content: txt});
-      _chatHistory.push({role:'assistant', content: d.reply});
-      callback(d.reply);
+      _chatHistory.push({role:'assistant', content: parsed.text});
+      // Передаём в callback объект {text, actions} — совместимо со старым кодом
+      // (старый код ожидает строку — если передать строку, ничего не сломается)
+      callback(parsed.text, parsed.actions);
     } else {
-      callback(null);
+      callback(null, []);
     }
   })
-  .catch(function(){ callback(null); });
+  .catch(function(){ callback(null, []); });
 }
 
 /* ── КЛАССИФИКАТОР ВХОДЯЩИХ СООБЩЕНИЙ ── */
@@ -5349,7 +5401,7 @@ function _rcTransferToElena(intent) {
 
       // Реальный ответ через API или шаблон
       var fallbackReply = _getElenaCtxReply(intent, dl);
-      _elenaApi(contextMsg, intent, function(apiReply){
+      _elenaApi(contextMsg, intent, function(apiReply, apiActions){
         var t = document.getElementById('elena-ctx-typing');
         if (t) t.remove();
         var reply = apiReply || fallbackReply;
@@ -5359,6 +5411,7 @@ function _rcTransferToElena(intent) {
         eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
           '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
         wrap.appendChild(eDiv);
+        if (apiActions && apiActions.length) _renderElenaActions(apiActions, wrap);
         wrap.scrollTop = wrap.scrollHeight;
 
         // Показываем поле ввода Елены.
@@ -5416,7 +5469,7 @@ function _elenaContinueSend() {
   if (cont) cont.remove();
   // Елена отвечает
   _hcAddTyping();
-  _elenaApi(txt, 'create', function(apiReply) {
+  _elenaApi(txt, 'create', function(apiReply, apiActions) {
     _hcRemoveTyping();
     var reply = apiReply || 'Уточните, пожалуйста, детали документа.';
     _chatHistory.push({role:'user', content: txt});
@@ -5426,8 +5479,9 @@ function _elenaContinueSend() {
     eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
       + '<div class="bubble"><div class="nm">Елена</div>' + _rcEscape(reply) + '</div>';
     wrap.appendChild(eDiv);
+    if (apiActions && apiActions.length) _renderElenaActions(apiActions, wrap);
     wrap.scrollTop = wrap.scrollHeight;
-    _elenaShowInput(); // снова показываем поле для следующего ответа
+    _elenaShowInput();
   });
 }
 
