@@ -1292,12 +1292,12 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <div class="elena-quick elena-anim" style="--d:1.95s">
         <div class="elena-q-lbl">или выберите быстро:</div>
         <div class="intent-grid">
-          <div class="int-card" onclick="elenaIntent('check')"><div class="int-ico">📄</div><div class="int-body"><div class="int-lbl">Проверить договор</div><div class="int-sub">Найду риски и объясню каждый пункт простым языком</div></div></div>
-          <div class="int-card" onclick="elenaIntent('create')"><div class="int-ico">✍️</div><div class="int-body"><div class="int-lbl">Составить документ</div><div class="int-sub">Договор, доверенность, претензию — под ваши параметры</div></div></div>
-          <div class="int-card" onclick="elenaIntent('dispute')"><div class="int-ico">📋</div><div class="int-body"><div class="int-lbl">Убрать невыгодные пункты</div><div class="int-sub">Подготовлю протокол разногласий — загрузите договор</div></div></div>
-          <div class="int-card" onclick="elenaIntent('question')"><div class="int-ico">💬</div><div class="int-body"><div class="int-lbl">Есть вопрос</div><div class="int-sub">Отвечу без загрузки документа — спросите текстом или голосом</div></div></div>
-          <div class="int-card" onclick="elenaIntent('power')"><div class="int-ico">📑</div><div class="int-body"><div class="int-lbl">Нужна доверенность</div><div class="int-sub">Скажите кому и какие полномочия — составлю за несколько секунд</div></div></div>
-          <div class="int-card" onclick="elenaIntent('cabinet')"><div class="int-ico">🗂️</div><div class="int-body"><div class="int-lbl">Я уже клиент</div><div class="int-sub">Войти в кабинет и посмотреть мои дела</div></div></div>
+          <div class="int-card" onclick="elenaIntentGo('check')"><div class="int-ico">📄</div><div class="int-body"><div class="int-lbl">Проверить договор</div><div class="int-sub">Найду риски и объясню каждый пункт простым языком</div></div></div>
+          <div class="int-card" onclick="elenaIntentGo('create')"><div class="int-ico">✍️</div><div class="int-body"><div class="int-lbl">Составить документ</div><div class="int-sub">Договор, доверенность, претензию — под ваши параметры</div></div></div>
+          <div class="int-card" onclick="elenaIntentGo('question')"><div class="int-ico">💬</div><div class="int-body"><div class="int-lbl">Задать вопрос</div><div class="int-sub">Отвечу без загрузки документа — спросите текстом или голосом</div></div></div>
+        </div>
+        <div style="margin-top:8px;text-align:center">
+          <button class="svc-btn-detail" style="font-size:12px" onclick="go('cabinet')">🗂️ Я уже клиент — войти в кабинет</button>
         </div>
       </div>
     </div>
@@ -4027,6 +4027,16 @@ window.addEventListener('DOMContentLoaded', checkReturning);
 })();
 
 /* ── ELENA INTAKE v2 ── */
+
+// elenaIntentGo — вызывается с карточек: скрывает el-step1, продолжает в chatwrap
+function elenaIntentGo(intent) {
+  // Скрываем весь el-step1 (приветствие + карточки)
+  var step1 = document.getElementById('el-step1');
+  if (step1) step1.style.display = 'none';
+  // Продолжаем разговор в chatwrap
+  elenaIntent(intent);
+}
+
 function elenaIntentFromInput() {
   var txt = (document.getElementById('intake-custom').value || '').trim();
   if (!txt) { document.getElementById('intake-custom').focus(); return; }
@@ -4046,16 +4056,20 @@ function elenaIntent(intent) {
   // cabinet — сразу в кабинет
   if (intent === 'cabinet') { go('cabinet'); return; }
 
-  // question — показываем текстовое поле без загрузки
+  // question — скрываем el-step1, показываем поле ввода в chatwrap
   if (intent === 'question') {
     var step1El = document.getElementById('el-step1');
-    document.querySelectorAll('#el-step1 .int-card').forEach(function(c){ c.style.opacity='.45'; c.style.pointerEvents='none'; });
-    var qBox = document.createElement('div');
-    qBox.className = 'msg';
-    qBox.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div><div class="bubble"><div class="nm">Елена</div>Конечно — спрашивайте 💛 Опишите ситуацию, я отвечу по нормам ГК/ТК/ЗоЗПП. Или включите микрофон 🎙</div>';
-    // Если el-step1 скрыт (трансфер из mini-chat) — добавляем в chatwrap
-    var target = (step1El && step1El.style.display !== 'none') ? step1El : (document.querySelector('.chatwrap') || step1El);
-    if (target) target.appendChild(qBox);
+    if (step1El) step1El.style.display = 'none';
+    var wrap = document.querySelector('.chatwrap');
+    if (wrap) {
+      var qBox = document.createElement('div');
+      qBox.className = 'msg';
+      qBox.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+        '<div class="bubble"><div class="nm">Елена</div>' +
+        'Спрашивайте — отвечу по нормам ГК/ТК/ЗоЗПП. Или включите микрофон 🎙</div>';
+      wrap.appendChild(qBox);
+    }
+    _elenaShowInput();
     return;
   }
 
