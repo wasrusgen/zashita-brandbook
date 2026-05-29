@@ -4228,31 +4228,20 @@ function elenaIntent(intent) {
       : 'Хорошо, посмотрю. Если у вас есть текст договора — загрузите или вставьте, найду все риски и объясню понятно.';
     var replyText = apiReply || defaultReply;
 
-    // Добавляем ответ Елены
+    // Добавляем ответ Елены — кнопка загрузки встроена в пузырь если нужна
+    var hasContract = ((document.getElementById('el-paste') || {}).value || '').length > 50;
+    var uploadBtn = (intent === 'check' && !hasContract)
+      ? '<div style="margin-top:12px">'
+        + '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" onclick="'
+        + 'var up=document.getElementById(\'el-step-upload\');if(up){up.style.display=\'\';up.scrollIntoView({behavior:\'smooth\'});}">'
+        + '📂 Загрузить договор</button></div>'
+      : '';
     var mb = document.createElement('div');
     mb.className = 'msg';
     mb.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
-      + '<div class="bubble"><div class="nm">Елена</div>' + replyText + '</div>';
+      + '<div class="bubble"><div class="nm">Елена</div>' + replyText + uploadBtn + '</div>';
     wrap.appendChild(mb);
-
-    // Предлагаем загрузить только если intent=check И договора ещё нет
-    var hasContract = ((document.getElementById('el-paste') || {}).value || '').length > 50;
-    if (intent === 'check' && !hasContract) {
-      setTimeout(function() {
-        var ob = document.createElement('div');
-        ob.className = 'msg';
-        ob.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>'
-          + '<div class="bubble"><div class="nm">Елена</div>'
-          + 'Если у вас есть текст договора — загрузите, разберу детально.'
-          + '<div style="margin-top:10px">'
-          + '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" onclick="'
-          + '  var up=document.getElementById(\'el-step-upload\');if(up){up.style.display=\'\';up.scrollIntoView({behavior:\'smooth\'});}'
-          + '">📂 Загрузить договор</button>'
-          + '</div></div></div>';
-        wrap.appendChild(ob);
-        ob.scrollIntoView({behavior:'smooth'});
-      }, 800);
-    }
+    mb.scrollIntoView({behavior:'smooth'});
   });
 }
 
