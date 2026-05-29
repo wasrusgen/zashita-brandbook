@@ -2686,6 +2686,246 @@ function showResults(ctypeKey) {
   document.getElementById('el-step2').style.display = 'block';
   document.getElementById('el-actbar').style.display = 'flex';
   document.getElementById('el-step2').scrollIntoView({ behavior: 'smooth' });
+
+  // Проверяем есть ли связанный договор для сравнения
+  _checkForContractLink(text, ctypeKey);
+}
+
+// ── СВЯЗКА ДОКУМЕНТОВ + ПОИСК ПРОТИВОРЕЧИЙ ─────────────────────────────────
+
+function _checkForContractLink(newDocText, newDocType) {
+  /* Если это акт/доп.соглашение — проверяем есть ли договор в хранилище */
+  var actTypes = ['акт', 'act', 'дополнительное соглашение', 'допсоглашение'];
+  var isAct = actTypes.some(function(t){ return (newDocType||'').toLowerCase().includes(t); });
+  if (!isAct) return;
+
+  var contracts = _getContracts();
+  if (!contracts || !contracts.length) return;
+
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+
+  // Показываем предложение сравнить с договором
+  var old = document.getElementById('compare-offer'); if (old) return;
+  var div = document.createElement('div');
+  div.id = 'compare-offer';
+  div.className = 'msg';
+  div.innerHTML =
+    '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    'Вижу что это акт. В вашем кабинете есть ' + contracts.length + ' договор(а). ' +
+    'Сравнить с ним — могу найти противоречия до подписания.' +
+    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+    contracts.slice(0,3).map(function(c, i){
+      return '<button class="svc-btn-detail" style="font-size:12px" onclick="_compareWithContract(' + i + ')">' +
+             '📄 ' + (c.type || 'Договор') + (c.counterparty ? ' · ' + c.counterparty.slice(0,15) : '') +
+             '</button>';
+    }).join('') +
+    '<button class="svc-btn-detail" style="color:var(--mut);font-size:12px" onclick="this.closest(\'.msg\').remove()">Пропустить</button>' +
+    '</div></div></div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _compareWithContract(contractIdx) {
+  var contracts = _getContracts();
+  var contract  = contracts[contractIdx];
+  if (!contract) return;
+
+  var actText      = (document.getElementById('el-paste') || {}).value || '';
+  var contractText = contract.preview || '';
+
+  if (!contractText || contractText.length < 50) {
+    toast('⚠️ Текст договора не сохранён — загрузите договор заново для полного сравнения');
+    return;
+  }
+
+  var offer = document.getElementById('compare-offer'); if (offer) offer.remove();
+  var wrap  = document.querySelector('.chatwrap');
+
+  // Progress bubble
+  var prog = document.createElement('div');
+  prog.id = 'compare-progress';
+  prog.className = 'msg';
+  prog.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '🔍 Сравниваю документы… <span id="cmp-dots">.</span></div></div>';
+  if (wrap) wrap.appendChild(prog);
+  prog.scrollIntoView({behavior:'smooth'});
+
+  var dots = 0;
+  var dotsInterval = setInterval(function(){
+    var el = document.getElementById('cmp-dots');
+    if (el) el.textContent = ['.','..','.'][dots++ % 3];
+  }, 500);
+
+  fetch(API_BASE + '/api/compare', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contract_text: contractText,
+      document_text: actText,
+      doc_type: 'Акт приёмки-передачи'
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    clearInterval(dotsInterval);
+    var p = document.getElementById('compare-progress'); if (p) p.remove();
+    _showCompareResults(data, contract);
+  })
+  .catch(function(e){
+    clearInterval(dotsInterval);
+    var p = document.getElementById('compare-progress'); if (p) p.remove();
+    toast('Ошибка сравнения: ' + e.message);
+  });
+}
+
+function _showCompareResults(data, contract) {
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+
+  var contradictions = data.contradictions || [];
+  var verdict = data.verdict || 'safe';
+  var verdictColors = {safe:'#16a34a', review:'#d97706', danger:'#dc2626'};
+  var verdictLabels = {safe:'✅ Противоречий нет', review:'⚠️ Есть расхождения', danger:'🚨 Критические противоречия'};
+  var verdictColor = verdictColors[verdict] || '#374151';
+
+  var html = '<div class="msg"><div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '<div style="font-weight:700;color:' + verdictColor + ';margin-bottom:8px">' +
+    verdictLabels[verdict] + '</div>';
+
+  if (data.summary) {
+    html += '<div style="font-size:13px;margin-bottom:10px">' + data.summary + '</div>';
+  }
+
+  if (contradictions.length) {
+    html += '<div style="display:flex;flex-direction:column;gap:8px">';
+    contradictions.forEach(function(c) {
+      var riskColor = {critical:'#dc2626', high:'#d97706', medium:'#2563eb'}[c.risk] || '#374151';
+      html += '<div style="border:1.5px solid ' + riskColor + ';border-radius:10px;padding:10px;background:#fafafa">' +
+        '<div style="font-weight:700;font-size:13px;color:' + riskColor + '">' +
+        ({critical:'🔴', high:'🟠', medium:'🟡'}[c.risk] || '⚪') + ' ' + (c.field || '') + '</div>' +
+        '<div style="font-size:12px;color:#6b7280;margin:4px 0">' +
+          '<b>Договор:</b> ' + (c.in_contract || '') + '<br>' +
+          '<b>Акт:</b> ' + (c.in_document || '') +
+        '</div>' +
+        '<div style="font-size:12px;background:#fef2f2;border-radius:6px;padding:6px;margin-top:4px">' +
+          '⚠️ ' + (c.consequence || '') +
+        '</div>' +
+        '<div style="font-size:12px;color:#16a34a;margin-top:4px">✅ ' + (c.recommendation || '') + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Кнопки действий
+  html += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
+  if (verdict === 'danger' || verdict === 'review') {
+    html += '<button class="btn btn-p" style="padding:7px 14px;font-size:12px" onclick="_offerPartner(\'Противоречия в акте\')">👨‍⚖️ Нужен юрист-партнёр</button>';
+  }
+  html += '<button class="svc-btn-detail" style="font-size:12px" onclick="this.closest(\'.bubble\').querySelectorAll(\'[style*=flex]\').forEach(function(e){e.remove()})">Закрыть</button>';
+  html += '</div>';
+  html += '</div></div>';
+
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  wrap.appendChild(div.firstChild || div);
+  wrap.lastChild.scrollIntoView({behavior:'smooth'});
+
+  // Обновляем досье
+  if (contradictions.length) {
+    _updateDossier({
+      facts: ['Найдены противоречия в акте с договором: ' + contradictions.map(function(c){return c.field;}).join(', ')],
+      open: ['Решить противоречия перед подписанием акта']
+    });
+  }
+}
+
+// ── МОДЕЛЬ ПАРТНЁРОВ ─────────────────────────────────────────────────────────
+
+function _offerPartner(reason) {
+  var wrap = document.querySelector('.chatwrap') || document.getElementById('rchat-msgs');
+  if (!wrap) return;
+
+  var old = document.getElementById('partner-offer'); if (old) { old.scrollIntoView({behavior:'smooth'}); return; }
+  var div = document.createElement('div');
+  div.id = 'partner-offer';
+  div.className = 'msg';
+
+  var ctx = _buildElenaContext();
+  div.innerHTML =
+    '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '<div style="font-weight:700;margin-bottom:6px">👨‍⚖️ Подключить юриста-партнёра</div>' +
+    '<div style="font-size:13px;color:#374151;margin-bottom:10px">' +
+      'Я подготовила досье по вашему делу. Юрист-партнёр получит полный контекст ' +
+      'и свяжется с вами в течение нескольких часов — уже подготовленным.' +
+    '</div>' +
+    '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">' +
+      'Повод обращения: <b>' + (reason || 'сложный кейс') + '</b>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+      '<input id="partner-phone" type="tel" placeholder="Ваш телефон для связи" ' +
+        'style="border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none">' +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="btn btn-p" style="flex:1;padding:9px;font-size:13px" onclick="_submitPartnerRequest(\'' + (reason||'') + '\')">📨 Отправить заявку</button>' +
+        '<button class="svc-btn-detail" onclick="document.getElementById(\'partner-offer\').remove()">Отмена</button>' +
+      '</div>' +
+    '</div></div></div>';
+
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){ var i = document.getElementById('partner-phone'); if (i) i.focus(); }, 300);
+}
+
+function _submitPartnerRequest(reason) {
+  var phone    = (document.getElementById('partner-phone') || {}).value || '';
+  var ctx      = _buildElenaContext();
+  var dossier  = _getDossier() || {};
+  var history  = _chatHistory.slice(-10);
+
+  // Собираем краткое описание кейса
+  var caseSummary = reason || 'Клиент запросил помощь юриста';
+  if (ctx.case_context) caseSummary += '\n\nКонтекст: ' + ctx.case_context.slice(0, 500);
+  if (history.length) {
+    caseSummary += '\n\nПоследнее из диалога: ' +
+      history.slice(-4).map(function(m){ return m.role + ': ' + m.content; }).join('\n');
+  }
+
+  var offer = document.getElementById('partner-offer'); if (offer) offer.remove();
+  toast('⏳ Отправляю заявку…');
+
+  fetch(API_BASE + '/api/partner', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      client_name:       ctx.client_name || 'Клиент',
+      phone:             phone,
+      case_summary:      caseSummary,
+      dossier:           dossier,
+      complexity_score:  3
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    var wrap = document.querySelector('.chatwrap') || document.getElementById('rchat-msgs');
+    if (!wrap) return;
+    var div = document.createElement('div');
+    div.className = 'msg';
+    div.innerHTML =
+      '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>' +
+      '<div style="color:#16a34a;font-weight:700;margin-bottom:6px">✅ Заявка принята</div>' +
+      '<div style="font-size:13px">' + (data.message || '') + '</div>' +
+      '<div style="font-size:11px;color:#9ca3af;margin-top:6px">Номер заявки: <b>' + (data.ticket_id || '') + '</b></div>' +
+      '</div></div>';
+    wrap.appendChild(div);
+    div.scrollIntoView({behavior:'smooth'});
+    _updateDossier({ decisions: ['Передано юристу-партнёру: ' + (data.ticket_id || '')] });
+  })
+  .catch(function(e){ toast('Ошибка: ' + e.message); });
 }
 
 /* ── СКАНИРОВАНИЕ ── */
@@ -2873,9 +3113,10 @@ function _offerCouncil(data) {
         'каждый даёт позицию по вашему делу. Opus синтезирует вердикт с шансами в суде.' +
       '</div>' +
       '<div style="font-size:15px;font-weight:700;margin-bottom:12px">от 2 990 ₽ · ~20 сек</div>' +
-      '<div style="display:flex;gap:8px">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
         '<button class="btn btn-p" style="padding:8px 18px;font-size:13px" onclick="_runCouncil()">⚖️ Запустить совет</button>' +
-        '<button class="btn btn-o" style="padding:8px 18px;font-size:13px" onclick="this.closest(\'[id]\').remove()">Нет, спасибо</button>' +
+        '<button class="btn btn-o" style="padding:8px 18px;font-size:13px" onclick="_offerPartner(\'сложный кейс\')">👨‍⚖️ Юрист-партнёр</button>' +
+        '<button class="svc-btn-detail" onclick="this.closest(\'[id]\').remove()">Нет, спасибо</button>' +
       '</div>' +
     '</div>';
   wrap.appendChild(div);
