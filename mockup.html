@@ -5005,7 +5005,7 @@ function initReturnChat() {
   } else if (pendingRefund) {
     callToAction = 'Ваша заявка на возврат в обработке — ответим в течение 10 рабочих дней.';
   } else if (!credits && !subPlan) {
-    callToAction = 'Кредиты закончились — пополните баланс, чтобы продолжить.';
+    callToAction = 'Первые 3 риска — бесплатно. Загрузите договор или задайте вопрос 💬';
   } else {
     callToAction = 'Чем займёмся сегодня?';
   }
@@ -5662,10 +5662,17 @@ function retChatSend() {
       .then(function(res){ return res.json(); })
       .then(function(data){
         _rcRemoveTyping();
-        var reply = data.reply || '...';
+        var raw = data.reply || '...';
+        var parsed = _parseElenaActions(raw);
         _chatHistory.push({role:'user', content: txt});
-        _chatHistory.push({role:'assistant', content: reply});
-        _rcAddBubble(reply, false);
+        _chatHistory.push({role:'assistant', content: parsed.text});
+        _saveHistory();
+        _rcAddBubble(parsed.text, false);
+        // Рендерим кнопки действий в контейнер returning chat
+        if (parsed.actions && parsed.actions.length) {
+          var rcMsgs = document.getElementById('rchat-msgs');
+          if (rcMsgs) _renderElenaActions(parsed.actions, rcMsgs);
+        }
         _rcShowControls();
       })
       .catch(function(){
