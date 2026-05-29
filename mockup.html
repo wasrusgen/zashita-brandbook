@@ -1256,10 +1256,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </div>
           <div class="hero-chat-msgs" id="rchat-msgs"></div>
           <div class="hero-chat-replies" id="rchat-replies" style="display:none">
-            <div class="hc-reply" onclick="go('cabinet');tab('cases')">📂 Мои дела</div>
-            <div class="hc-reply" onclick="go('cabinet');tab('sroki')">⏱️ Сроки</div>
-            <div class="hc-reply" onclick="go('elena');setTimeout(function(){elenaIntent('create');},80)">📄 Новый договор</div>
-            <div class="hc-reply" onclick="go('pay')">💳 Пополнить баланс</div>
+            <!-- заполняется динамически через _renderRchatButtons() -->
           </div>
           <div class="hero-chat-input-row" id="rchat-input-row" style="display:none">
             <button class="hc-mic-btn" id="rcmic-btn" onclick="toggleVoice('rchat-inp','rcmic-btn')" title="Голосовой ввод">🎙</button>
@@ -4946,6 +4943,89 @@ function _rcShowControls() {
   if (i) i.style.display = '';
 }
 
+// Динамические кнопки под контекст пользователя
+function _renderRchatButtons(ctx) {
+  var el = document.getElementById('rchat-replies');
+  if (!el) return;
+
+  // Определяем сценарий
+  var btns = [];
+
+  if (ctx.urgentDL) {
+    // Горящий срок — главное
+    var dlTitle = ctx.urgentDL.dl.title;
+    btns.push({
+      label: '⚠️ Что сделать по сроку?',
+      action: 'retChatSend_text("что нужно сделать по сроку ' + dlTitle.slice(0,25) + '")'
+    });
+    btns.push({
+      label: '📝 Составить документ',
+      action: 'go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)'
+    });
+    btns.push({
+      label: '📂 Все мои сроки',
+      action: 'go(\'cabinet\');tab(\'sroki\')'
+    });
+  } else if (ctx.hasContracts && ctx.hasHistory) {
+    // Есть и договоры, и история — возвращающийся активный клиент
+    btns.push({
+      label: '💬 Продолжить разговор',
+      action: 'document.getElementById(\'rchat-inp\').focus()'
+    });
+    btns.push({
+      label: '📂 Мои дела',
+      action: 'go(\'cabinet\');tab(\'cases\')'
+    });
+    btns.push({
+      label: '📄 Новый договор',
+      action: 'go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)'
+    });
+  } else if (ctx.hasContracts) {
+    // Есть договоры, нет истории чата
+    btns.push({
+      label: '📄 Проверить ещё договор',
+      action: 'go(\'elena\')'
+    });
+    btns.push({
+      label: '⏱️ Мои сроки',
+      action: 'go(\'cabinet\');tab(\'sroki\')'
+    });
+    btns.push({
+      label: '✍️ Составить документ',
+      action: 'go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)'
+    });
+  } else {
+    // Новый пользователь — показываем ценность
+    btns.push({
+      label: '📄 Проверить договор',
+      action: 'go(\'elena\')'
+    });
+    btns.push({
+      label: '💬 Задать вопрос',
+      action: 'go(\'elena\');setTimeout(function(){elenaIntent(\'question\');},80)'
+    });
+    btns.push({
+      label: '✍️ Составить документ',
+      action: 'go(\'elena\');setTimeout(function(){elenaIntent(\'create\');},80)'
+    });
+  }
+
+  // Всегда добавляем «Пополнить баланс» если нет кредитов
+  if (!ctx.credits && !ctx.subPlan && btns.length < 4) {
+    btns.push({ label: '💳 Пополнить баланс', action: 'go(\'pay\')' });
+  }
+
+  el.innerHTML = btns.map(function(b) {
+    return '<div class="hc-reply" onclick="' + b.action + '">' + b.label + '</div>';
+  }).join('');
+}
+
+// Хелпер: отправить текст в чат программно
+function retChatSend_text(txt) {
+  var inp = document.getElementById('rchat-inp');
+  if (inp) { inp.value = txt; retChatSend(); }
+}
+
 function initReturnChat() {
   var msgs = document.getElementById('rchat-msgs');
   if (!msgs) return;
@@ -5035,6 +5115,10 @@ function initReturnChat() {
   } else {
     callToAction = 'Чем займёмся сегодня?';
   }
+
+  // ── Динамические кнопки под контекст ──
+  _renderRchatButtons({ urgentDL: urgentDL, hasContracts: _getContracts().length > 0,
+                        hasHistory: _chatHistory.length > 0, credits: credits, subPlan: subPlan });
 
   // ── Последовательность сообщений ──
   var delay = 0;
