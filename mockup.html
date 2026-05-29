@@ -3948,13 +3948,50 @@ window.addEventListener('DOMContentLoaded', checkReturning);
   // wait      — ожидает оплаты или загрузки документа
   // completed — дело закрыто (успех или соглашение)
   // archived  — в архиве (истёк срок, отказ, не актуально)
-  var CT_DATA = [
-    { id:'case-kitchen', ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high', riskLbl:'⚠ Высокий', status:'active',    go:"tab('case')" },
-    { id:'case-labor',   ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',  riskLbl:'Средний',    status:'dispute',   go:"tab('case')" },
-    { id:'case-ddu',     ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',  riskLbl:'Низкий',     status:'wait',      go:"tab('case')" },
-    { id:'case-office',  ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',  date:'12.03', dateSort:20250312, risk:'low',  riskLbl:'Низкий',     status:'completed', go:"toast('📄 Открываю архивное дело')" },
-    { id:'case-supply',  ico:'📄', name:'Поставка оборудования',      type:'Поставка',date:'01.02', dateSort:20250201, risk:'mid',  riskLbl:'Средний',    status:'archived',  go:"toast('📄 Открываю архивное дело')" },
-  ];
+  // Иконки по типу договора
+  var TYPE_ICO = {
+    'Аренда':'🏠','Договор аренды':'🏠','Подряд':'🔨','Договор подряда':'🔨',
+    'Купли-продажи':'🛒','Договор купли-продажи':'🛒','Трудовой':'💼',
+    'Агентский':'🤝','Займ':'💰','Расписка':'📝','Акт':'✅','ДДУ':'🏗️',
+  };
+
+  // Загружаем реальные договоры из localStorage
+  function _buildCTData() {
+    var saved = typeof _getContracts === 'function' ? _getContracts() : [];
+    var real = saved.map(function(c, i) {
+      var d = new Date(c.ts || Date.now());
+      var dateStr = d.getDate() + '.' + (d.getMonth()+1 < 10 ? '0' : '') + (d.getMonth()+1);
+      var dateSort = parseInt(d.toISOString().slice(0,10).replace(/-/g,''));
+      var risk = c.risks_critical > 0 ? 'high' : c.deadlines_count > 2 ? 'mid' : 'low';
+      var riskLbl = risk === 'high' ? '⚠ Высокий' : risk === 'mid' ? 'Средний' : 'Низкий';
+      var ico = TYPE_ICO[c.type] || '📄';
+      var name = c.type + (c.counterparty ? ' · ' + c.counterparty : '');
+      return {
+        id: 'case-real-' + i,
+        ico: ico, name: name, type: c.type || 'Договор',
+        date: dateStr, dateSort: dateSort,
+        risk: risk, riskLbl: riskLbl,
+        status: 'active',
+        quality: c.quality,  // оценка качества если есть
+        deadlines_count: c.deadlines_count || 0,
+        go: "toast('📄 Открываю дело: " + name.replace(/'/g,''') + "')"
+      };
+    });
+
+    // Если реальных нет — показываем демо
+    if (!real.length) {
+      return [
+        { id:'case-kitchen', ico:'🍽️', name:'Кухня — агентский (ЗОВ)', type:'Агентский', date:'23.05', dateSort:20250523, risk:'high', riskLbl:'⚠ Высокий', status:'active',    go:"tab('case')" },
+        { id:'case-labor',   ico:'💼', name:'Трудовой договор',          type:'Трудовой', date:'21.05', dateSort:20250521, risk:'mid',  riskLbl:'Средний',    status:'dispute',   go:"tab('case')" },
+        { id:'case-ddu',     ico:'🏠', name:'Квартира — ДДУ (новая ред.)',type:'ДДУ',     date:'19.05', dateSort:20250519, risk:'low',  riskLbl:'Низкий',     status:'wait',      go:"tab('case')" },
+        { id:'case-office',  ico:'📄', name:'Аренда офиса 2024',          type:'Аренда',  date:'12.03', dateSort:20250312, risk:'low',  riskLbl:'Низкий',     status:'completed', go:"toast('Архивное дело')" },
+        { id:'case-supply',  ico:'📄', name:'Поставка оборудования',      type:'Поставка',date:'01.02', dateSort:20250201, risk:'mid',  riskLbl:'Средний',    status:'archived',  go:"toast('Архивное дело')" },
+      ];
+    }
+    return real;
+  }
+
+  var CT_DATA = _buildCTData();
 
   // Экспортируем для Елены
   window._CT_DATA = CT_DATA;
@@ -4026,13 +4063,37 @@ window.addEventListener('DOMContentLoaded', checkReturning);
     var elUrg   = document.getElementById('kpi-urg');   if (elUrg)   elUrg.textContent   = kpiUrg;
     var elDone  = document.getElementById('kpi-done');  if (elDone)  elDone.textContent  = kpiDone;
 
+    // Перегенерируем с реальными данными
+    CT_DATA = _buildCTData();
+    window._CT_DATA = CT_DATA;
+
     var rows = filtered();
-    if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--mut)">Нет дел по фильтру</td></tr>'; return; }
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--mut)">' +
+        'Нет дел. <a style="color:var(--bg);cursor:pointer" onclick="go(\'elena\')">Загрузите договор</a> — Елена добавит его сюда автоматически.</td></tr>';
+      return;
+    }
     var closed = ['completed','archived'];
     tbody.innerHTML = rows.map(function(r){
       var isClosed = closed.indexOf(r.status) !== -1;
+
+      // Quality badge (только для реальных загруженных договоров)
+      var qualBadge = '';
+      if (r.quality !== undefined) {
+        var qScore = typeof r.quality === 'object' ? r.quality.score : r.quality;
+        var qColor = qScore >= 80 ? '#16a34a' : qScore >= 50 ? '#d97706' : '#dc2626';
+        var qLabel = qScore >= 80 ? '✅' : qScore >= 50 ? '🟡' : '⚠️';
+        qualBadge = ' <span title="Качество распознавания: ' + qScore + '%" style="font-size:11px;color:' + qColor + '">' + qLabel + qScore + '%</span>';
+      }
+
+      // Дедлайны по делу
+      var dlBadge = '';
+      if (r.deadlines_count > 0) {
+        dlBadge = ' <span style="font-size:11px;color:var(--mut)">📅' + r.deadlines_count + '</span>';
+      }
+
       return '<tr class="'+(isClosed?'ct-closed':'')+'" onclick="'+r.go+'">' +
-        '<td class="ct-name">'+r.ico+' '+r.name+'</td>' +
+        '<td class="ct-name">'+r.ico+' '+r.name+qualBadge+dlBadge+'</td>' +
         '<td><span class="ct-type-badge">'+r.type+'</span></td>' +
         '<td style="color:var(--mut)">'+r.date+'</td>' +
         '<td><span class="'+riskChipCls(r.risk)+'">'+r.riskLbl+'</span></td>' +
