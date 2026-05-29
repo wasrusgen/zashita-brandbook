@@ -3974,7 +3974,7 @@ window.addEventListener('DOMContentLoaded', checkReturning);
         status: 'active',
         quality: c.quality,  // оценка качества если есть
         deadlines_count: c.deadlines_count || 0,
-        go: "toast('📄 Открываю дело: " + name.replace(/'/g,''') + "')"
+        go: "_openRealCase(" + i + ")"
       };
     });
 
@@ -4116,6 +4116,12 @@ window.addEventListener('DOMContentLoaded', checkReturning);
     document.querySelectorAll('.ct-table thead th').forEach(function(h){ h.classList.remove('sort-asc','sort-desc'); });
     if (th) th.classList.add(_sortDir === 1 ? 'sort-asc' : 'sort-desc');
     render();
+  };
+
+  window._openRealCase = function(i) {
+    var c = (_getContracts() || [])[i];
+    if (!c) return;
+    toast('📄 ' + (c.type || 'Договор') + (c.counterparty ? ' · ' + c.counterparty : ''));
   };
 
   // Рендер при открытии вкладки cases и cabinet
@@ -7289,10 +7295,13 @@ function _compressAsync(showToast) {
   .catch(function(){});
 }
 
-// Флаг памяти — используется для контекстного приветствия
+// Флаг памяти — используется для контекстного приветствия (с защитой от race condition)
 window._hasMemory = (function() {
-  var h = _chatHistory.length, c = _getContracts().length;
-  return (h || c) ? { messages: h, contracts: c, hasDossier: !!_getDossier() } : null;
+  try {
+    var h = (typeof _chatHistory !== 'undefined' ? _chatHistory.length : 0);
+    var c = (typeof _getContracts === 'function' ? _getContracts().length : 0);
+    return (h || c) ? { messages: h, contracts: c, hasDossier: !!(typeof _getDossier === 'function' && _getDossier()) } : null;
+  } catch(e) { return null; }
 })();
 </script>
 </body></html>
