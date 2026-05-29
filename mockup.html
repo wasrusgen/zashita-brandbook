@@ -2746,6 +2746,8 @@ function startScan() {
         });
         // Сохраняем в localStorage — переживёт перезагрузку страницы
         try { localStorage.setItem('zashita_deadlines', JSON.stringify(_DEADLINES)); } catch(e){}
+        // Сохраняем договор в хранилище (persistent memory)
+        _saveContract(data.meta, data.risks, data.deadlines, text);
       }
     })
     .catch(function(e){ console.warn('API /deadlines:', e); });
@@ -4527,37 +4529,134 @@ var _apiAvailable = null; // null=не проверяли, true/false
 
 // Текущий контекст договора (deadlines из последнего анализа)
 var _contractDeadlines = null;
-var _chatHistory = []; // история чата для /api/elena
 
-// Собирает контекст клиента для передачи Елене
+// ── PERSISTENT MEMORY ──────────────────────────────────────────────────────────
+var _MEM_HISTORY   = 'zashita_chat_v1';      // история сообщений
+var _MEM_CONTRACTS = 'zashita_contracts_v1'; // хранилище договоров
+var _MEM_DOSSIER   = 'zashita_dossier_v1';   // сжатое досье компании
+
+// История чата — загружается из localStorage, переживает перезагрузку
+var _chatHistory = (function() {
+  try { var h = localStorage.getItem(_MEM_HISTORY); return h ? JSON.parse(h) : []; }
+  catch(e) { return []; }
+})();
+
+function _saveHistory() {
+  try { localStorage.setItem(_MEM_HISTORY, JSON.stringify(_chatHistory.slice(-60))); }
+  catch(e) {}
+}
+
+// Хранилище договоров
+function _saveContract(meta, risks, deadlines, textPreview) {
+  try {
+    var contracts = JSON.parse(localStorage.getItem(_MEM_CONTRACTS) || '[]');
+    var c = {
+      id: Date.now(),
+      ts: new Date().toISOString(),
+      type: (meta && meta.type) || 'Договор',
+      counterparty: (meta && (meta.counterparty || meta.party_b || meta.contractor)) || '',
+      start: (meta && meta.start) || '',
+      end: (meta && meta.end) || '',
+      deadlines_count: (deadlines || []).length,
+      risks_critical: (risks || []).filter(function(r){ return r.level === 'critical'; }).length,
+      top_risks: (risks || []).slice(0,3).map(function(r){ return r.title; }),
+      preview: (textPreview || '').slice(0, 150)
+    };
+    // Дедупликация по типу+контрагенту
+    contracts = contracts.filter(function(x){
+      return !(x.type === c.type && x.counterparty === c.counterparty);
+    });
+    contracts.unshift(c);
+    localStorage.setItem(_MEM_CONTRACTS, JSON.stringify(contracts.slice(0, 15)));
+  } catch(e) {}
+}
+
+function _getContracts() {
+  try { return JSON.parse(localStorage.getItem(_MEM_CONTRACTS) || '[]'); }
+  catch(e) { return []; }
+}
+
+// Досье — структурированные факты о клиенте
+function _getDossier() {
+  try { return JSON.parse(localStorage.getItem(_MEM_DOSSIER) || 'null'); }
+  catch(e) { return null; }
+}
+
+function _updateDossier(patch) {
+  // patch: {facts:[], decisions:[], open:[]}
+  try {
+    var d = _getDossier() || { facts:[], decisions:[], open:[], updated:'' };
+    if (patch.facts)     d.facts     = (d.facts.concat(patch.facts)).slice(-20);
+    if (patch.decisions) d.decisions = (d.decisions.concat(patch.decisions)).slice(-10);
+    if (patch.open)      d.open      = patch.open; // заменяем открытые вопросы
+    d.updated = new Date().toISOString();
+    localStorage.setItem(_MEM_DOSSIER, JSON.stringify(d));
+  } catch(e) {}
+}
+
+// Извлекаем факты из ответа Елены (без LLM — простые эвристики)
+function _extractFacts(userMsg, elenaReply) {
+  var facts = [], decisions = [], open = [];
+  var u = (userMsg||'').toLowerCase(), e = (elenaReply||'').toLowerCase();
+  if (/уже отправил|отправили|подписал|оплатил|сделал/.test(u))
+    decisions.push(userMsg.slice(0,80));
+  if (/не успею|не знаю|непонятно|что делать/.test(u))
+    open.push(userMsg.slice(0,80));
+  return { facts: facts, decisions: decisions, open: open };
+}
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Собирает контекст клиента для передачи Елене (включая persistent memory)
 function _buildElenaContext() {
   var clientName = '';
-  var caseContext = '';
   try {
-    // Имя из localStorage (B2B или физлицо)
     var b2b = JSON.parse(localStorage.getItem('zashita_b2b') || 'null');
     if (b2b && b2b.name) clientName = b2b.name;
-    // Имя из stats (если физлицо)
     if (!clientName) {
       var stats = JSON.parse(localStorage.getItem('zashita_intake_stats') || '[]');
       if (stats.length && stats[0].name) clientName = stats[0].name;
     }
   } catch(e) {}
 
-  // Контекст дела — ТОЛЬКО если пользователь реально загрузил договор в этой сессии
-  // НЕ берём из demo-дедлайнов/_rcLastContext чтобы не путать Елену чужим контекстом
-  var contractText = (document.getElementById('el-paste') || {}).value || '';
-  if (contractText && contractText.length > 50) {
-    // Есть реальный текст договора — используем первые 300 символов как контекст
-    caseContext = contractText.slice(0, 300);
-  } else if (_rcLastContext && _rcLastContext.caseName && _rcLastContext._userLoaded) {
-    // _userLoaded = флаг что пользователь сам загрузил, не demo
-    caseContext = _rcLastContext.caseName;
+  var parts = [];
+
+  // 1. Хранилище договоров — Елена знает все договоры клиента
+  var contracts = _getContracts();
+  if (contracts.length) {
+    var cList = contracts.map(function(c) {
+      var s = c.type;
+      if (c.counterparty) s += ' с ' + c.counterparty;
+      if (c.risks_critical) s += ' (' + c.risks_critical + ' крит. риска)';
+      return s;
+    }).join('; ');
+    parts.push('Договоры клиента: ' + cList);
   }
+
+  // 2. Активные сроки
+  var activeDL = (_DEADLINES || []).filter(function(d){ return !d.done; });
+  if (activeDL.length) {
+    parts.push('Активные сроки: ' + activeDL.slice(0,4).map(function(d){
+      return '«' + d.title + '» ' + d.date;
+    }).join(', '));
+  }
+
+  // 3. Досье — факты и решения из прошлых сессий
+  var dossier = _getDossier();
+  if (dossier) {
+    if (dossier.decisions && dossier.decisions.length)
+      parts.push('Принятые решения: ' + dossier.decisions.slice(-3).join('; '));
+    if (dossier.open && dossier.open.length)
+      parts.push('Открытые вопросы: ' + dossier.open.slice(0,2).join('; '));
+  }
+
+  // 4. Текст загруженного договора (текущая сессия)
+  var contractText = (document.getElementById('el-paste') || {}).value || '';
+  if (contractText && contractText.length > 50)
+    parts.push('Текущий договор (загружен): ' + contractText.slice(0, 300));
 
   return {
     client_name:  clientName,
-    case_context: caseContext,
+    case_context: parts.join('\n'),
     parties: _postalData ? {
       counterparty: _postalData.counterparty,
       counterEmail: _postalData.counterEmail
@@ -4638,8 +4737,12 @@ function _elenaApi(txt, intent, callback) {
       var parsed = _parseElenaActions(d.reply);
       _chatHistory.push({role:'user', content: txt});
       _chatHistory.push({role:'assistant', content: parsed.text});
-      // Передаём в callback объект {text, actions} — совместимо со старым кодом
-      // (старый код ожидает строку — если передать строку, ничего не сломается)
+      // Сохраняем историю в localStorage после каждого обмена
+      _saveHistory();
+      // Обновляем досье фактами из этого обмена
+      var facts = _extractFacts(txt, parsed.text);
+      if (facts.decisions.length || facts.open.length)
+        _updateDossier(facts);
       callback(parsed.text, parsed.actions);
     } else {
       callback(null, []);
@@ -6431,4 +6534,36 @@ function tab(name){
   </div>
 </div>
 
+<script>
+// ── COMPRESS SESSION → DOSSIER ─────────────────────────────────────────────────
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') _compressAsync(false);
+});
+
+function _compressAsync(showToast) {
+  if (!_apiAvailable || _chatHistory.length < 4) return;
+  fetch(API_BASE + '/api/compress', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      history: _chatHistory.slice(-30),
+      existing_dossier: _getDossier() || {}
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.facts || d.decisions || d.open) {
+      _updateDossier(d);
+      if (showToast) toast('💾 Елена запомнила контекст');
+    }
+  })
+  .catch(function(){});
+}
+
+// Флаг памяти — используется для контекстного приветствия
+window._hasMemory = (function() {
+  var h = _chatHistory.length, c = _getContracts().length;
+  return (h || c) ? { messages: h, contracts: c, hasDossier: !!_getDossier() } : null;
+})();
+</script>
 </body></html>
