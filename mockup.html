@@ -8200,8 +8200,10 @@ function _showReminderPicker(doc, contractType, intent) {
           'value="' + savedContact + '" style="font-size:12px;margin-bottom:6px">' +
         '<label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--mut);cursor:pointer">' +
           '<input type="checkbox" id="reminder-consent" style="margin-top:2px;width:13px;height:13px" checked>' +
-          'Согласен на обработку персональных данных в соответствии с ' +
-          '<a href="privacy.html" target="_blank" style="color:var(--bg)">Политикой конфиденциальности</a>' +
+          '<span>Согласен на обработку контактных данных <b>исключительно для направления напоминаний</b> ' +
+          'по данному делу. Без использования в маркетинге. ' +
+          '<a href="privacy.html" target="_blank" style="color:var(--bg)">Политика конфиденциальности</a>' +
+          ' · <a href="https://reestr.rkn.gov.ru/" target="_blank" style="color:var(--bg)">Реестр операторов РКН</a></span>' +
         '</label>' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:6px">' +
@@ -8256,15 +8258,17 @@ function _setReminder(docId, docLabel, contractType, remindAt, intent) {
 
   if (contactVal && hasConsent) {
     var ctx = _buildElenaContext();
-    fetch(API_BASE + '/api/contact/remind', {
+    fetch(API_BASE + '/api/contact', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        phone_or_telegram: contactVal,
-        doc_label:  docLabel,
-        remind_at:  remindAt,
-        name:       ctx.client_name || '',
-        consent:    true
+        phone:    contactVal.startsWith('@') || contactVal.includes('t.me') ? '' : contactVal,
+        telegram: contactVal.startsWith('@') || contactVal.includes('t.me') ? contactVal : '',
+        name:     ctx.client_name || '',
+        case_context: 'Напоминание: ' + docLabel + ' до ' + remindAt,
+        consent:  true,
+        purpose:  ['reminder'],   // ← ст.22 ч.2 п.1 152-ФЗ: только напоминания = уведомление РКН не нужно
+        source:   'reminder_picker'
       })
     }).then(function(r){ return r.json(); }).then(function(d){
       if (d.saved) {
