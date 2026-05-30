@@ -6673,26 +6673,27 @@ function _confirmIntake(intent, quote) {
   _chatHistory.push({role: 'user', content: quote});
   _saveHistory();
 
-  // Елена: фиксирует дело и спрашивает про договор
+  // Елена: фиксирует дело → запускает аудит документов
   setTimeout(function(){
     _rcAddTyping();
     var ctx = quote;
-    _elenaApi('Клиент подтвердил ситуацию: ' + ctx + '. Зафикисруй дело и спроси что нужно для помощи.',
+    _elenaApi('Клиент подтвердил ситуацию: ' + ctx + '. Зафиксируй и определи тип договора (аренда/подряд/купля-продажа/трудовой/займ/ДДУ/недвижимость) — одним словом.',
       intent,
-      function(apiReply, apiActions) {
+      function(apiReply) {
         _rcRemoveTyping();
-        var reply = apiReply || 'Хорошо, зафиксировала. Есть ли у Вас договор на руках? Если загрузите — смогу сразу оценить риски и предложить конкретные действия.';
+        var reply = apiReply || 'Хорошо, зафиксировала.';
         _chatHistory.push({role: 'assistant', content: reply});
         _saveHistory();
         _rcAddBubble(reply, false);
-        if (apiActions && apiActions.length) {
-          var m = document.getElementById('rchat-msgs');
-          if (m) _renderElenaActions(apiActions, m);
-        }
-        _rcShowControls();
-
-        // Обновляем досье
         _updateDossier({ facts: ['Зафиксировано дело: ' + ctx] });
+
+        // Определяем тип договора из ответа и запроса
+        var contractType = _detectContractType(ctx + ' ' + reply);
+
+        // Пауза → показываем аудит документов в чате
+        setTimeout(function(){
+          _showDocAuditInChat(contractType, intent);
+        }, 800);
       });
   }, 400);
 }
@@ -7686,6 +7687,212 @@ function _compressAsync(showToast) {
     }
   })
   .catch(function(){});
+}
+
+// ── ОПРЕДЕЛЕНИЕ ТИПА ДОГОВОРА ───────────────────────────────────────────────
+function _detectContractType(text) {
+  var t = (text || '').toLowerCase();
+  if (/аренд|съезж|помещен|цех|офис|склад|депозит/.test(t))            return 'аренда';
+  if (/подряд|услуг|ремонт|строит|разработ|дизайн|монтаж/.test(t))    return 'подряд';
+  if (/дду|долев|новостройк|застройщ|214/.test(t))                     return 'дду';
+  if (/квартир|недвижим|вторич|комнат|дом|земл/.test(t))              return 'недвижимость';
+  if (/трудов|работодат|уволь|зарплат|ип/.test(t))                    return 'трудовой';
+  if (/займ|расписк|долг|одолжил|кредит/.test(t))                     return 'займ';
+  if (/поставк|товар|купли-продаж|покупател|продавец/.test(t))        return 'купля-продажа';
+  if (/риелтор|агентств|комисси|эксклюзив/.test(t))                   return 'агент';
+  return null;
+}
+
+// ── АУДИТ ДОКУМЕНТОВ В ЧАТЕ ─────────────────────────────────────────────────
+function _showDocAuditInChat(contractType, intent) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  var cl = DOC_CHECKLISTS[contractType];
+  if (!cl) {
+    // Тип не определён — спрашиваем
+    var ask = document.createElement('div');
+    ask.className = 'hc-msg hc-elena';
+    ask.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg">' +
+      '<div class="hc-bubble">Уточните — что за договор у Вас: аренда, подряд, купля-продажа, трудовой или что-то другое?</div>';
+    msgs.appendChild(ask);
+    _rcShowControls();
+    return;
+  }
+
+  // Загружаем сохранённые отметки
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + contractType) || '{}'); } catch(e){}
+
+  var critical = cl.docs.filter(function(d){ return !saved[d.id] && d.risk === 'critical'; });
+  var high     = cl.docs.filter(function(d){ return !saved[d.id] && d.risk === 'high'; });
+  var all      = cl.docs.length;
+  var have     = Object.keys(saved).filter(function(k){ return saved[k]; }).length;
+
+  // Вводная от Елены
+  var intro = document.createElement('div');
+  intro.className = 'hc-msg hc-elena';
+  var introText = critical.length
+    ? 'Сейчас проверим документы по Вашей ситуации. Сразу вижу ' + critical.length + ' критических пункта — это важно для защиты Ваших интересов.'
+    : 'Давайте быстро проверим документы — это займёт минуту.';
+  intro.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble">' + introText + '</div>';
+  msgs.appendChild(intro);
+
+  // Чеклист в пузыре
+  setTimeout(function(){
+    var checkDiv = document.createElement('div');
+    checkDiv.className = 'hc-msg hc-elena';
+
+    var docsHtml = '<div style="margin-bottom:8px;font-size:13px;color:var(--mut)">' + cl.icon + ' ' + cl.label + ' — отметьте что есть:</div>';
+    docsHtml += '<div style="display:flex;flex-direction:column;gap:6px">';
+
+    cl.docs.forEach(function(doc) {
+      var checked = !!saved[doc.id];
+      var riskBadge = {critical:'🔴', high:'🟠', medium:'🟡'}[doc.risk] || '⚪';
+      docsHtml +=
+        '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;' +
+          'background:' + (checked ? '#f0fdf4' : '#fafafa') + ';' +
+          'border:1px solid ' + (checked ? '#86efac' : '#e5e7eb') + '">' +
+          '<input type="checkbox" ' + (checked ? 'checked' : '') + ' style="width:15px;height:15px;accent-color:#16a34a" ' +
+            'onchange="_auditCheck(\'' + contractType + '\',\'' + doc.id + '\',this.checked,\'' + intent + '\')">' +
+          '<span style="flex:1;font-size:13px' + (checked ? ';color:#15803d' : '') + '">' + doc.label + '</span>' +
+          '<span style="font-size:11px">' + riskBadge + '</span>' +
+        '</label>';
+    });
+
+    docsHtml += '</div>';
+    docsHtml += '<div style="margin-top:10px;font-size:12px;color:var(--mut)">Отметьте всё что есть — покажу риски по каждому пропуску</div>';
+
+    checkDiv.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble" style="max-width:500px">' + docsHtml + '</div>';
+    msgs.appendChild(checkDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    // Если уже есть пропуски — сразу показываем что критично
+    if (critical.length) {
+      setTimeout(function(){ _showAuditGaps(contractType, intent); }, 1000);
+    } else {
+      _rcShowControls();
+    }
+  }, 600);
+}
+
+function _auditCheck(contractType, docId, checked, intent) {
+  // Обновляем состояние чеклиста
+  try {
+    var saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + contractType) || '{}');
+    saved[docId] = checked;
+    localStorage.setItem('zashita_doccheck_' + contractType, JSON.stringify(saved));
+  } catch(e){}
+
+  // Пересчитываем пропуски и показываем актуальные риски
+  setTimeout(function(){ _showAuditGaps(contractType, intent); }, 300);
+}
+
+function _showAuditGaps(contractType, intent) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  var cl = DOC_CHECKLISTS[contractType];
+  if (!cl) return;
+
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + contractType) || '{}'); } catch(e){}
+
+  var missing = cl.docs.filter(function(d){ return !saved[d.id]; });
+  var critical = missing.filter(function(d){ return d.risk === 'critical'; });
+
+  // Удаляем старый gap-блок
+  var old = document.getElementById('audit-gaps');
+  if (old) old.remove();
+
+  if (!missing.length) {
+    var okDiv = document.createElement('div');
+    okDiv.id = 'audit-gaps';
+    okDiv.className = 'hc-msg hc-elena';
+    okDiv.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg">' +
+      '<div class="hc-bubble"><div style="color:#16a34a;font-weight:700;margin-bottom:6px">✅ Отличный пакет документов!</div>' +
+      'Всё что нужно — в наличии. Можем сразу перейти к разбору ситуации.</div>';
+    msgs.appendChild(okDiv);
+    _rcShowControls();
+    return;
+  }
+
+  var gapDiv = document.createElement('div');
+  gapDiv.id = 'audit-gaps';
+  gapDiv.className = 'hc-msg hc-elena';
+
+  var gapsHtml = '';
+  if (critical.length) {
+    gapsHtml += '<div style="font-weight:700;color:#dc2626;margin-bottom:8px">⚠️ Критические пробелы:</div>';
+    critical.forEach(function(d){
+      gapsHtml += '<div style="background:#fef2f2;border-left:3px solid #dc2626;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:6px;font-size:13px">' +
+        '<b>' + d.label + '</b><br><span style="color:#6b7280">' + d.tip + '</span></div>';
+    });
+  }
+
+  var nonCrit = missing.filter(function(d){ return d.risk !== 'critical'; });
+  if (nonCrit.length && !critical.length) {
+    gapsHtml += '<div style="font-weight:600;margin-bottom:8px">Рекомендую получить:</div>';
+    nonCrit.forEach(function(d){
+      var c = d.risk === 'high' ? '#d97706' : '#2563eb';
+      gapsHtml += '<div style="border-left:3px solid ' + c + ';padding:6px 10px;margin-bottom:4px;font-size:13px;color:#374151">' + d.label + '</div>';
+    });
+  }
+
+  // Кнопки действий
+  gapsHtml += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
+  if (critical.length) {
+    gapsHtml += '<button class="btn btn-p" style="padding:7px 14px;font-size:12px" onclick="_offerDocFix(\'' + contractType + '\',\'' + intent + '\')">🛠 Исправить ситуацию</button>';
+  }
+  gapsHtml += '<button class="svc-btn-detail" style="font-size:12px" onclick="tab(\'docs\');go(\'cabinet\')">📋 Открыть чеклист</button>';
+  gapsHtml += '</div>';
+
+  gapDiv.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble" style="max-width:480px">' + gapsHtml + '</div>';
+  msgs.appendChild(gapDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+  _rcShowControls();
+}
+
+function _offerDocFix(contractType, intent) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + contractType) || '{}'); } catch(e){}
+  var cl = DOC_CHECKLISTS[contractType] || {docs:[]};
+  var critical = cl.docs.filter(function(d){ return !saved[d.id] && d.risk === 'critical'; });
+
+  var fix = document.createElement('div');
+  fix.className = 'hc-msg hc-elena';
+
+  var fixes = '';
+  critical.forEach(function(d) {
+    var canGenerate = /уведомлени|акт|претензи|расписк/.test(d.label.toLowerCase());
+    fixes += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">' +
+      '<div style="font-size:13px">' + d.label + '</div>' +
+      (canGenerate
+        ? '<button class="btn btn-p" style="padding:5px 10px;font-size:11px;white-space:nowrap" ' +
+            'onclick="_startTemplate(\'' + _docToTemplate(d.id, contractType) + '\')">📝 Составить</button>'
+        : '<span style="font-size:11px;color:var(--mut)">запросить у стороны</span>') +
+    '</div>';
+  });
+
+  fix.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble" style="max-width:480px">' +
+    '<div style="font-weight:600;margin-bottom:10px">Что можно сделать прямо сейчас:</div>' +
+    fixes + '</div>';
+  msgs.appendChild(fix);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function _docToTemplate(docId, contractType) {
+  var map = {
+    'notice': 'notice_no_renewal',
+    'act': 'act_acceptance',
+    'act_out': 'act_acceptance',
+    'receipt': 'notice_no_renewal',
+  };
+  return map[docId] || 'claim_payment';
 }
 
 // ── ЧЕКЛИСТ ДОКУМЕНТОВ ──────────────────────────────────────────────────────
