@@ -1726,6 +1726,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <a id="t-shab" onclick="tab('shab')">📋 Шаблоны</a>
       <a id="t-create" onclick="tab('create')">✍️ Составить документ</a>
       <a id="t-docs" onclick="tab('docs')">✅ Мои документы</a>
+      <a id="t-casemap" onclick="tab('casemap')">📝 Карта дела</a>
       <a id="t-requisites" onclick="tab('requisites')">🖊️ Реквизиты</a>
       <a id="t-balance" onclick="tab('balance')">💳 Баланс и оплата</a>
       <a onclick="go('start')">↩ Выйти (в начало)</a>
@@ -2263,6 +2264,24 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <!-- Заполняется через renderDocChecklist() -->
           <div style="padding:24px;text-align:center;color:var(--mut)">
             Загрузите договор или опишите ситуацию Елене — она определит тип и покажет нужный чеклист.
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Карта дела — примечания, риски, обещания -->
+      <div class="tabpane" id="p-casemap"><div class="main-body">
+        <div class="crumb">Кабинет</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h1 style="margin:0">📝 Карта дела</h1>
+          <button class="svc-btn-detail" style="font-size:12px" onclick="_exportCaseMap()">📄 Скачать PDF</button>
+        </div>
+        <div class="enote" style="margin-bottom:20px"><img src="logos/elena-photo.jpg">
+          <div class="et">Здесь собрано всё что важно знать по делу: принятые решения, зафиксированные риски, обещания по документам. <b>Это приложение к делу — не сам документ.</b></div>
+        </div>
+        <div id="casemap-content">
+          <!-- Заполняется через renderCaseMap() -->
+          <div style="text-align:center;padding:32px;color:var(--mut)">
+            Начните работу с Еленой — карта дела заполнится автоматически.
           </div>
         </div>
       </div></div>
@@ -4694,8 +4713,10 @@ function _showGeneratedDoc(data) {
       '</div>' +
       '<div style="padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap">' +
         '<button class="btn btn-p" style="padding:9px 18px;font-size:13px" onclick="_printDoc()">🖨️ Распечатать</button>' +
-        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_copyDoc()">📋 Скопировать</button>' +
-        '<button class="svc-btn-detail" style="font-size:13px" onclick="_startTemplate(_tplCurrent&&_tplCurrent.key)">✏️ Изменить данные</button>' +
+        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_sendDocToCounterparty()">📨 Отправить контрагенту</button>' +
+        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_copyDoc()">📋 Скопировать текст</button>' +
+        '<button class="svc-btn-detail" style="font-size:13px" onclick="_startTemplate(_tplCurrent&&_tplCurrent.key)">✏️ Изменить</button>' +
+        '<button class="svc-btn-detail" style="font-size:13px" onclick="document.getElementById(\'tpl-result\').remove();tab(\'casemap\');go(\'cabinet\')">📝 Карта дела</button>' +
       '</div>' +
     '</div>';
 
@@ -4715,6 +4736,74 @@ function _printDoc() {
     '<body><pre>' + text.innerHTML + '</pre>' +
     '<script>window.print();<\/script></body></html>');
   w.document.close();
+}
+
+function _sendDocToCounterparty() {
+  var textEl = document.getElementById('tpl-doc-text');
+  if (!textEl) return;
+
+  var text   = textEl.textContent || textEl.innerText || '';
+  var postalData = typeof _postalData !== 'undefined' ? _postalData : null;
+  var toEmail    = (postalData && postalData.counterEmail) || '';
+  var toName     = (postalData && postalData.counterparty) || 'Контрагенту';
+
+  // Закрываем модал документа
+  var modal = document.getElementById('tpl-result');
+  if (modal) modal.remove();
+
+  // Показываем модал отправки
+  var sendModal = document.createElement('div');
+  sendModal.id = 'send-doc-modal';
+  sendModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center';
+  sendModal.innerHTML =
+    '<div style="background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:540px;padding:24px">' +
+      '<div style="font-weight:700;font-size:15px;margin-bottom:6px">📨 Отправить контрагенту</div>' +
+      '<div style="font-size:13px;color:var(--mut);margin-bottom:16px">Документ будет отправлен по email или вы скопируете ссылку</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+        '<input id="send-email" class="elena-main-inp" type="email" placeholder="Email контрагента" value="' + toEmail + '">' +
+        '<input id="send-subject" class="elena-main-inp" placeholder="Тема письма" value="Направляю документ для ознакомления">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-p" style="flex:1;padding:10px" onclick="_doSendEmail()">📧 Отправить по email</button>' +
+        '<button class="btn btn-o" style="padding:10px 14px" onclick="_copyAndClose()">📋 Скопировать + закрыть</button>' +
+        '<button class="svc-btn-detail" onclick="document.getElementById(\'send-doc-modal\').remove()">Отмена</button>' +
+      '</div>' +
+      '<div style="margin-top:12px;font-size:11px;color:var(--mut)">' +
+        '💡 После отправки зафиксируем факт в карте дела — дата, получатель.' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(sendModal);
+  setTimeout(function(){ var e = document.getElementById('send-email'); if (e && !e.value) e.focus(); }, 200);
+}
+
+function _doSendEmail() {
+  var email   = (document.getElementById('send-email') || {}).value || '';
+  var subject = (document.getElementById('send-subject') || {}).value || 'Документ';
+  var textEl  = document.getElementById('tpl-doc-text');
+  var body    = textEl ? (textEl.textContent || '') : '';
+
+  // Открываем mailto (браузер откроет почтовый клиент)
+  var mailtoLink = 'mailto:' + encodeURIComponent(email) +
+    '?subject=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body.slice(0, 2000) + (body.length > 2000 ? '\n\n...(полный текст скопируйте из приложения)' : ''));
+
+  window.location.href = mailtoLink;
+
+  // Фиксируем в карте дела
+  _addCaseNote('decision',
+    'Документ отправлен: ' + subject + (email ? ' → ' + email : ''),
+    { email: email, date: new Date().toISOString() });
+
+  document.getElementById('send-doc-modal').remove();
+  toast('✅ Открываю почтовый клиент. Факт отправки зафиксирован в карте дела.');
+}
+
+function _copyAndClose() {
+  _copyDoc();
+  var m = document.getElementById('send-doc-modal');
+  if (m) m.remove();
+  _addCaseNote('decision', 'Текст документа скопирован для отправки контрагенту', {});
+  toast('📋 Текст скопирован. Вставьте в письмо контрагенту.');
 }
 
 function _copyDoc() {
@@ -7376,6 +7465,7 @@ function tab(name){
   if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();
   if(name==='shab'       && typeof renderContextTemplates==='function') renderContextTemplates();
   if(name==='requisites' && typeof _loadRequisites==='function') _loadRequisites();
+  if(name==='casemap'    && typeof renderCaseMap==='function') renderCaseMap();
   if(name==='docs') {
     var contracts = typeof _getContracts === 'function' ? _getContracts() : [];
     if (contracts.length && typeof renderDocChecklist === 'function') renderDocChecklist(contracts[0].type);
@@ -7689,6 +7779,132 @@ function _compressAsync(showToast) {
   .catch(function(){});
 }
 
+// ── КАРТА ДЕЛА ───────────────────────────────────────────────────────────────
+
+var _CASE_NOTES_KEY = 'zashita_case_notes';
+
+// Добавить заметку в карту дела
+function _addCaseNote(type, text, meta) {
+  try {
+    var notes = JSON.parse(localStorage.getItem(_CASE_NOTES_KEY) || '[]');
+    notes.push({
+      id:   Date.now(),
+      ts:   new Date().toISOString(),
+      type: type,  // 'risk' | 'missing_doc' | 'promise' | 'decision' | 'refusal' | 'acknowledged'
+      text: text,
+      meta: meta || {}
+    });
+    localStorage.setItem(_CASE_NOTES_KEY, JSON.stringify(notes));
+  } catch(e){}
+}
+
+function _getCaseNotes() {
+  try { return JSON.parse(localStorage.getItem(_CASE_NOTES_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function renderCaseMap() {
+  var el = document.getElementById('casemap-content');
+  if (!el) return;
+
+  var notes = _getCaseNotes();
+  var dossier = _getDossier() || {};
+
+  if (!notes.length && !dossier.facts && !dossier.decisions && !dossier.open) {
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--mut)">Начните работу с Еленой — карта дела заполнится автоматически.</div>';
+    return;
+  }
+
+  var today = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'long', year:'numeric'});
+  var html = '<div style="font-size:12px;color:var(--mut);margin-bottom:20px">Сформировано: ' + today + '</div>';
+
+  // Секция: Принятые решения (из досье)
+  if (dossier.decisions && dossier.decisions.length) {
+    html += _cmSection('✅ Принятые решения', '#16a34a', dossier.decisions.map(function(d){
+      return {text: d, icon: '✅'};
+    }));
+  }
+
+  // Секция: Зафиксированные риски
+  var risks = notes.filter(function(n){ return n.type === 'risk' || n.type === 'acknowledged'; });
+  if (risks.length) {
+    html += _cmSection('⚠️ Принятые риски (клиент ознакомлен)', '#d97706', risks.map(function(n){
+      return {text: n.text, icon: n.type === 'acknowledged' ? '👁' : '⚠️', date: n.ts};
+    }));
+  }
+
+  // Секция: Отсутствующие документы
+  var missing = notes.filter(function(n){ return n.type === 'missing_doc'; });
+  if (missing.length) {
+    html += _cmSection('📁 Документы отсутствуют', '#dc2626', missing.map(function(n){
+      return {text: n.text, icon: '❌', sub: n.meta.reason || '', date: n.ts};
+    }));
+  }
+
+  // Секция: Обещания загрузить
+  var promises = notes.filter(function(n){ return n.type === 'promise'; });
+  if (promises.length) {
+    html += _cmSection('🕐 Обещано загрузить позже', '#2563eb', promises.map(function(n){
+      return {text: n.text, icon: '📋', date: n.ts};
+    }));
+  }
+
+  // Секция: Отказы контрагента
+  var refusals = notes.filter(function(n){ return n.type === 'refusal'; });
+  if (refusals.length) {
+    html += _cmSection('🚫 Отказы контрагента', '#7c3aed', refusals.map(function(n){
+      return {text: n.text, icon: '🚫', date: n.ts};
+    }));
+  }
+
+  // Секция: Открытые вопросы
+  if (dossier.open && dossier.open.length) {
+    html += _cmSection('❓ Открытые вопросы', '#6b7280', dossier.open.map(function(d){
+      return {text: d, icon: '❓'};
+    }));
+  }
+
+  // Подпись
+  html += '<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--line);' +
+    'font-size:11px;color:var(--mut);text-align:center">' +
+    'Карта дела сформирована сервисом ЗАЩИТА (@wasrusgen1) · i@wasrusgen.ru · ' + today +
+    '</div>';
+
+  el.innerHTML = html;
+}
+
+function _cmSection(title, color, items) {
+  if (!items || !items.length) return '';
+  var html = '<div style="margin-bottom:20px">' +
+    '<div style="font-weight:700;font-size:14px;color:' + color + ';margin-bottom:8px;' +
+      'padding-bottom:6px;border-bottom:2px solid ' + color + '20">' + title + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:6px">';
+  items.forEach(function(item) {
+    var dateStr = item.date ? ' <span style="color:#9ca3af;font-size:11px">' +
+      new Date(item.date).toLocaleDateString('ru-RU') + '</span>' : '';
+    html += '<div style="padding:8px 12px;background:#f9fafb;border-radius:8px;border-left:3px solid ' + color + '">' +
+      '<span style="margin-right:6px">' + item.icon + '</span>' +
+      '<span style="font-size:13px">' + item.text + '</span>' + dateStr +
+      (item.sub ? '<div style="font-size:12px;color:var(--mut);margin-top:3px">' + item.sub + '</div>' : '') +
+    '</div>';
+  });
+  return html + '</div></div>';
+}
+
+function _exportCaseMap() {
+  var el = document.getElementById('casemap-content');
+  if (!el) return;
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>Карта дела — ЗАЩИТА</title>' +
+    '<style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;font-size:13px;color:#1a1a2e;line-height:1.6}' +
+    'h1{color:#9f1239}h2{font-size:14px}' +
+    '.section{margin-bottom:20px}.item{padding:8px 12px;background:#f9fafb;border-radius:6px;margin-bottom:4px}' +
+    '</style></head><body>' +
+    '<h1>📝 Карта дела</h1>' + el.innerHTML +
+    '<script>window.print();<\/script></body></html>');
+  w.document.close();
+}
+
 // ── ОПРЕДЕЛЕНИЕ ТИПА ДОГОВОРА ───────────────────────────────────────────────
 function _detectContractType(text) {
   var t = (text || '').toLowerCase();
@@ -7879,13 +8095,18 @@ function _handleMissingDoc(contractType, docId, variant, intent) {
   uDiv.innerHTML = '<div class="hc-bubble">' + (labels[variant] || variant) + '</div>';
   msgs.appendChild(uDiv);
 
-  // Сохраняем статус
+  // Сохраняем статус + пишем в карту дела
   try {
     var statKey = 'zashita_docstatus_' + contractType;
     var statuses = JSON.parse(localStorage.getItem(statKey) || '{}');
     statuses[docId] = variant;
     localStorage.setItem(statKey, JSON.stringify(statuses));
   } catch(e){}
+
+  var noteTypeMap = { never:'missing_doc', later:'promise', unknown:'missing_doc', lost:'missing_doc', refused:'refusal' };
+  _addCaseNote(noteTypeMap[variant] || 'missing_doc',
+    doc.label + ' — ' + (labels[variant] || variant),
+    { docId: docId, contractType: contractType, reason: labels[variant] });
 
   // Ответ Елены через API
   var cl  = DOC_CHECKLISTS[contractType] || {docs:[]};
@@ -8007,8 +8228,9 @@ function _acknowledgeRisksAndProceed(contractType, intent) {
   uDiv.innerHTML = '<div class="hc-bubble">Понимаю риски — продолжаем</div>';
   msgs.appendChild(uDiv);
 
-  // Сохраняем факт подтверждения в досье
+  // Сохраняем факт подтверждения в досье + карту дела
   _updateDossier({ decisions: ['Клиент подтвердил осведомлённость о рисках по ' + contractType + ' и продолжил'] });
+  _addCaseNote('acknowledged', 'Клиент ознакомлен с рисками по договору (' + contractType + ') и подтвердил готовность продолжать', { contractType: contractType });
   _chatHistory.push({role: 'user', content: 'Понимаю риски — продолжаем'});
   _saveHistory();
 
