@@ -8182,6 +8182,9 @@ function _showReminderPicker(doc, contractType, intent) {
     { label: 'Через неделю',     val: _dateOffset(7, 9)  },
   ];
 
+  var savedContact = '';
+  try { var b2b = JSON.parse(localStorage.getItem('zashita_b2b')||'null'); if(b2b&&b2b.phone) savedContact=b2b.phone; } catch(e){}
+
   var div = document.createElement('div');
   div.className = 'hc-msg hc-elena';
   div.innerHTML =
@@ -8189,6 +8192,17 @@ function _showReminderPicker(doc, contractType, intent) {
     '<div class="hc-bubble">' +
       '<div style="font-size:13px;margin-bottom:10px">' +
         'Хорошо! Когда напомнить загрузить <b>' + doc.label + '</b>?' +
+      '</div>' +
+      // Поле контакта
+      '<div style="margin-bottom:12px;padding:10px;background:#f0f9ff;border-radius:8px">' +
+        '<div style="font-size:12px;font-weight:600;margin-bottom:6px">📲 Куда прислать напоминание?</div>' +
+        '<input id="reminder-contact" class="elena-main-inp" placeholder="Телефон +7... или Telegram @username" ' +
+          'value="' + savedContact + '" style="font-size:12px;margin-bottom:6px">' +
+        '<label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--mut);cursor:pointer">' +
+          '<input type="checkbox" id="reminder-consent" style="margin-top:2px;width:13px;height:13px" checked>' +
+          'Согласен на обработку персональных данных в соответствии с ' +
+          '<a href="privacy.html" target="_blank" style="color:var(--bg)">Политикой конфиденциальности</a>' +
+        '</label>' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:6px">' +
         dates.map(function(d){
@@ -8226,7 +8240,6 @@ function _formatDate(isoStr) {
 }
 
 function _setReminder(docId, docLabel, contractType, remindAt, intent) {
-  // Убираем picker
   var msgs = document.getElementById('rchat-msgs');
   var last = msgs ? msgs.lastElementChild : null;
   if (last && last.className.includes('hc-elena')) last.remove();
@@ -8234,6 +8247,38 @@ function _setReminder(docId, docLabel, contractType, remindAt, intent) {
   _saveReminder(docLabel, docId, contractType, remindAt);
   _addCaseNote('promise', docLabel + ' — напоминание установлено на ' + _formatDate(remindAt),
     { docId: docId, contractType: contractType, remindAt: remindAt });
+
+  // Сохраняем контакт на сервер если указан и есть согласие
+  var contactInp  = document.getElementById('reminder-contact');
+  var consentInp  = document.getElementById('reminder-consent');
+  var contactVal  = contactInp ? contactInp.value.trim() : '';
+  var hasConsent  = consentInp ? consentInp.checked : false;
+
+  if (contactVal && hasConsent) {
+    var ctx = _buildElenaContext();
+    fetch(API_BASE + '/api/contact/remind', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        phone_or_telegram: contactVal,
+        doc_label:  docLabel,
+        remind_at:  remindAt,
+        name:       ctx.client_name || '',
+        consent:    true
+      })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d.saved) {
+        // Сохраняем в localStorage для следующих форм
+        try {
+          var b2b = JSON.parse(localStorage.getItem('zashita_b2b') || '{}');
+          if (d.type === 'telegram') b2b.telegram = contactVal;
+          else b2b.phone = contactVal;
+          localStorage.setItem('zashita_b2b', JSON.stringify(b2b));
+        } catch(e){}
+        toast('✅ Контакт сохранён — пришлём напоминание ' + _formatDate(remindAt));
+      }
+    }).catch(function(){});
+  }
 
   // Пузырь клиента
   if (msgs) {
