@@ -1241,7 +1241,10 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         </div>
         <div class="cta"><button class="btn btn-p" onclick="go('elena')">Проверить договор бесплатно →</button></div>
         <div class="priv">🔒 Без регистрации · данные у вас · первые 3 риска бесплатно</div>
-        <div style="margin-top:12px"><button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Войти в кабинет</button></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-o" style="font-size:13px;padding:8px 18px" onclick="go('cabinet')">📂 Войти в кабинет</button>
+          <button class="svc-btn-detail" style="font-size:12px" onclick="go('org-register')">🏢 Для организаций →</button>
+        </div>
       </div>
       <!-- Вернувшийся клиент -->
       <div id="hero-returning" style="display:none">
@@ -1424,6 +1427,53 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
         onkeydown="if(event.key==='Enter')_elChatSend()">
       <button class="voice-btn-sm" onclick="toggleVoice('el-chat-inp')" title="Голосовой ввод">🎙</button>
       <button class="elena-go-btn" onclick="_elChatSend()">→</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═ РЕГИСТРАЦИЯ ОРГАНИЗАЦИИ ═ -->
+<section class="screen" id="org-register">
+  <div class="topbar"><img class="topbar-wm" src="logos/logo-zashita-word.svg" alt="ЗАЩИТА">
+    <span class="ttl">Регистрация организации</span>
+    <span class="back back-link" onclick="go('start')">← назад</span>
+  </div>
+  <div style="max-width:520px;margin:0 auto;padding:24px 18px">
+    <div class="enote" style="margin-bottom:24px"><img src="logos/elena-photo.jpg">
+      <div class="et"><b>Корпоративный доступ.</b> Один кабинет на всю компанию — каждому сотруднику свой доступ, руководителю — общий дашборд.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--mut);margin-bottom:4px">Организация</div>
+        <input class="elena-main-inp" id="reg-org-name" placeholder="ООО «Название» или ИП Фамилия">
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--mut);margin-bottom:4px">ИНН</div>
+        <input class="elena-main-inp" id="reg-inn" placeholder="7812345678">
+      </div>
+      <div style="border-top:1px solid var(--line);padding-top:12px;margin-top:4px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px">Администратор (вы)</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input class="elena-main-inp" id="reg-admin-name"  placeholder="Имя и фамилия">
+          <input class="elena-main-inp" id="reg-admin-email" placeholder="Email" type="email">
+          <input class="elena-main-inp" id="reg-admin-phone" placeholder="Телефон +7...">
+        </div>
+      </div>
+      <button class="btn btn-p" style="padding:12px;font-size:15px;margin-top:8px" onclick="_registerOrg()">
+        Зарегистрировать организацию →
+      </button>
+      <div style="text-align:center;font-size:13px;color:var(--mut)">
+        Уже зарегистрированы? <a style="color:var(--bg);cursor:pointer" onclick="_showOrgLogin()">Войти по токену</a>
+      </div>
+    </div>
+
+    <!-- Вход по токену -->
+    <div id="org-login-form" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Войти по invite-токену</div>
+      <div style="display:flex;gap:8px">
+        <input class="elena-main-inp" id="org-token-inp" placeholder="Вставьте токен из приглашения" style="flex:1">
+        <button class="btn btn-p" style="padding:10px 16px" onclick="_loginByToken()">Войти</button>
+      </div>
     </div>
   </div>
 </section>
@@ -1727,6 +1777,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <a id="t-create" onclick="tab('create')">✍️ Составить документ</a>
       <a id="t-docs" onclick="tab('docs')">✅ Мои документы</a>
       <a id="t-casemap" onclick="tab('casemap')">📝 Карта дела</a>
+      <a id="t-team" onclick="tab('team')" style="display:none">👥 Команда</a>
       <a id="t-requisites" onclick="tab('requisites')">🖊️ Реквизиты</a>
       <a id="t-balance" onclick="tab('balance')">💳 Баланс и оплата</a>
       <a onclick="go('start')">↩ Выйти (в начало)</a>
@@ -2265,6 +2316,17 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           <div style="padding:24px;text-align:center;color:var(--mut)">
             Загрузите договор или опишите ситуацию Елене — она определит тип и покажет нужный чеклист.
           </div>
+        </div>
+      </div></div>
+
+      <!-- Команда — дашборд менеджера -->
+      <div class="tabpane" id="p-team"><div class="main-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h1 style="margin:0">👥 Команда</h1>
+          <button class="btn btn-p" style="padding:7px 14px;font-size:13px" onclick="_showInviteModal()">+ Пригласить</button>
+        </div>
+        <div id="team-dashboard">
+          <div style="text-align:center;padding:32px;color:var(--mut)">Загрузка...</div>
         </div>
       </div></div>
 
@@ -4249,7 +4311,10 @@ window.addEventListener('DOMContentLoaded', checkReturning);
   var _origGo2 = window.go;
   window.go = function(id) {
     if (_origGo2) _origGo2(id);
-    if (id === 'cabinet') setTimeout(render, 80);
+    if (id === 'cabinet') {
+      setTimeout(render, 80);
+      if (typeof _initOrgUser === 'function') setTimeout(_initOrgUser, 120);
+    }
   };
   window.addEventListener('DOMContentLoaded', function(){
     var el = document.getElementById('ct-tbody');
@@ -7469,6 +7534,7 @@ function tab(name){
   if(name==='shab'       && typeof renderContextTemplates==='function') renderContextTemplates();
   if(name==='requisites' && typeof _loadRequisites==='function') _loadRequisites();
   if(name==='casemap'    && typeof renderCaseMap==='function') renderCaseMap();
+  if(name==='team'       && typeof renderTeamDashboard==='function') renderTeamDashboard();
   if(name==='docs') {
     var contracts = typeof _getContracts === 'function' ? _getContracts() : [];
     if (contracts.length && typeof renderDocChecklist === 'function') renderDocChecklist(contracts[0].type);
@@ -7780,6 +7846,234 @@ function _compressAsync(showToast) {
     }
   })
   .catch(function(){});
+}
+
+// ── МУЛЬТИПОЛЬЗОВАТЕЛЬ / ОРГАНИЗАЦИЯ ────────────────────────────────────────
+
+var _ORG_KEY  = 'zashita_org';   // {org_id, name}
+var _USER_KEY = 'zashita_user';  // {user_id, name, role, token, org_id}
+
+function _getOrgUser() {
+  try { return JSON.parse(localStorage.getItem(_USER_KEY) || 'null'); } catch(e){ return null; }
+}
+
+function _setOrgUser(user) {
+  try { localStorage.setItem(_USER_KEY, JSON.stringify(user)); } catch(e){}
+}
+
+function _orgHeaders() {
+  var u = _getOrgUser();
+  return u ? {'Content-Type':'application/json','X-User-Token': u.token} : {'Content-Type':'application/json'};
+}
+
+// Регистрация организации
+function _registerOrg() {
+  var orgName    = (document.getElementById('reg-org-name')  ||{}).value||'';
+  var inn        = (document.getElementById('reg-inn')       ||{}).value||'';
+  var adminName  = (document.getElementById('reg-admin-name') ||{}).value||'';
+  var adminEmail = (document.getElementById('reg-admin-email')||{}).value||'';
+  var adminPhone = (document.getElementById('reg-admin-phone')||{}).value||'';
+
+  if (!orgName || !adminName) { toast('Заполните название организации и имя'); return; }
+
+  fetch(API_BASE + '/api/org/register', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({org_name:orgName, inn:inn, admin_name:adminName,
+      admin_email:adminEmail, admin_phone:adminPhone})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { toast('Ошибка: ' + d.error); return; }
+    _setOrgUser({user_id:d.user_id, org_id:d.org_id, role:d.role, token:d.token,
+      name:adminName, org_name:orgName});
+    _afterOrgLogin(d.role);
+    toast('✅ Организация зарегистрирована');
+  }).catch(function(e){ toast('Ошибка: ' + e.message); });
+}
+
+// Вход по токену
+function _loginByToken() {
+  var token = (document.getElementById('org-token-inp')||{}).value||'';
+  if (!token.trim()) { toast('Введите токен'); return; }
+
+  fetch(API_BASE + '/api/org/me', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({token: token.trim()})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { toast('Токен не найден'); return; }
+    var u = d.user; var o = d.org;
+    _setOrgUser({user_id:u.id, org_id:u.org_id, role:u.role, token:token.trim(),
+      name:u.name, org_name:o.name||''});
+    _afterOrgLogin(u.role);
+    toast('✅ Добро пожаловать, ' + u.name);
+  }).catch(function(){ toast('Ошибка входа'); });
+}
+
+function _afterOrgLogin(role) {
+  // Показываем вкладку Команда для manager/admin
+  var teamTab = document.getElementById('t-team');
+  if (teamTab) teamTab.style.display = (role === 'manager' || role === 'admin') ? '' : 'none';
+
+  // Обновляем нижнюю панель кабинета
+  _updateSidebarUser();
+  go('cabinet');
+}
+
+function _showOrgLogin() {
+  var f = document.getElementById('org-login-form');
+  if (f) f.style.display = f.style.display === 'none' ? '' : 'none';
+}
+
+function _updateSidebarUser() {
+  var u = _getOrgUser();
+  if (!u) return;
+  // Обновляем имя в сайдбаре
+  var nameEl = document.querySelector('.side-user-name');
+  if (nameEl) nameEl.textContent = u.name;
+  var orgEl  = document.querySelector('.side-user-plan');
+  if (orgEl) orgEl.textContent = u.org_name || 'Организация';
+}
+
+// Дашборд команды
+function renderTeamDashboard() {
+  var el = document.getElementById('team-dashboard');
+  if (!el) return;
+  var u = _getOrgUser();
+  if (!u || (u.role !== 'manager' && u.role !== 'admin')) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--mut)">Только для менеджеров</div>';
+    return;
+  }
+
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mut)">Загружаю данные...</div>';
+
+  fetch(API_BASE + '/api/org/dashboard', {
+    method: 'POST', headers: _orgHeaders(), body: JSON.stringify({token: u.token})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { el.innerHTML = '<div style="padding:20px;color:#dc2626">' + d.error + '</div>'; return; }
+
+    var html = '<div class="kpi-row" style="margin-bottom:20px">' +
+      '<div class="kpi-card"><div class="kc-ico">👥</div><div><div class="kc-num">' + d.users.length + '</div><div class="kc-lbl">Сотрудников</div></div></div>' +
+      '<div class="kpi-card"><div class="kc-ico">📁</div><div><div class="kc-num">' + d.active_cases + '</div><div class="kc-lbl">Активных дел</div></div></div>' +
+      '<div class="kpi-card kpi-urg"><div class="kc-ico">⚠️</div><div><div class="kc-num">' + d.urgent_cases + '</div><div class="kc-lbl">Срочных</div></div></div>' +
+    '</div>';
+
+    d.users.forEach(function(usr) {
+      var roleLabel = {user:'Сотрудник', manager:'Менеджер', admin:'Администратор'}[usr.role]||usr.role;
+      var lastSeen  = usr.last_seen ? new Date(usr.last_seen).toLocaleDateString('ru-RU') : 'не заходил';
+      html += '<div style="border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:' + (usr.cases.length ? '12px' : '0') + '">' +
+          '<div style="width:36px;height:36px;border-radius:50%;background:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">' +
+            (usr.name||'?')[0].toUpperCase() +
+          '</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:700;font-size:14px">' + (usr.name||'—') + '</div>' +
+            '<div style="font-size:12px;color:var(--mut)">' + roleLabel +
+              (usr.department ? ' · ' + usr.department : '') + ' · последний вход: ' + lastSeen +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<span class="chip ' + (usr.cases_urgent ? 'd' : 'ok') + '" style="font-size:11px">' +
+              usr.cases_active + ' дел' + (usr.cases_urgent ? ' ⚠️'+usr.cases_urgent : '') +
+            '</span>' +
+          '</div>' +
+        '</div>';
+
+      if (usr.cases.length) {
+        html += '<div style="display:flex;flex-direction:column;gap:4px">';
+        usr.cases.slice(0,3).forEach(function(c){
+          var riskColor = {high:'#dc2626',medium:'#d97706',low:'#16a34a'}[c.risk_level]||'#6b7280';
+          html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f9fafb;border-radius:8px;font-size:12px">' +
+            '<span style="color:' + riskColor + '">●</span>' +
+            '<span style="flex:1">' + (c.title||'Без названия') + '</span>' +
+            '<span style="color:var(--mut)">' + (c.type||'') + '</span>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+
+    html += '<button class="btn btn-o" style="padding:8px 16px;font-size:13px;width:100%;margin-top:4px" onclick="_showInviteModal()">+ Пригласить сотрудника</button>';
+    el.innerHTML = html;
+  })
+  .catch(function(){ el.innerHTML = '<div style="padding:20px;color:#dc2626">Ошибка загрузки</div>'; });
+}
+
+// Приглашение сотрудника
+function _showInviteModal() {
+  var old = document.getElementById('invite-modal'); if(old) old.remove();
+  var u = _getOrgUser(); if (!u) return;
+  var modal = document.createElement('div');
+  modal.id = 'invite-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:540px;padding:24px">' +
+      '<div style="font-weight:700;font-size:15px;margin-bottom:16px">Пригласить сотрудника</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px">' +
+        '<input class="elena-main-inp" id="inv-name"  placeholder="Имя и фамилия">' +
+        '<input class="elena-main-inp" id="inv-email" placeholder="Email (необязательно)" type="email">' +
+        '<input class="elena-main-inp" id="inv-phone" placeholder="Телефон (необязательно)">' +
+        '<input class="elena-main-inp" id="inv-dept"  placeholder="Отдел (необязательно)">' +
+        '<select id="inv-role" style="border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--ink)">' +
+          '<option value="user">Сотрудник</option>' +
+          '<option value="manager">Менеджер (видит все дела)</option>' +
+        '</select>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:16px">' +
+        '<button class="btn btn-p" style="flex:1;padding:10px" onclick="_doInvite()">Создать приглашение</button>' +
+        '<button class="svc-btn-detail" onclick="document.getElementById(\'invite-modal\').remove()">Отмена</button>' +
+      '</div>' +
+      '<div id="invite-result" style="margin-top:12px"></div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){ var i=document.getElementById('inv-name'); if(i) i.focus(); }, 200);
+}
+
+function _doInvite() {
+  var u = _getOrgUser(); if (!u) return;
+  var name = (document.getElementById('inv-name')||{}).value||'';
+  if (!name) { toast('Введите имя'); return; }
+
+  fetch(API_BASE + '/api/org/invite', {
+    method: 'POST', headers: _orgHeaders(),
+    body: JSON.stringify({
+      token:      u.token,
+      name:       name,
+      email:      (document.getElementById('inv-email')||{}).value||'',
+      phone:      (document.getElementById('inv-phone')||{}).value||'',
+      department: (document.getElementById('inv-dept') ||{}).value||'',
+      role:       (document.getElementById('inv-role') ||{}).value||'user',
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { toast('Ошибка: '+d.error); return; }
+    var res = document.getElementById('invite-result');
+    if (res) res.innerHTML =
+      '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px;font-size:13px">' +
+        '<div style="font-weight:700;color:#16a34a;margin-bottom:6px">✅ Приглашение создано</div>' +
+        '<div style="color:#374151;margin-bottom:8px">Токен для входа:</div>' +
+        '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-family:monospace;font-size:12px;word-break:break-all">' +
+          d.invite_token +
+        '</div>' +
+        '<button class="svc-btn-detail" style="margin-top:8px;font-size:12px" onclick="navigator.clipboard.writeText(\'' +
+          d.invite_token + '\').then(function(){toast(\'Скопировано!\')})">📋 Скопировать</button>' +
+      '</div>';
+    renderTeamDashboard();
+  }).catch(function(){ toast('Ошибка'); });
+}
+
+// Инициализация мультипользователя при загрузке кабинета
+function _initOrgUser() {
+  var u = _getOrgUser();
+  if (!u) return;
+  var teamTab = document.getElementById('t-team');
+  if (teamTab) teamTab.style.display = (u.role==='manager'||u.role==='admin') ? '' : 'none';
+  _updateSidebarUser();
 }
 
 // ── КАРТА ДЕЛА ───────────────────────────────────────────────────────────────
