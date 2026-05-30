@@ -5891,6 +5891,9 @@ function initReturnChat() {
   if (!msgs) return;
   msgs.innerHTML = '';
 
+  // Проверяем просроченные напоминания — показываем ПОСЛЕ стандартного приветствия
+  if (typeof _checkRemindersOnStart === 'function') _checkRemindersOnStart();
+
   // ── Собираем персональные данные ──
   var lastOrder  = JSON.parse(localStorage.getItem('zashita_last_order')  || 'null');
   var credits    = parseInt(localStorage.getItem('zashita_credits')       || '0');
@@ -8120,6 +8123,12 @@ function _handleMissingDoc(contractType, docId, variant, intent) {
     refused: 'Контрагент отказывается дать документ "' + doc.label + '" клиенту. Объясни права клиента и предложи официальный запрос + судебное истребование.'
   };
 
+  // Для варианта "позже" — сразу показываем выбор даты напоминания
+  if (variant === 'later') {
+    setTimeout(function(){ _showReminderPicker(doc, contractType, intent); }, 300);
+    return;
+  }
+
   setTimeout(function(){
     _rcAddTyping();
     _elenaApi(promptMap[variant] || promptMap.never, intent, function(apiReply, apiActions){
@@ -8133,6 +8142,190 @@ function _handleMissingDoc(contractType, docId, variant, intent) {
       _rcShowControls();
     });
   }, 300);
+}
+
+// ── НАПОМИНАНИЯ ──────────────────────────────────────────────────────────────
+
+var _REMINDERS_KEY = 'zashita_reminders';
+
+function _saveReminder(docLabel, docId, contractType, remindAt) {
+  try {
+    var reminders = JSON.parse(localStorage.getItem(_REMINDERS_KEY) || '[]');
+    // Удаляем старый если был
+    reminders = reminders.filter(function(r){ return !(r.docId === docId && r.contractType === contractType); });
+    reminders.push({
+      id: Date.now(), docId: docId, contractType: contractType,
+      docLabel: docLabel, remindAt: remindAt, done: false,
+      createdAt: new Date().toISOString()
+    });
+    localStorage.setItem(_REMINDERS_KEY, JSON.stringify(reminders));
+  } catch(e){}
+}
+
+function _getOverdueReminders() {
+  try {
+    var reminders = JSON.parse(localStorage.getItem(_REMINDERS_KEY) || '[]');
+    var now = Date.now();
+    return reminders.filter(function(r){ return !r.done && new Date(r.remindAt).getTime() <= now; });
+  } catch(e){ return []; }
+}
+
+function _showReminderPicker(doc, contractType, intent) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  var now   = new Date();
+  var dates = [
+    { label: 'Сегодня вечером',  val: _dateOffset(0, 18) },
+    { label: 'Завтра утром',     val: _dateOffset(1, 9)  },
+    { label: 'Через 3 дня',      val: _dateOffset(3, 9)  },
+    { label: 'Через неделю',     val: _dateOffset(7, 9)  },
+  ];
+
+  var div = document.createElement('div');
+  div.className = 'hc-msg hc-elena';
+  div.innerHTML =
+    '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble">' +
+      '<div style="font-size:13px;margin-bottom:10px">' +
+        'Хорошо! Когда напомнить загрузить <b>' + doc.label + '</b>?' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:6px">' +
+        dates.map(function(d){
+          return '<button style="text-align:left;padding:8px 12px;border:1.5px solid var(--line);' +
+            'border-radius:8px;background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit" ' +
+            'onclick="_setReminder(\'' + doc.id + '\',\'' + doc.label.replace(/'/g,"\\'") + '\',\'' +
+            contractType + '\',\'' + d.val + '\',\'' + intent + '\')">' +
+            '🔔 ' + d.label + ' <span style="color:var(--mut);font-size:11px">(' + _formatDate(d.val) + ')</span>' +
+          '</button>';
+        }).join('') +
+        '<div style="display:flex;gap:8px;align-items:center;margin-top:4px">' +
+          '<input type="date" id="reminder-custom-date" style="border:1.5px solid var(--line);border-radius:8px;' +
+            'padding:7px 10px;font-size:12px;font-family:inherit;flex:1" min="' + now.toISOString().slice(0,10) + '">' +
+          '<button class="btn btn-o" style="padding:7px 12px;font-size:12px" ' +
+            'onclick="var d=document.getElementById(\'reminder-custom-date\').value;if(d)_setReminder(\'' +
+            doc.id + '\',\'' + doc.label.replace(/'/g,"\\'") + '\',\'' + contractType + '\',d+\'T09:00\',\'' + intent + '\')">' +
+            'Выбрать</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function _dateOffset(days, hour) {
+  var d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(hour, 0, 0, 0);
+  return d.toISOString().slice(0, 16);
+}
+
+function _formatDate(isoStr) {
+  var d = new Date(isoStr);
+  return d.toLocaleDateString('ru-RU', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+}
+
+function _setReminder(docId, docLabel, contractType, remindAt, intent) {
+  // Убираем picker
+  var msgs = document.getElementById('rchat-msgs');
+  var last = msgs ? msgs.lastElementChild : null;
+  if (last && last.className.includes('hc-elena')) last.remove();
+
+  _saveReminder(docLabel, docId, contractType, remindAt);
+  _addCaseNote('promise', docLabel + ' — напоминание установлено на ' + _formatDate(remindAt),
+    { docId: docId, contractType: contractType, remindAt: remindAt });
+
+  // Пузырь клиента
+  if (msgs) {
+    var uDiv = document.createElement('div');
+    uDiv.className = 'hc-msg hc-user';
+    uDiv.innerHTML = '<div class="hc-bubble">🔔 Напомни ' + _formatDate(remindAt) + '</div>';
+    msgs.appendChild(uDiv);
+  }
+
+  // Ответ Елены
+  setTimeout(function(){
+    _rcAddTyping();
+    var prompt = 'Клиент установил напоминание загрузить документ "' + docLabel +
+      '" на ' + _formatDate(remindAt) + '. Зафиксируй и скажи что будет видно при следующем входе. Продолжаем работу.';
+    _elenaApi(prompt, intent, function(apiReply) {
+      _rcRemoveTyping();
+      var reply = apiReply || 'Зафиксировала. ' + _formatDate(remindAt) + ' напомню. Продолжаем.';
+      _rcAddBubble(reply, false);
+      _rcShowControls();
+    });
+  }, 300);
+}
+
+// Проверка при старте — есть ли просроченные напоминания
+function _checkRemindersOnStart() {
+  var overdue = _getOverdueReminders();
+  if (!overdue.length) return;
+
+  // Показываем через 1 сек после initReturnChat
+  setTimeout(function(){
+    var msgs = document.getElementById('rchat-msgs');
+    if (!msgs) return;
+    overdue.forEach(function(r) {
+      var div = document.createElement('div');
+      div.className = 'hc-msg hc-elena';
+      div.innerHTML =
+        '<img class="hc-av" src="logos/elena-photo.jpg">' +
+        '<div class="hc-bubble">' +
+          '<div style="font-weight:700;margin-bottom:8px">🔔 Напоминание</div>' +
+          '<div style="font-size:13px;margin-bottom:10px">' +
+            'Вы обещали загрузить <b>' + r.docLabel + '</b>. Удалось найти?' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button class="btn btn-p" style="padding:7px 14px;font-size:12px" ' +
+              'onclick="_reminderDone(\'' + r.id + '\',true)">✅ Загрузил — отмечаю</button>' +
+            '<button class="btn btn-o" style="padding:7px 14px;font-size:12px" ' +
+              'onclick="_setReminder(\'' + r.docId + '\',\'' + r.docLabel.replace(/'/g,"\\'") + '\',\'' + r.contractType + '\',\'' + _dateOffset(1,9) + '\',\'question\')">' +
+              '🔔 Перенести на завтра</button>' +
+            '<button class="svc-btn-detail" style="font-size:12px" ' +
+              'onclick="_reminderDone(\'' + r.id + '\',false)">❌ Не буду — зафиксировать отказ</button>' +
+          '</div>' +
+        '</div>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+  }, 1200);
+}
+
+function _reminderDone(reminderId, uploaded) {
+  // Убираем пузырь
+  var msgs = document.getElementById('rchat-msgs');
+  var last = msgs ? msgs.lastElementChild : null;
+  if (last) last.remove();
+
+  try {
+    var reminders = JSON.parse(localStorage.getItem(_REMINDERS_KEY) || '[]');
+    var r = reminders.find(function(x){ return x.id == reminderId; });
+    if (r) {
+      r.done = true;
+      r.outcome = uploaded ? 'uploaded' : 'refused';
+      localStorage.setItem(_REMINDERS_KEY, JSON.stringify(reminders));
+
+      if (uploaded) {
+        // Отмечаем документ в чеклисте как загруженный
+        try {
+          var saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + r.contractType) || '{}');
+          saved[r.docId] = true;
+          localStorage.setItem('zashita_doccheck_' + r.contractType, JSON.stringify(saved));
+        } catch(e){}
+        _addCaseNote('decision', r.docLabel + ' — загружен (подтверждено)', { reminderId: reminderId });
+        if (msgs) { var ok = document.createElement('div'); ok.className='hc-msg hc-user'; ok.innerHTML='<div class="hc-bubble">✅ Загрузил</div>'; msgs.appendChild(ok); }
+        toast('✅ Зафиксировано — документ получен');
+      } else {
+        // Конвертируем обещание в отказ
+        _addCaseNote('missing_doc', r.docLabel + ' — клиент решил не загружать (зафиксирован отказ)', { final: true });
+        if (msgs) { var no = document.createElement('div'); no.className='hc-msg hc-user'; no.innerHTML='<div class="hc-bubble">❌ Не буду загружать</div>'; msgs.appendChild(no); }
+        toast('📝 Зафиксировано в карте дела как окончательный отказ');
+      }
+    }
+  } catch(e){}
+
+  _rcShowControls();
 }
 
 function _showAuditGaps(contractType, intent) {
