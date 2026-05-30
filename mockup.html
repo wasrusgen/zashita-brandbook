@@ -4896,18 +4896,113 @@ function _setDocMode(mode) {
   }, 100);
 }
 
-// Режим 1: Елена добавляет через API
+// ── ЖУРНАЛ ИНФОРМИРОВАНИЯ ────────────────────────────────────────────────────
+// Фиксирует факт уведомления клиента о рисках/нарушениях
+// Хранится в localStorage и показывается в Карте дела
+
+function _logInformed(subject, elenaText, clientResponse) {
+  var ts     = new Date().toISOString();
+  var docTitle = (_docData && _docData.title) || 'документ';
+  var entry  = {
+    ts:       ts,
+    subject:  subject,
+    warning:  elenaText,
+    response: clientResponse || 'принял к сведению',
+    doc:      docTitle
+  };
+  // В карту дела
+  _addCaseNote('informed',
+    'Уведомлён: ' + subject + ' · Ответ: ' + entry.response,
+    entry
+  );
+  // В историю переписки
+  _chatHistory.push({
+    role:    'assistant',
+    content: '[Информирование зафиксировано] ' + ts.slice(0,10) +
+             ' · ' + subject + ' · Ответ клиента: ' + entry.response
+  });
+  _saveHistory();
+}
+
+// Режим 1: Елена добавляет через API + проверяет на нарушения
 function _elenaAddToDoc() {
   var inp = document.getElementById('elena-add-inp');
   if (!inp || !inp.value.trim()) return;
   var request = inp.value.trim();
   inp.value = '';
-  inp.placeholder = 'Елена думает...';
+  inp.placeholder = 'Елена проверяет...';
   inp.disabled = true;
 
   var currentText = '';
   var el = document.getElementById('tpl-doc-text');
   if (el) currentText = el.tagName === 'TEXTAREA' ? el.value : (el.textContent||el.innerText||'');
+
+  // Сначала проверяем через Елену — нет ли нарушений в запросе
+  _elenaApi(
+    'Клиент просит добавить в документ: «' + request + '». ' +
+    'Оцени: (1) это законно по ГК/ТК РФ? (2) не противоречит ли тексту документа? ' +
+    'Если есть риск — предупреди ОДНИМ предложением. Если всё ок — ответь «Добавляю».',
+    'question',
+    function(checkReply) {
+      var hasRisk = checkReply && !/добавляю|всё\s*ок|без\s*замечаний/i.test(checkReply);
+
+      if (hasRisk) {
+        // Показываем предупреждение с выбором
+        inp.disabled = false;
+        inp.placeholder = 'Опишите что добавить...';
+
+        var warnDiv = document.getElementById('elena-add-warning');
+        if (warnDiv) warnDiv.remove();
+        var w = document.createElement('div');
+        w.id = 'elena-add-warning';
+        w.style.cssText = 'background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;padding:12px;margin-top:8px;font-size:13px';
+        w.innerHTML =
+          '<div style="font-weight:600;margin-bottom:6px">Елена предупреждает:</div>' +
+          '<div style="color:#92400e;margin-bottom:10px">' + checkReply + '</div>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-o" style="padding:6px 12px;font-size:12px" ' +
+              'onclick="_proceedWithAddition(\'' + request.replace(/'/g,"\\'") + '\',\'' + (checkReply||'').replace(/'/g,"\\'").slice(0,100) + '\')">' +
+              'Добавить всё равно</button>' +
+            '<button class="svc-btn-detail" style="font-size:12px" onclick="this.closest(\'#elena-add-warning\').remove()">Отмена</button>' +
+          '</div>';
+
+        var panel = document.getElementById('doc-mode-panel');
+        if (panel) panel.appendChild(w);
+
+        // Логируем факт предупреждения
+        _logInformed(
+          'Риск при добавлении пункта: «' + request.slice(0,60) + '»',
+          checkReply,
+          'ожидает решения клиента'
+        );
+      } else {
+        // Нет рисков — добавляем
+        _proceedWithAddition(request, null);
+      }
+    }
+  );
+}
+
+function _proceedWithAddition(request, warningText) {
+  // Убираем предупреждение если было
+  var w = document.getElementById('elena-add-warning');
+  if (w) w.remove();
+
+  var inp = document.getElementById('elena-add-inp');
+  if (inp) { inp.disabled = true; inp.placeholder = 'Добавляю...'; }
+
+  var currentText = '';
+  var el = document.getElementById('tpl-doc-text');
+  if (el) currentText = el.tagName === 'TEXTAREA' ? el.value : (el.textContent||el.innerText||'');
+
+  // Если клиент решил добавить несмотря на предупреждение — логируем
+  if (warningText) {
+    _logInformed(
+      'Добавлен пункт несмотря на предупреждение: «' + request.slice(0,60) + '»',
+      warningText,
+      'клиент добавил несмотря на риск'
+    );
+  }
 
   fetch(API_BASE + '/api/generate', {
     method: 'POST', headers: {'Content-Type':'application/json'},
@@ -4915,27 +5010,32 @@ function _elenaAddToDoc() {
       template:      (_tplCurrent && _tplCurrent.key) || 'custom',
       parties:       (_tplCurrent && _tplCurrent.parties) || {},
       contract_data: (_tplCurrent && _tplCurrent.contract_data) || {},
-      extra:         'ТЕКУЩИЙ ДОКУМЕНТ:\n' + currentText.slice(0, 2000) + '\n\nЗАПРОС КЛИЕНТА: ' + request +
-                     '\n\nДобавь нужный фрагмент в конец документа в том же стиле. Верни ТОЛЬКО дополнение (не весь документ).'
+      extra: 'ТЕКУЩИЙ ДОКУМЕНТ:\n' + currentText.slice(0, 2000) +
+             '\n\nЗАПРОС: ' + request +
+             '\n\nДобавь фрагмент в конец в том же стиле. Верни ТОЛЬКО добавление.'
     })
   })
   .then(function(r){ return r.json(); })
   .then(function(d) {
-    inp.disabled = false;
-    inp.placeholder = 'Опишите что добавить...';
+    if (inp) { inp.disabled = false; inp.placeholder = 'Опишите что добавить...'; }
     if (d.error) { toast('Ошибка: ' + d.error); return; }
     var addition = '\n\n' + (d.text || '');
-    // Добавляем к тексту
     var textEl = document.getElementById('tpl-doc-text');
     if (textEl) {
       if (textEl.tagName === 'TEXTAREA') textEl.value += addition;
       else textEl.textContent += addition;
     }
     if (_docData) _docData.text = (_docData.text || '') + addition;
-    toast('✅ Елена добавила пункт');
-    _addCaseNote('decision', 'Документ дополнен: ' + request, {});
+    toast('✅ Пункт добавлен');
+    // Логируем добавление
+    if (!warningText) {
+      _addCaseNote('decision', 'Документ дополнен по запросу: ' + request.slice(0,80), {});
+    }
   })
-  .catch(function() { inp.disabled = false; toast('Ошибка'); });
+  .catch(function() {
+    if (inp) { inp.disabled = false; inp.placeholder = 'Опишите что добавить...'; }
+    toast('Ошибка генерации');
+  });
 }
 
 // Режим 2: Готовый блок
@@ -4951,16 +5051,24 @@ function _addBlockToDoc(blockText) {
   _setDocMode('view'); // возвращаемся в просмотр
 }
 
-// Режим 3: Сохранить прямое редактирование
+// Режим 3: Сохранить прямое редактирование + логируем информирование
 function _saveDocEdits() {
   var textEl = document.getElementById('tpl-doc-text');
   if (textEl && _docData) {
     _docData.text = textEl.tagName === 'TEXTAREA' ? textEl.value : (textEl.textContent||'');
-    _addCaseNote('decision', 'Документ отредактирован клиентом самостоятельно', { ts: new Date().toISOString() });
+    // Логируем как факт информирования
+    _logInformed(
+      'Документ «' + (_docData.title||'без названия') + '» отредактирован клиентом самостоятельно',
+      'ЗАЩИТА — информационный сервис. Ответственность за внесённые изменения несёт клиент.',
+      'клиент подтвердил сохранение изменений'
+    );
   }
   _setDocMode('view');
-  toast('✅ Изменения сохранены');
+  toast('✅ Изменения сохранены и зафиксированы в карте дела');
 }
+
+// Режим 2: Логируем добавление готового блока
+var _origAddBlock = typeof _addBlockToDoc === 'function' ? _addBlockToDoc : null;
 
 function _printDoc() {
   var text = document.getElementById('tpl-doc-text');
@@ -8339,6 +8447,20 @@ function renderCaseMap() {
   if (dossier.decisions && dossier.decisions.length) {
     html += _cmSection('✅ Принятые решения', '#16a34a', dossier.decisions.map(function(d){
       return {text: d, icon: '✅'};
+    }));
+  }
+
+  // Секция: Факты информирования (юридически значимые)
+  var informed = notes.filter(function(n){ return n.type === 'informed'; });
+  if (informed.length) {
+    html += _cmSection('📋 Факты информирования', '#7c3aed', informed.map(function(n){
+      var d = n.meta || {};
+      return {
+        text: n.text,
+        icon: '📋',
+        sub: d.warning ? 'Предупреждение: ' + d.warning.slice(0,80) : '',
+        date: n.ts
+      };
     }));
   }
 
