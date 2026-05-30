@@ -7965,18 +7965,79 @@ function _showAuditGaps(contractType, intent) {
     });
   }
 
-  // Кнопки действий
-  gapsHtml += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
+  // Кнопки: исправить + ПРИНЯТЬ РИСКИ И ПРОДОЛЖИТЬ
+  gapsHtml += '<div style="margin-top:14px">';
+
   if (critical.length) {
-    gapsHtml += '<button class="btn btn-p" style="padding:7px 14px;font-size:12px" onclick="_offerDocFix(\'' + contractType + '\',\'' + intent + '\')">🛠 Исправить ситуацию</button>';
+    gapsHtml += '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">' +
+      'Хотите устранить пробелы — или продолжить с тем что есть?</div>';
+    gapsHtml += '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button class="btn btn-p" style="padding:7px 14px;font-size:12px" ' +
+        'onclick="_offerDocFix(\'' + contractType + '\',\'' + intent + '\')">🛠 Устранить пробелы</button>' +
+      '<button class="btn btn-o" style="padding:7px 14px;font-size:12px" ' +
+        'onclick="_acknowledgeRisksAndProceed(\'' + contractType + '\',\'' + intent + '\')">✅ Понимаю риски — продолжаем</button>' +
+    '</div>';
+  } else {
+    // Только некритичные — сразу предлагаем двигаться
+    gapsHtml += '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" ' +
+      'onclick="_acknowledgeRisksAndProceed(\'' + contractType + '\',\'' + intent + '\')">▶ Продолжаем</button>' +
+    '<button class="svc-btn-detail" style="font-size:12px;margin-left:8px" ' +
+      'onclick="_offerDocFix(\'' + contractType + '\',\'' + intent + '\')">🛠 Устранить пробелы</button>';
   }
-  gapsHtml += '<button class="svc-btn-detail" style="font-size:12px" onclick="tab(\'docs\');go(\'cabinet\')">📋 Открыть чеклист</button>';
+
   gapsHtml += '</div>';
 
   gapDiv.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg"><div class="hc-bubble" style="max-width:480px">' + gapsHtml + '</div>';
   msgs.appendChild(gapDiv);
   msgs.scrollTop = msgs.scrollHeight;
   _rcShowControls();
+}
+
+// Клиент принял риски → фиксируем и показываем оффер услуги
+function _acknowledgeRisksAndProceed(contractType, intent) {
+  var old = document.getElementById('audit-gaps');
+  if (old) old.remove();
+
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  // Пузырь клиента
+  var uDiv = document.createElement('div');
+  uDiv.className = 'hc-msg hc-user';
+  uDiv.innerHTML = '<div class="hc-bubble">Понимаю риски — продолжаем</div>';
+  msgs.appendChild(uDiv);
+
+  // Сохраняем факт подтверждения в досье
+  _updateDossier({ decisions: ['Клиент подтвердил осведомлённость о рисках по ' + contractType + ' и продолжил'] });
+  _chatHistory.push({role: 'user', content: 'Понимаю риски — продолжаем'});
+  _saveHistory();
+
+  // Елена: фиксирует и переходит к оказанию услуги
+  setTimeout(function(){
+    _rcAddTyping();
+    _elenaApi(
+      'Клиент ознакомлен с рисками по ' + contractType + ' и подтвердил готовность продолжать. ' +
+      'Зафиксируй это, скажи что именно можешь сделать прямо сейчас и предложи начать.',
+      intent,
+      function(apiReply, apiActions) {
+        _rcRemoveTyping();
+        var reply = apiReply ||
+          'Зафиксировала. Работаем с тем что есть — это позволяет двигаться вперёд. ' +
+          'Давайте начнём с самого важного для вашей ситуации.';
+        _chatHistory.push({role:'assistant', content: reply});
+        _saveHistory();
+        _rcAddBubble(reply, false);
+        if (apiActions && apiActions.length) _renderElenaActions(apiActions, msgs);
+
+        // Небольшая пауза → запускаем оффер услуги
+        setTimeout(function(){
+          var wrap = document.querySelector('.chatwrap') || msgs;
+          _checkAndOfferService(wrap);
+        }, 1500);
+
+        _rcShowControls();
+      });
+  }, 400);
 }
 
 function _offerDocFix(contractType, intent) {
