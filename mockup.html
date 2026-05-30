@@ -4999,13 +4999,48 @@ function _chatTransition(userText, intent) {
     return;
   }
 
-  // Скрываем el-step1 ДО переключения экрана — нет вспышки приветствия
+  // Скрываем el-step1, переходим на экран Елены
   var step1 = document.getElementById('el-step1');
-  var inp   = document.getElementById('intake-custom');
   if (step1) step1.style.display = 'none';
-  if (inp)   inp.value = userText || '';
   go('elena');
-  setTimeout(function(){ elenaIntent(intent); }, 80);
+
+  // Продолжаем разговор — показываем сообщение клиента и получаем ответ API
+  setTimeout(function() {
+    var wrap = document.querySelector('.chatwrap');
+    if (!wrap || !userText) { elenaIntent(intent); return; }
+
+    // Пузырь пользователя
+    var uDiv = document.createElement('div');
+    uDiv.className = 'msg msg-user';
+    uDiv.innerHTML = '<div class="bubble user">' + userText.replace(/</g,'&lt;') + '</div>';
+    wrap.appendChild(uDiv);
+
+    // Typing → API → ответ Елены
+    var tDiv = document.createElement('div');
+    tDiv.className = 'msg'; tDiv.id = 'transition-typing';
+    tDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>' +
+      '<div class="hc-typing-dots"><span></span><span></span><span></span></div></div>';
+    wrap.appendChild(tDiv);
+    wrap.scrollTop = wrap.scrollHeight;
+
+    _elenaApi(userText, intent, function(apiReply, apiActions) {
+      var t = document.getElementById('transition-typing'); if (t) t.remove();
+      var reply = apiReply || 'Расскажите подробнее — помогу разобраться.';
+      _chatHistory.push({role:'user', content: userText});
+      _chatHistory.push({role:'assistant', content: reply});
+      _saveHistory();
+
+      var eDiv = document.createElement('div');
+      eDiv.className = 'msg';
+      eDiv.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+        '<div class="bubble"><div class="nm">Елена</div>' + reply + '</div>';
+      wrap.appendChild(eDiv);
+      if (apiActions && apiActions.length) _renderElenaActions(apiActions, wrap);
+      wrap.scrollTop = wrap.scrollHeight;
+      _elenaShowInput();
+    });
+  }, 120);
 }
 
 /* ── HERO CHAT ── */
