@@ -2369,11 +2369,37 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </div>
         </div>
       </div></div>
-      <!-- Мои документы — чеклист аудита -->
+      <!-- Мои документы — чеклист аудита + загрузка файлов -->
       <div class="tabpane" id="p-docs"><div class="main-body">
-        <div class="crumb">Кабинет</div><h1>Мои документы</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg">
-          <div class="et"><b>Аудит документов по Вашей ситуации.</b> Отмечайте что есть — покажу что грозит если чего-то не хватает 💛</div>
+        <div class="crumb">Кабинет</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h1 style="margin:0">Мои документы</h1>
+          <div style="display:flex;gap:8px">
+            <label style="cursor:pointer">
+              <input type="file" id="doc-upload-input" accept="image/*,.pdf,.docx,.doc,.txt" style="display:none" multiple onchange="_uploadFiles(this)">
+              <span class="btn btn-p" style="padding:7px 14px;font-size:13px">📎 Загрузить</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Индикатор хранилища -->
+        <div id="storage-bar" style="margin-bottom:16px;display:none">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:4px">
+            <span id="storage-used-label">0 MB</span>
+            <span id="storage-limit-label">из 1 GB</span>
+          </div>
+          <div style="height:6px;background:var(--line);border-radius:3px;overflow:hidden">
+            <div id="storage-fill" style="height:100%;background:var(--bg);border-radius:3px;width:0%;transition:width .3s"></div>
+          </div>
+        </div>
+
+        <!-- Загруженные файлы -->
+        <div id="docs-uploaded" style="margin-bottom:20px">
+          <!-- Заполняется через _renderUploadedDocs() -->
+        </div>
+
+        <div class="enote" style="margin-bottom:16px"><img src="logos/elena-photo.jpg">
+          <div class="et"><b>Аудит документов по Вашей ситуации.</b> Загрузите фото/скан договора или отмечайте что есть — покажу риски.</div>
         </div>
         <div id="docs-checklist">
           <!-- Заполняется через renderDocChecklist() -->
@@ -8035,6 +8061,7 @@ function tab(name){
   if(name==='casemap'    && typeof renderCaseMap==='function') renderCaseMap();
   if(name==='team'       && typeof renderTeamDashboard==='function') renderTeamDashboard();
   if(name==='docs') {
+    if(typeof _renderUploadedDocs==='function') _renderUploadedDocs();
     var contracts = typeof _getContracts === 'function' ? _getContracts() : [];
     if (contracts.length && typeof renderDocChecklist === 'function') renderDocChecklist(contracts[0].type);
     else if (typeof renderDocChecklist === 'function') renderDocChecklist('');
@@ -9631,6 +9658,139 @@ function _toggleDocCheck(key, docId, checked) {
     localStorage.setItem('zashita_doccheck_' + key, JSON.stringify(saved));
     renderDocChecklist(key);
   } catch(e){}
+}
+
+// ── ФАЙЛОВОЕ ХРАНИЛИЩЕ (S3) ──────────────────────────────────────────────────
+
+var _uploadedFiles = []; // локальный кэш загруженных файлов
+
+function _uploadFiles(input) {
+  var files = Array.from(input.files || []);
+  if (!files.length) return;
+
+  var user = _getOrgUser();
+  var caseId = 'general';
+
+  // Показываем прогресс
+  var upArea = document.getElementById('docs-uploaded');
+  if (!upArea) return;
+
+  files.forEach(function(file) {
+    var itemId = 'up_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    var item = document.createElement('div');
+    item.id = itemId;
+    item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fafafa';
+    item.innerHTML =
+      '<div style="width:36px;height:36px;border-radius:8px;background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">' +
+        (file.type.includes('image') ? '🖼' : file.type.includes('pdf') ? '📄' : '📎') +
+      '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + file.name + '</div>' +
+        '<div id="' + itemId + '_status" style="font-size:11px;color:var(--mut)">Загружаю... ' + (file.size/1024).toFixed(0) + ' KB</div>' +
+      '</div>';
+    upArea.insertBefore(item, upArea.firstChild);
+
+    var form = new FormData();
+    form.append('file', file);
+    form.append('case_id', caseId);
+    form.append('doc_type', 'document');
+    if (user && user.token) form.append('token', user.token);
+
+    fetch(API_BASE + '/api/files/upload', { method: 'POST', body: form })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var st = document.getElementById(itemId + '_status');
+      if (d.error) {
+        if (st) st.innerHTML = '<span style="color:#dc2626">❌ ' + d.error + '</span>';
+        return;
+      }
+      if (st) st.innerHTML = '✅ Загружен · ' + d.size_mb + ' MB';
+      _uploadedFiles.push({ id: d.file_id, name: file.name, size_mb: d.size_mb, url: d.url, type: file.type });
+      _updateStorageBar();
+      // Если это изображение — предлагаем отправить на анализ
+      if (file.type.includes('image')) {
+        var btn = document.createElement('button');
+        btn.className = 'svc-btn-detail';
+        btn.style.cssText = 'font-size:11px;white-space:nowrap';
+        btn.textContent = '🔍 Анализировать';
+        btn.onclick = function(){ _analyzeUploadedImage(d.url, file.name); };
+        item.appendChild(btn);
+      }
+    })
+    .catch(function(e){
+      var st = document.getElementById(itemId + '_status');
+      if (st) {
+        // S3 не настроен — сохраняем локально
+        st.innerHTML = '📱 Сохранён локально (S3 не настроен)';
+        _uploadedFiles.push({ id: itemId, name: file.name, type: file.type, local: true });
+      }
+    });
+  });
+
+  // Сбрасываем input
+  input.value = '';
+}
+
+function _updateStorageBar() {
+  var user = _getOrgUser();
+  if (!user) return;
+  fetch(API_BASE + '/api/files/storage_info', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ token: user.token, plan: 'start' })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    var bar = document.getElementById('storage-bar');
+    if (bar) bar.style.display = '';
+    var usedEl = document.getElementById('storage-used-label');
+    var limEl  = document.getElementById('storage-limit-label');
+    var fillEl = document.getElementById('storage-fill');
+    if (usedEl) usedEl.textContent = d.used_mb + ' MB использовано';
+    if (limEl)  limEl.textContent  = d.limit_gb === -1 ? 'без лимита' : 'из ' + d.limit_gb + ' GB';
+    if (fillEl) fillEl.style.width = (d.percent || 0) + '%';
+    if (d.percent > 80) fillEl.style.background = '#d97706';
+    if (d.percent > 95) fillEl.style.background = '#dc2626';
+  })
+  .catch(function(){});
+}
+
+function _analyzeUploadedImage(url, filename) {
+  // Открываем диалог Елены с предложением проанализировать
+  toast('📋 Передаю в Елену для анализа...');
+  var wrap = document.querySelector('.chatwrap');
+  if (!wrap) return;
+  var div = document.createElement('div');
+  div.className = 'hc-msg hc-elena';
+  div.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble">Вижу загруженный файл <b>' + filename + '</b>. ' +
+    'Для анализа вставьте текст договора в поле ниже — Елена разберёт риски и сроки.</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+// Загружаем список файлов при открытии вкладки
+function _renderUploadedDocs() {
+  var user = _getOrgUser();
+  if (!user) return;
+  fetch(API_BASE + '/api/files/list', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ token: user.token, case_id: 'general' })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    var el = document.getElementById('docs-uploaded'); if (!el) return;
+    if (!d.files || !d.files.length) return;
+    el.innerHTML = d.files.map(function(f){
+      var ico = (f.mime_type||'').includes('image') ? '🖼' : (f.mime_type||'').includes('pdf') ? '📄' : '📎';
+      var kb  = Math.round((f.size_bytes||0) / 1024);
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fafafa">' +
+        '<div style="font-size:18px">' + ico + '</div>' +
+        '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + f.original_name + '</div>' +
+        '<div style="font-size:11px;color:var(--mut)">' + f.doc_type + ' · ' + kb + ' KB · ' + (f.created_at||'').slice(0,10) + '</div></div>' +
+      '</div>';
+    }).join('');
+    _updateStorageBar();
+  }).catch(function(){});
 }
 
 // ── БИБЛИОТЕКА ПОДПИСЕЙ И ПЕЧАТЕЙ ────────────────────────────────────────────
