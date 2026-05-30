@@ -7777,15 +7777,141 @@ function _showDocAuditInChat(contractType, intent) {
 }
 
 function _auditCheck(contractType, docId, checked, intent) {
-  // Обновляем состояние чеклиста
   try {
     var saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + contractType) || '{}');
     saved[docId] = checked;
     localStorage.setItem('zashita_doccheck_' + contractType, JSON.stringify(saved));
   } catch(e){}
 
-  // Пересчитываем пропуски и показываем актуальные риски
+  if (!checked) {
+    // Документ сняли с галочки → показываем варианты
+    var cl   = DOC_CHECKLISTS[contractType] || {docs:[]};
+    var doc  = cl.docs.find(function(d){ return d.id === docId; });
+    if (doc) {
+      setTimeout(function(){ _showMissingDocOptions(contractType, doc, intent); }, 200);
+      return;
+    }
+  }
+
   setTimeout(function(){ _showAuditGaps(contractType, intent); }, 300);
+}
+
+// Показывает варианты поведения когда документа нет
+function _showMissingDocOptions(contractType, doc, intent) {
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  // Удаляем старый блок вариантов
+  var old = document.getElementById('missing-doc-options');
+  if (old) old.remove();
+
+  var riskColor = {critical:'#dc2626', high:'#d97706', medium:'#2563eb'}[doc.risk] || '#6b7280';
+
+  var div = document.createElement('div');
+  div.id = 'missing-doc-options';
+  div.className = 'hc-msg hc-elena';
+
+  var html =
+    '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble" style="max-width:480px">' +
+    '<div style="font-size:13px;margin-bottom:8px">' +
+      '<b>' + doc.label + '</b> — ' + doc.tip +
+    '</div>' +
+    '<div style="font-size:12px;color:var(--mut);margin-bottom:10px">Что сейчас с этим документом?</div>' +
+    '<div style="display:flex;flex-direction:column;gap:6px">' +
+
+      // Вариант 1: Нет, никогда не было
+      '<button style="text-align:left;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit" ' +
+        'onclick="_handleMissingDoc(\'' + contractType + '\',\'' + doc.id + '\',\'never\',\'' + intent + '\')">' +
+        '❌ <b>Нет</b> — не было и нет' +
+      '</button>' +
+
+      // Вариант 2: Есть, но не под рукой
+      '<button style="text-align:left;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit" ' +
+        'onclick="_handleMissingDoc(\'' + contractType + '\',\'' + doc.id + '\',\'later\',\'' + intent + '\')">' +
+        '📁 <b>Есть</b> — найду и догружу позже' +
+      '</button>' +
+
+      // Вариант 3: Не уверен
+      '<button style="text-align:left;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit" ' +
+        'onclick="_handleMissingDoc(\'' + contractType + '\',\'' + doc.id + '\',\'unknown\',\'' + intent + '\')">' +
+        '🤔 <b>Не уверен</b> — надо проверить' +
+      '</button>' +
+
+      // Вариант 4: Утеряно
+      '<button style="text-align:left;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit" ' +
+        'onclick="_handleMissingDoc(\'' + contractType + '\',\'' + doc.id + '\',\'lost\',\'' + intent + '\')">' +
+        '🗑 <b>Утеряно</b> — не найти' +
+      '</button>' +
+
+      // Вариант 5: Вторая сторона не даёт
+      '<button style="text-align:left;padding:8px 12px;border:1.5px solid #fca5a5;border-radius:8px;background:#fff5f5;cursor:pointer;font-size:12px;font-family:inherit" ' +
+        'onclick="_handleMissingDoc(\'' + contractType + '\',\'' + doc.id + '\',\'refused\',\'' + intent + '\')">' +
+        '🚫 <b>Отказали</b> — контрагент не даёт' +
+      '</button>' +
+
+    '</div></div>';
+
+  div.innerHTML = html;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Реагирует на выбранный вариант
+function _handleMissingDoc(contractType, docId, variant, intent) {
+  // Убираем блок вариантов
+  var opt = document.getElementById('missing-doc-options');
+  if (opt) opt.remove();
+
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  // Пузырь клиента
+  var labels = {
+    never:   '❌ Нет — не было и нет',
+    later:   '📁 Есть — найду позже',
+    unknown: '🤔 Не уверен',
+    lost:    '🗑 Утеряно',
+    refused: '🚫 Контрагент не даёт'
+  };
+  var uDiv = document.createElement('div');
+  uDiv.className = 'hc-msg hc-user';
+  uDiv.innerHTML = '<div class="hc-bubble">' + (labels[variant] || variant) + '</div>';
+  msgs.appendChild(uDiv);
+
+  // Сохраняем статус
+  try {
+    var statKey = 'zashita_docstatus_' + contractType;
+    var statuses = JSON.parse(localStorage.getItem(statKey) || '{}');
+    statuses[docId] = variant;
+    localStorage.setItem(statKey, JSON.stringify(statuses));
+  } catch(e){}
+
+  // Ответ Елены через API
+  var cl  = DOC_CHECKLISTS[contractType] || {docs:[]};
+  var doc = cl.docs.find(function(d){ return d.id === docId; }) || {};
+
+  var promptMap = {
+    never:   'Клиент сказал что документа "' + doc.label + '" никогда не было. Объясни риск и предложи два варианта выхода из ситуации (составить/компенсировать другими доказательствами).',
+    later:   'Клиент сказал что документ "' + doc.label + '" есть, но не под рукой — найдёт позже. Зафикисруй это, скажи когда он понадобится и продолжи работу.',
+    unknown: 'Клиент не знает есть ли документ "' + doc.label + '". Объясни как он должен выглядеть и где его искать. Дай альтернативу если не найдёт.',
+    lost:    'Клиент потерял документ "' + doc.label + '". Объясни как получить копию (у контрагента / нотариуса) и какие альтернативные доказательства подойдут.',
+    refused: 'Контрагент отказывается дать документ "' + doc.label + '" клиенту. Объясни права клиента и предложи официальный запрос + судебное истребование.'
+  };
+
+  setTimeout(function(){
+    _rcAddTyping();
+    _elenaApi(promptMap[variant] || promptMap.never, intent, function(apiReply, apiActions){
+      _rcRemoveTyping();
+      var reply = apiReply || 'Понятно. Давайте разберём что можно сделать в этой ситуации.';
+      _chatHistory.push({role:'user', content: labels[variant]});
+      _chatHistory.push({role:'assistant', content: reply});
+      _saveHistory();
+      _rcAddBubble(reply, false);
+      if (apiActions && apiActions.length) _renderElenaActions(apiActions, msgs);
+      _rcShowControls();
+    });
+  }, 300);
 }
 
 function _showAuditGaps(contractType, intent) {
