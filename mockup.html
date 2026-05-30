@@ -2414,10 +2414,72 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
 
       <!-- Реквизиты — подпись и печать -->
       <div class="tabpane" id="p-requisites"><div class="main-body">
-        <div class="crumb">Кабинет</div><h1>Реквизиты</h1>
-        <div class="enote"><img src="logos/elena-photo.jpg">
-          <div class="et"><b>Подпись и печать автоматически подставляются в документы.</b> Загрузите один раз — и все документы будут подписаны 💛</div>
+        <div class="crumb">Кабинет</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h1 style="margin:0">Реквизиты</h1>
+          <button class="btn btn-p" style="padding:7px 14px;font-size:13px" onclick="_addSignatureModal()">+ Добавить</button>
         </div>
+        <div class="enote" style="margin-bottom:20px"><img src="logos/elena-photo.jpg">
+          <div class="et"><b>База подписей и печатей.</b> Для каждой стороны документа выбирается нужная. Загрузите один раз — подставляются автоматически.</div>
+        </div>
+
+        <!-- Библиотека подписей -->
+        <div style="margin-bottom:28px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:10px">Подписи</div>
+          <div id="sig-library" style="display:flex;flex-direction:column;gap:8px">
+            <!-- Заполняется через _renderSigLibrary() -->
+          </div>
+        </div>
+
+        <!-- Библиотека печатей -->
+        <div style="margin-bottom:28px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:10px">Печати и штампы</div>
+          <div id="stamp-library" style="display:flex;flex-direction:column;gap:8px">
+            <!-- Заполняется через _renderStampLibrary() -->
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--line);margin:20px 0">
+
+        <!-- Реквизиты компании -->
+        <div>
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Реквизиты для документов</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;max-width:500px">
+            <input class="elena-main-inp" id="req-name" placeholder="Полное наименование (ООО «...» / ИП ФИО)" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-inn"  placeholder="ИНН / ОГРН" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-addr" placeholder="Юридический адрес" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-phone" placeholder="Телефон" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-email" placeholder="Email" oninput="_saveRequisites()">
+          </div>
+        </div>
+
+        <!-- Скрытые legacy-элементы для совместимости -->
+        <div style="display:none">
+          <div id="sig-preview"></div><img id="sig-img">
+          <div id="stamp-preview"></div><img id="stamp-img">
+          <div id="stamp-size"></div>
+          <select id="stamp-type-sel" onchange="localStorage.setItem('zashita_stamp_type',this.value)">
+            <option value="round">Круглая</option>
+            <option value="rect_ip">ИП</option>
+            <option value="rect_ooo">ООО</option>
+            <option value="triangle">Треугольная</option>
+          </select>
+        </div>
+
+        <!-- Canvas для рисования подписи -->
+        <div id="sig-draw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+          <div style="background:#fff;border-radius:16px;padding:20px;width:400px">
+            <div style="font-weight:700;margin-bottom:12px">Нарисуйте подпись</div>
+            <canvas id="sig-canvas" width="360" height="120" style="border:2px solid var(--line);border-radius:8px;cursor:crosshair;touch-action:none;background:#fff"></canvas>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button class="btn btn-p" style="flex:1;padding:9px" onclick="_saveSigCanvasToLib()">✅ Сохранить</button>
+              <button class="btn btn-o" style="padding:9px 14px" onclick="_clearCanvas()">Очистить</button>
+              <button class="svc-btn-detail" onclick="document.getElementById('sig-draw-modal').style.display='none'">Отмена</button>
+            </div>
+          </div>
+        </div>
+
+      </div></div>
 
         <!-- Подпись -->
         <div style="margin-bottom:24px">
@@ -4833,17 +4895,18 @@ var STAMP_SIZES = {
   triangle: { w: 189, h: 135, label: 'Треугольная 35×50 мм' },
 };
 
-function _getRequisiteImages() {
-  var sig   = localStorage.getItem('zashita_sig')   || null;
-  var stamp = localStorage.getItem('zashita_stamp') || null;
-  var stampType = (document.getElementById('stamp-type-sel') || {}).value
-               || localStorage.getItem('zashita_stamp_type') || 'round';
-  return { sig: sig, stamp: stamp, stampType: stampType };
+function _getRequisiteImages(role) {
+  // Используем библиотеку с привязкой по роли
+  var sigImage   = _getSigForRole(role);
+  var stampData  = _getStampForRole(role);
+  return { sig: sigImage, stamp: stampData.image, stampType: stampData.type };
 }
 
-function _buildSignatureBlock(req, forPrint) {
+function _buildSignatureBlock(req, forPrint, fromName, toName) {
   // req = {sig, stamp, stampType}
   if (!req.sig && !req.stamp) return '';
+  fromName = fromName || ((_tplCurrent && _tplCurrent.parties && _tplCurrent.parties.from_name) || '');
+  toName   = toName   || ((_tplCurrent && _tplCurrent.parties && _tplCurrent.parties.to_name)   || '');
 
   var stampSize = STAMP_SIZES[req.stampType] || STAMP_SIZES.round;
   // При печати: px → mm (96dpi: 1mm ≈ 3.78px)
@@ -4856,20 +4919,19 @@ function _buildSignatureBlock(req, forPrint) {
     'padding-top:' + (forPrint ? '6mm' : '16px') + ';' +
     'border-top:1px solid ' + (forPrint ? '#ccc' : 'var(--line)') + '">';
 
-  // Подпись слева
+  // Подпись + печать — наша сторона (слева)
+  html += '<div style="display:flex;flex-direction:column;gap:6px;min-width:180px">';
+  if (fromName) html += '<div style="font-size:' + (forPrint?'9pt':'12px') + ';font-weight:600;color:#374151">' + fromName + '</div>';
   if (req.sig) {
-    html += '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px">' +
-      '<div style="font-size:' + (forPrint ? '8pt' : '11px') + ';color:#9ca3af">Подпись</div>' +
-      '<img src="' + req.sig + '" style="height:' + sigH + ';max-width:200px;object-fit:contain">' +
-    '</div>';
-  } else {
-    html += '<div></div>';
+    html += '<div style="font-size:' + (forPrint?'8pt':'11px') + ';color:#9ca3af;margin-bottom:2px">Подпись</div>' +
+      '<img src="' + req.sig + '" style="height:' + sigH + ';max-width:180px;object-fit:contain">';
   }
+  html += '</div>';
 
-  // Печать справа
+  // Печать — отдельный блок по центру-справа
   if (req.stamp) {
-    html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
-      '<div style="font-size:' + (forPrint ? '8pt' : '11px') + ';color:#9ca3af">М.П.</div>' +
+    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">' +
+      '<div style="font-size:' + (forPrint?'8pt':'11px') + ';color:#9ca3af">М.П.</div>' +
       '<img src="' + req.stamp + '" style="width:' + stW + ';height:' + stH + ';object-fit:contain">' +
     '</div>';
   }
@@ -7965,7 +8027,11 @@ function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();
   if(name==='shab'       && typeof renderContextTemplates==='function') renderContextTemplates();
-  if(name==='requisites' && typeof _loadRequisites==='function') _loadRequisites();
+  if(name==='requisites') {
+    if(typeof _loadRequisites==='function') _loadRequisites();
+    if(typeof _renderSigLibrary==='function') _renderSigLibrary();
+    if(typeof _renderStampLibrary==='function') _renderStampLibrary();
+  }
   if(name==='casemap'    && typeof renderCaseMap==='function') renderCaseMap();
   if(name==='team'       && typeof renderTeamDashboard==='function') renderTeamDashboard();
   if(name==='docs') {
@@ -9565,6 +9631,249 @@ function _toggleDocCheck(key, docId, checked) {
     localStorage.setItem('zashita_doccheck_' + key, JSON.stringify(saved));
     renderDocChecklist(key);
   } catch(e){}
+}
+
+// ── БИБЛИОТЕКА ПОДПИСЕЙ И ПЕЧАТЕЙ ────────────────────────────────────────────
+
+var _SIG_LIB_KEY   = 'zashita_sig_library';
+var _STAMP_LIB_KEY = 'zashita_stamp_library';
+
+function _getSigLib()   { try { return JSON.parse(localStorage.getItem(_SIG_LIB_KEY)   || '[]'); } catch(e){ return []; } }
+function _getStampLib() { try { return JSON.parse(localStorage.getItem(_STAMP_LIB_KEY) || '[]'); } catch(e){ return []; } }
+
+function _saveSigLib(lib)   { try { localStorage.setItem(_SIG_LIB_KEY,   JSON.stringify(lib)); } catch(e){} }
+function _saveStampLib(lib) { try { localStorage.setItem(_STAMP_LIB_KEY, JSON.stringify(lib)); } catch(e){} }
+
+// Рендер библиотеки подписей
+function _renderSigLibrary() {
+  var el = document.getElementById('sig-library'); if (!el) return;
+  var lib = _getSigLib();
+  if (!lib.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--mut);padding:12px 0">Нет сохранённых подписей. Нажмите «+ Добавить».</div>';
+    return;
+  }
+  el.innerHTML = lib.map(function(s, i) {
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid ' +
+      (s.isDefault ? 'var(--bg)' : 'var(--line)') + ';border-radius:12px;background:' +
+      (s.isDefault ? 'var(--bg-light)' : '#fff') + '">' +
+      '<img src="' + s.image + '" style="height:40px;max-width:120px;object-fit:contain">' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:13px">' + s.label + '</div>' +
+        '<div style="font-size:11px;color:var(--mut)">' + (s.role || 'Без привязки к роли') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px">' +
+        (!s.isDefault ? '<button class="svc-btn-detail" style="font-size:11px" onclick="_setSigDefault(' + i + ')">По умолч.</button>' : '<span style="font-size:11px;color:var(--bg);font-weight:700">✓ По умолч.</span>') +
+        '<button class="svc-btn-detail" style="font-size:11px;color:#dc2626" onclick="_deleteSig(' + i + ')">Удалить</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// Рендер библиотеки печатей
+function _renderStampLibrary() {
+  var el = document.getElementById('stamp-library'); if (!el) return;
+  var lib = _getStampLib();
+  if (!lib.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--mut);padding:12px 0">Нет сохранённых печатей. Нажмите «+ Добавить».</div>';
+    return;
+  }
+  el.innerHTML = lib.map(function(s, i) {
+    var sz = STAMP_SIZES[s.stampType] || STAMP_SIZES.round;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid ' +
+      (s.isDefault ? 'var(--bg)' : 'var(--line)') + ';border-radius:12px;background:' +
+      (s.isDefault ? 'var(--bg-light)' : '#fff') + '">' +
+      '<img src="' + s.image + '" style="height:48px;max-width:60px;object-fit:contain">' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:13px">' + s.label + '</div>' +
+        '<div style="font-size:11px;color:var(--mut)">' + sz.label + ' · ' + (s.role || 'Без привязки') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px">' +
+        (!s.isDefault ? '<button class="svc-btn-detail" style="font-size:11px" onclick="_setStampDefault(' + i + ')">По умолч.</button>' : '<span style="font-size:11px;color:var(--bg);font-weight:700">✓ По умолч.</span>') +
+        '<button class="svc-btn-detail" style="font-size:11px;color:#dc2626" onclick="_deleteStamp(' + i + ')">Удалить</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// Модал добавления подписи/печати
+function _addSignatureModal() {
+  var old = document.getElementById('add-sig-modal'); if (old) old.remove();
+  var modal = document.createElement('div');
+  modal.id = 'add-sig-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:540px;padding:24px">' +
+      '<div style="font-weight:700;font-size:15px;margin-bottom:16px">Добавить подпись или печать</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+        '<input class="elena-main-inp" id="add-sig-label" placeholder="Название: «ИП Соколов А.В.», «Директор ООО» и т.п.">' +
+        '<input class="elena-main-inp" id="add-sig-role" placeholder="Роль в документах: «Арендатор», «Исполнитель», «Продавец»...">' +
+        '<select id="add-sig-type" style="border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--ink)">' +
+          '<option value="signature">Подпись (факсимиле)</option>' +
+          '<option value="stamp_round">Печать круглая ⌀ 40 мм</option>' +
+          '<option value="stamp_rect_ip">Печать ИП прямоугольная 38×70 мм</option>' +
+          '<option value="stamp_rect_ooo">Печать ООО прямоугольная 38×58 мм</option>' +
+          '<option value="stamp_triangle">Печать треугольная 35×50 мм</option>' +
+        '</select>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' +
+        '<label style="cursor:pointer">' +
+          '<input type="file" accept="image/*" style="display:none" onchange="_addFromFile(this)">' +
+          '<span class="btn btn-p" style="padding:9px 16px;font-size:13px">📷 Загрузить файл</span>' +
+        '</label>' +
+        '<button class="btn btn-o" style="padding:9px 16px;font-size:13px" onclick="_addFromDraw()">✏️ Нарисовать</button>' +
+        '<button class="svc-btn-detail" onclick="document.getElementById(\'add-sig-modal\').remove()">Отмена</button>' +
+      '</div>' +
+      '<div id="add-sig-preview" style="display:none;padding:10px;background:#f9fafb;border-radius:10px;text-align:center;margin-bottom:12px">' +
+        '<img id="add-sig-img" style="max-height:80px;max-width:200px;object-fit:contain">' +
+      '</div>' +
+      '<button id="add-sig-save-btn" class="btn btn-p" style="display:none;width:100%;padding:11px;font-size:14px" onclick="_saveNewItem()">✅ Сохранить</button>' +
+    '</div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){ var i=document.getElementById('add-sig-label'); if(i) i.focus(); }, 200);
+}
+
+var _pendingItemImage = null;
+
+function _addFromFile(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      var d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < d.data.length; i += 4) {
+        if (d.data[i] > 220 && d.data[i+1] > 220 && d.data[i+2] > 220) d.data[i+3] = 0;
+      }
+      ctx.putImageData(d, 0, 0);
+      _pendingItemImage = canvas.toDataURL('image/png');
+      var prev = document.getElementById('add-sig-preview');
+      var img2 = document.getElementById('add-sig-img');
+      var btn  = document.getElementById('add-sig-save-btn');
+      if (prev) prev.style.display = '';
+      if (img2) img2.src = _pendingItemImage;
+      if (btn)  btn.style.display = '';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _addFromDraw() {
+  document.getElementById('add-sig-modal').remove();
+  var drawModal = document.getElementById('sig-draw-modal');
+  if (drawModal) { drawModal.style.display = 'flex'; _initSigCanvas(); }
+}
+
+function _saveSigCanvasToLib() {
+  var c = document.getElementById('sig-canvas');
+  if (!c) return;
+  _pendingItemImage = c.toDataURL('image/png');
+  var drawModal = document.getElementById('sig-draw-modal');
+  if (drawModal) drawModal.style.display = 'none';
+  _addSignatureModal();
+  setTimeout(function(){
+    var prev = document.getElementById('add-sig-preview');
+    var img2 = document.getElementById('add-sig-img');
+    var btn  = document.getElementById('add-sig-save-btn');
+    if (prev) prev.style.display = '';
+    if (img2) img2.src = _pendingItemImage;
+    if (btn)  btn.style.display = '';
+  }, 100);
+}
+
+function _saveNewItem() {
+  if (!_pendingItemImage) { toast('Загрузите или нарисуйте изображение'); return; }
+  var label   = (document.getElementById('add-sig-label') || {}).value || 'Без названия';
+  var role    = (document.getElementById('add-sig-role')  || {}).value || '';
+  var type    = (document.getElementById('add-sig-type')  || {}).value || 'signature';
+  var isStamp = type.startsWith('stamp_');
+  var stampType = isStamp ? type.replace('stamp_', '') : null;
+
+  if (isStamp) {
+    var lib = _getStampLib();
+    lib.push({ label: label, role: role, stampType: stampType, image: _pendingItemImage, isDefault: lib.length === 0 });
+    _saveStampLib(lib);
+    // Обратная совместимость — первый штамп → legacy key
+    if (lib.length === 1) { localStorage.setItem('zashita_stamp', _pendingItemImage); localStorage.setItem('zashita_stamp_type', stampType); }
+  } else {
+    var lib2 = _getSigLib();
+    lib2.push({ label: label, role: role, image: _pendingItemImage, isDefault: lib2.length === 0 });
+    _saveSigLib(lib2);
+    // Обратная совместимость
+    if (lib2.length === 1) localStorage.setItem('zashita_sig', _pendingItemImage);
+  }
+
+  _pendingItemImage = null;
+  document.getElementById('add-sig-modal').remove();
+  _renderSigLibrary();
+  _renderStampLibrary();
+  toast('✅ Сохранено');
+}
+
+function _setSigDefault(idx) {
+  var lib = _getSigLib();
+  lib.forEach(function(s,i){ s.isDefault = (i===idx); });
+  _saveSigLib(lib);
+  // Обновляем legacy key
+  if (lib[idx]) localStorage.setItem('zashita_sig', lib[idx].image);
+  _renderSigLibrary();
+}
+
+function _setStampDefault(idx) {
+  var lib = _getStampLib();
+  lib.forEach(function(s,i){ s.isDefault = (i===idx); });
+  _saveStampLib(lib);
+  if (lib[idx]) {
+    localStorage.setItem('zashita_stamp', lib[idx].image);
+    localStorage.setItem('zashita_stamp_type', lib[idx].stampType || 'round');
+  }
+  _renderStampLibrary();
+}
+
+function _deleteSig(idx) {
+  var lib = _getSigLib(); lib.splice(idx, 1);
+  if (lib.length && !lib.some(function(s){ return s.isDefault; })) lib[0].isDefault = true;
+  _saveSigLib(lib);
+  if (lib[0]) localStorage.setItem('zashita_sig', lib[0].image); else localStorage.removeItem('zashita_sig');
+  _renderSigLibrary();
+}
+
+function _deleteStamp(idx) {
+  var lib = _getStampLib(); lib.splice(idx, 1);
+  if (lib.length && !lib.some(function(s){ return s.isDefault; })) lib[0].isDefault = true;
+  _saveStampLib(lib);
+  if (lib[0]) localStorage.setItem('zashita_stamp', lib[0].image); else localStorage.removeItem('zashita_stamp');
+  _renderStampLibrary();
+}
+
+// Получить подпись/печать для конкретной стороны документа
+function _getSigForRole(role) {
+  var lib = _getSigLib();
+  if (!lib.length) return localStorage.getItem('zashita_sig') || null;
+  // Ищем по роли
+  if (role) {
+    var byRole = lib.find(function(s){ return s.role && s.role.toLowerCase().includes(role.toLowerCase()); });
+    if (byRole) return byRole.image;
+  }
+  // По умолчанию
+  var def = lib.find(function(s){ return s.isDefault; });
+  return def ? def.image : lib[0].image;
+}
+
+function _getStampForRole(role) {
+  var lib = _getStampLib();
+  if (!lib.length) return { image: localStorage.getItem('zashita_stamp'), type: localStorage.getItem('zashita_stamp_type') || 'round' };
+  if (role) {
+    var byRole = lib.find(function(s){ return s.role && s.role.toLowerCase().includes(role.toLowerCase()); });
+    if (byRole) return { image: byRole.image, type: byRole.stampType || 'round' };
+  }
+  var def = lib.find(function(s){ return s.isDefault; });
+  var item = def || lib[0];
+  return { image: item.image, type: item.stampType || 'round' };
 }
 
 // ── РЕКВИЗИТЫ — ПОДПИСЬ И ПЕЧАТЬ ────────────────────────────────────────────
