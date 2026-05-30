@@ -4756,39 +4756,210 @@ function _generateFromModal() {
   });
 }
 
+// Режимы документа: view | elena-add | blocks | direct-edit
+var _docMode = 'view';
+var _docData  = null; // текущий документ
+
 function _showGeneratedDoc(data) {
+  _docData = data;
+  _docMode = 'view';
   var old = document.getElementById('tpl-result'); if (old) old.remove();
+  _renderDocModal();
+  _updateDossier({ decisions: ['Составлен документ: ' + (data.title||data.template)] });
+}
+
+function _renderDocModal() {
+  var old = document.getElementById('tpl-result'); if (old) old.remove();
+  var data = _docData; if (!data) return;
+
+  // Готовые блоки для добавления по типу документа
+  var BLOCKS = {
+    notice_no_renewal: [
+      'Прошу подтвердить получение настоящего уведомления в письменной форме',
+      'Прошу организовать передачу помещения по акту в согласованную дату',
+      'Дополнительно уведомляю о намерении истребовать обеспечительный платёж'
+    ],
+    claim_payment: [
+      'В случае неоплаты оставляю за собой право начислить пени по ст. 395 ГК РФ',
+      'Прошу подтвердить получение настоящей претензии',
+      'При урегулировании в досудебном порядке готов рассмотреть рассрочку'
+    ],
+    act_acceptance: [
+      'Замечания и недостатки, выявленные при приёмке, зафиксированы в Приложении №1',
+      'Гарантийный срок исчисляется с даты подписания настоящего акта',
+      'Акт составлен в двух экземплярах, имеющих равную юридическую силу'
+    ]
+  };
+  var tplKey  = (_tplCurrent && _tplCurrent.key) || '';
+  var blocks  = BLOCKS[tplKey] || [
+    'Прошу подтвердить получение настоящего документа',
+    'Стороны вправе согласовать иные условия дополнительным соглашением',
+    'Настоящий документ составлен в электронном виде и имеет юридическую силу'
+  ];
+
+  var isEdit = (_docMode === 'direct-edit');
 
   var modal = document.createElement('div');
   modal.id = 'tpl-result';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+
   modal.innerHTML =
-    '<div style="background:#fff;border-radius:16px;width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column">' +
-      '<div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px">' +
+    '<div style="background:#fff;border-radius:16px;width:100%;max-width:720px;max-height:92vh;display:flex;flex-direction:column">' +
+
+      // ── Заголовок
+      '<div style="padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px">' +
         '<div style="flex:1">' +
-          '<div style="font-weight:700;font-size:15px">📄 ' + (data.title || 'Документ') + '</div>' +
-          '<div style="font-size:12px;color:var(--mut)">Готов · ' + (data.date || '') + ' · проверьте перед использованием</div>' +
+          '<div style="font-weight:700;font-size:15px">' + (data.title||'Документ') + '</div>' +
+          '<div style="font-size:12px;color:var(--mut)">' + (data.date||'') +
+            (isEdit ? ' · <span style="color:#d97706;font-weight:600">режим редактирования</span>' : '') +
+          '</div>' +
         '</div>' +
         '<button onclick="document.getElementById(\'tpl-result\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut)">✕</button>' +
       '</div>' +
-      '<div style="padding:20px;overflow-y:auto;flex:1">' +
-        '<pre id="tpl-doc-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.7;color:#1a1a2e">' +
-          (data.text || '').replace(/</g,'&lt;') +
-        '</pre>' +
+
+      // ── Режим редактирования — дисклеймер в UI (не в документе)
+      (isEdit ?
+        '<div style="padding:10px 20px;background:#fffbeb;border-bottom:1px solid #fcd34d;font-size:12px;color:#92400e">' +
+          '<strong>Вы редактируете документ самостоятельно.</strong> ЗАЩИТА является информационным сервисом — ' +
+          'ответственность за внесённые изменения несёте вы. Документ отправляется контрагенту без этой пометки.' +
+        '</div>' : '') +
+
+      // ── Тулбар режимов
+      '<div style="padding:8px 20px;border-bottom:1px solid var(--line);display:flex;gap:6px;background:#fafafa">' +
+        '<button class="svc-btn-detail" style="font-size:11px;' + (_docMode==='view'?'border-color:var(--bg);color:var(--bg)':'') + '" ' +
+          'onclick="_setDocMode(\'view\')">Просмотр</button>' +
+        '<button class="svc-btn-detail" style="font-size:11px;' + (_docMode==='elena-add'?'border-color:var(--bg);color:var(--bg)':'') + '" ' +
+          'onclick="_setDocMode(\'elena-add\')">Елена добавит</button>' +
+        '<button class="svc-btn-detail" style="font-size:11px;' + (_docMode==='blocks'?'border-color:var(--bg);color:var(--bg)':'') + '" ' +
+          'onclick="_setDocMode(\'blocks\')">Готовые блоки</button>' +
+        '<button class="svc-btn-detail" style="font-size:11px;' + (_docMode==='direct-edit'?'border-color:#d97706;color:#d97706':'') + '" ' +
+          'onclick="_setDocMode(\'direct-edit\')">Редактировать</button>' +
       '</div>' +
-      '<div style="padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap">' +
-        '<button class="btn btn-p" style="padding:9px 18px;font-size:13px" onclick="_printDoc()">🖨️ Распечатать</button>' +
-        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_sendDocToCounterparty()">📨 Отправить контрагенту</button>' +
-        '<button class="btn btn-o" style="padding:9px 18px;font-size:13px" onclick="_copyDoc()">📋 Скопировать текст</button>' +
-        '<button class="svc-btn-detail" style="font-size:13px" onclick="_startTemplate(_tplCurrent&&_tplCurrent.key)">✏️ Изменить</button>' +
-        '<button class="svc-btn-detail" style="font-size:13px" onclick="document.getElementById(\'tpl-result\').remove();tab(\'casemap\');go(\'cabinet\')">📝 Карта дела</button>' +
+
+      // ── Панель режима
+      '<div id="doc-mode-panel" style="padding:0 20px">' + _getModePanelHTML(blocks) + '</div>' +
+
+      // ── Текст документа
+      '<div style="padding:0 20px 8px;overflow-y:auto;flex:1;margin-top:8px">' +
+        (isEdit
+          ? '<textarea id="tpl-doc-text" style="width:100%;min-height:320px;border:1.5px solid #d97706;border-radius:10px;' +
+              'padding:14px;font-family:inherit;font-size:13px;line-height:1.7;color:#1a1a2e;resize:vertical">' +
+              (data.text||'').replace(/</g,'&lt;') + '</textarea>'
+          : '<pre id="tpl-doc-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.7;color:#1a1a2e;' +
+              'border:1.5px solid var(--line);border-radius:10px;padding:14px">' +
+              (data.text||'').replace(/</g,'&lt;') + '</pre>') +
+      '</div>' +
+
+      // ── Нижняя панель действий
+      '<div style="padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap">' +
+        (isEdit
+          ? '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" onclick="_saveDocEdits()">✅ Сохранить изменения</button>'
+          : '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" onclick="_printDoc()">Распечатать</button>') +
+        '<button class="btn btn-o" style="padding:8px 16px;font-size:13px" onclick="_sendDocToCounterparty()">Отправить контрагенту</button>' +
+        '<button class="svc-btn-detail" style="font-size:12px" onclick="_copyDoc()">Скопировать</button>' +
+        '<button class="svc-btn-detail" style="font-size:12px" onclick="document.getElementById(\'tpl-result\').remove();tab(\'casemap\');go(\'cabinet\')">Карта дела</button>' +
       '</div>' +
     '</div>';
 
   document.body.appendChild(modal);
+}
 
-  // Сохраняем в досье
-  _updateDossier({ decisions: ['Составлен документ: ' + (data.title||data.template)] });
+function _getModePanelHTML(blocks) {
+  if (_docMode === 'elena-add') {
+    return '<div style="padding:12px 0;display:flex;gap:8px;align-items:flex-start">' +
+      '<input id="elena-add-inp" class="elena-main-inp" placeholder="Опишите что добавить: «добавь пункт об ответственности за просрочку»" style="flex:1;font-size:13px">' +
+      '<button class="btn btn-p" style="padding:9px 14px;font-size:13px;white-space:nowrap" onclick="_elenaAddToDoc()">Добавить</button>' +
+    '</div>';
+  }
+  if (_docMode === 'blocks') {
+    return '<div style="padding:10px 0;display:flex;flex-direction:column;gap:6px">' +
+      '<div style="font-size:12px;color:var(--mut);margin-bottom:2px">Выберите готовый блок для добавления в документ:</div>' +
+      blocks.map(function(b) {
+        return '<button style="text-align:left;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;' +
+          'background:#fafafa;cursor:pointer;font-size:12px;font-family:inherit;transition:border-color .15s" ' +
+          'onmouseover="this.style.borderColor=\'var(--bg)\'" onmouseout="this.style.borderColor=\'var(--line)\'" ' +
+          'onclick="_addBlockToDoc(\'' + b.replace(/'/g, "\\'") + '\')">' +
+          '+ ' + b + '</button>';
+      }).join('') +
+    '</div>';
+  }
+  return ''; // view и direct-edit — без панели
+}
+
+function _setDocMode(mode) {
+  _docMode = mode;
+  _renderDocModal();
+  // Скроллим к тексту
+  setTimeout(function(){
+    var el = document.getElementById('tpl-doc-text');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 100);
+}
+
+// Режим 1: Елена добавляет через API
+function _elenaAddToDoc() {
+  var inp = document.getElementById('elena-add-inp');
+  if (!inp || !inp.value.trim()) return;
+  var request = inp.value.trim();
+  inp.value = '';
+  inp.placeholder = 'Елена думает...';
+  inp.disabled = true;
+
+  var currentText = '';
+  var el = document.getElementById('tpl-doc-text');
+  if (el) currentText = el.tagName === 'TEXTAREA' ? el.value : (el.textContent||el.innerText||'');
+
+  fetch(API_BASE + '/api/generate', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      template:      (_tplCurrent && _tplCurrent.key) || 'custom',
+      parties:       (_tplCurrent && _tplCurrent.parties) || {},
+      contract_data: (_tplCurrent && _tplCurrent.contract_data) || {},
+      extra:         'ТЕКУЩИЙ ДОКУМЕНТ:\n' + currentText.slice(0, 2000) + '\n\nЗАПРОС КЛИЕНТА: ' + request +
+                     '\n\nДобавь нужный фрагмент в конец документа в том же стиле. Верни ТОЛЬКО дополнение (не весь документ).'
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    inp.disabled = false;
+    inp.placeholder = 'Опишите что добавить...';
+    if (d.error) { toast('Ошибка: ' + d.error); return; }
+    var addition = '\n\n' + (d.text || '');
+    // Добавляем к тексту
+    var textEl = document.getElementById('tpl-doc-text');
+    if (textEl) {
+      if (textEl.tagName === 'TEXTAREA') textEl.value += addition;
+      else textEl.textContent += addition;
+    }
+    if (_docData) _docData.text = (_docData.text || '') + addition;
+    toast('✅ Елена добавила пункт');
+    _addCaseNote('decision', 'Документ дополнен: ' + request, {});
+  })
+  .catch(function() { inp.disabled = false; toast('Ошибка'); });
+}
+
+// Режим 2: Готовый блок
+function _addBlockToDoc(blockText) {
+  var textEl = document.getElementById('tpl-doc-text');
+  var addition = '\n\n' + blockText + '.';
+  if (textEl) {
+    if (textEl.tagName === 'TEXTAREA') textEl.value += addition;
+    else textEl.textContent += addition;
+  }
+  if (_docData) _docData.text = (_docData.text || '') + addition;
+  toast('✅ Блок добавлен');
+  _setDocMode('view'); // возвращаемся в просмотр
+}
+
+// Режим 3: Сохранить прямое редактирование
+function _saveDocEdits() {
+  var textEl = document.getElementById('tpl-doc-text');
+  if (textEl && _docData) {
+    _docData.text = textEl.tagName === 'TEXTAREA' ? textEl.value : (textEl.textContent||'');
+    _addCaseNote('decision', 'Документ отредактирован клиентом самостоятельно', { ts: new Date().toISOString() });
+  }
+  _setDocMode('view');
+  toast('✅ Изменения сохранены');
 }
 
 function _printDoc() {
