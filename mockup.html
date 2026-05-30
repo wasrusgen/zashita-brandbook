@@ -6336,7 +6336,155 @@ function _elChatSend() {
     wrap.appendChild(eDiv);
     if (apiActions && apiActions.length) _renderElenaActions(apiActions, wrap);
     wrap.scrollTop = wrap.scrollHeight;
+
+    // После 2 обменов — предлагаем оценку + монетизацию
+    if (_chatHistory.length >= 4) {
+      setTimeout(function(){ _checkAndOfferService(wrap); }, 1200);
+    }
   });
+}
+
+// ── МОНЕТИЗАЦИОННЫЙ ФЛОУ ─────────────────────────────────────────────────────
+
+var _serviceOffered = false; // показываем оффер один раз за сессию
+
+function _checkAndOfferService(wrap) {
+  if (_serviceOffered) return;
+  if (!wrap) return;
+
+  var credits = parseInt(localStorage.getItem('zashita_credits') || '0');
+  var contractText = (document.getElementById('el-paste') || {}).value || '';
+  var ctx = _buildElenaContext();
+
+  // Запрашиваем оценку ситуации
+  fetch(API_BASE + '/api/estimate', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      situation:     _chatHistory.slice(-4).map(function(m){ return m.role + ': ' + m.content; }).join('\n'),
+      contract_text: contractText.slice(0, 2000),
+      case_context:  ctx.case_context,
+      history:       _chatHistory.slice(-6)
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.error) return;
+    _serviceOffered = true;
+    if (credits > 0) {
+      _showServiceOffer(wrap, data, credits);
+    } else {
+      _showFreePreview(wrap, data);
+    }
+  })
+  .catch(function(){});
+}
+
+function _showServiceOffer(wrap, data, credits) {
+  // Есть баланс — предлагаем конкретную услугу
+  var recommended = (data.catalog || [])[0];
+  if (!recommended) return;
+
+  var div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML =
+    '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+    '<div style="margin-bottom:8px">' + (data.summary || '') + '</div>' +
+    '<div class="svc-order-card" style="margin:8px 0">' +
+      '<div style="font-weight:700;font-size:14px">' + recommended.name + '</div>' +
+      '<div style="font-size:12px;color:var(--mut);margin:4px 0">' + recommended.desc + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:var(--bg);margin:8px 0">' +
+        recommended.price.toLocaleString('ru') + ' ₽ · ' + recommended.credits + ' ' +
+        (recommended.credits === 1 ? 'кредит' : 'кредита') +
+      '</div>' +
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">' +
+        'На вашем балансе: <b>' + credits + ' кредитов</b>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="btn btn-p" style="padding:8px 16px;font-size:13px" ' +
+          'onclick="_confirmService(\'' + recommended.id + '\',' + recommended.credits + ')">✅ Подтвердить</button>' +
+        '<button class="svc-btn-detail" onclick="_showFreePreview(document.querySelector(\'.chatwrap\'),null)">Посмотреть бесплатно</button>' +
+      '</div>' +
+    '</div>' +
+    '</div></div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _showFreePreview(wrap, data) {
+  if (!wrap) return;
+  // Нет баланса — показываем превью + ущерб + варианты
+  var risks = (data && data.risks) ? data.risks.slice(0, 3) : [];
+  var damageMin = (data && data.damage_min) ? data.damage_min.toLocaleString('ru') : '?';
+  var damageMax = (data && data.damage_max) ? data.damage_max.toLocaleString('ru') : '?';
+  var catalog   = (data && data.catalog) ? data.catalog : [];
+
+  var risksHtml = risks.map(function(r){
+    var cls = r.severity === 'critical' ? '#dc2626' : r.severity === 'high' ? '#d97706' : '#2563eb';
+    return '<div style="border-left:3px solid ' + cls + ';padding:6px 10px;margin:4px 0;background:#fafafa;border-radius:0 6px 6px 0;font-size:13px">' +
+      '<b>' + r.title + '</b><br><span style="color:#6b7280">' + r.preview + '</span></div>';
+  }).join('');
+
+  var catalogHtml = catalog.map(function(s){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">' +
+      '<div><div style="font-weight:600;font-size:13px">' + s.name + '</div>' +
+      '<div style="font-size:11px;color:var(--mut)">' + s.desc + '</div></div>' +
+      '<button class="btn btn-p" style="padding:5px 12px;font-size:12px;white-space:nowrap" onclick="go(\'pay\')">' +
+        s.price.toLocaleString('ru') + ' ₽</button>' +
+    '</div>';
+  }).join('');
+
+  var div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML =
+    '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+    '<div class="bubble"><div class="nm">Елена</div>' +
+
+    // Превью рисков
+    (risks.length ? '<div style="font-weight:600;margin-bottom:6px">Ключевые проблемные места:</div>' + risksHtml : '') +
+
+    // Оценка ущерба
+    (data && data.damage_min ?
+      '<div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:10px 14px;margin:10px 0">' +
+        '<div style="font-size:12px;color:#6b7280;margin-bottom:2px">Примерный ущерб если не урегулировать</div>' +
+        '<div style="font-size:18px;font-weight:700;color:#dc2626">' + damageMin + ' — ' + damageMax + ' ₽</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:2px">' + ((data && data.damage_comment) || '') + '</div>' +
+      '</div>' : '') +
+
+    // Уговор к действию
+    '<div style="margin:10px 0;font-size:13px">Пополните счёт — и я окажу услугу в полном объёме. В вашей ситуации возможны следующие варианты:</div>' +
+
+    // Каталог услуг
+    (catalogHtml ? '<div style="margin-top:4px">' + catalogHtml + '</div>' : '') +
+
+    '</div></div>';
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+function _confirmService(serviceId, credits) {
+  var cur = parseInt(localStorage.getItem('zashita_credits') || '0');
+  if (cur < credits) {
+    toast('Недостаточно кредитов — пополните баланс');
+    go('pay');
+    return;
+  }
+  // Блокируем кредиты (в реальном продукте — резервирование на сервере)
+  localStorage.setItem('zashita_credits', String(cur - credits));
+  localStorage.setItem('zashita_reserved_service', serviceId);
+  toast('✅ ' + credits + ' кредит(а) зарезервированы — выполняю услугу');
+  var wrap = document.querySelector('.chatwrap');
+  if (wrap) {
+    var div = document.createElement('div');
+    div.className = 'msg';
+    div.innerHTML = '<div class="av"><img src="logos/elena-photo.jpg"></div>' +
+      '<div class="bubble"><div class="nm">Елена</div>' +
+      'Кредиты зарезервированы. Приступаю к работе — готово будет через несколько секунд.' +
+      '</div></div>';
+    wrap.appendChild(div);
+    div.scrollIntoView({behavior:'smooth'});
+  }
 }
 
 // _elenaContinueSend → заменён на _elChatSend через постоянный чат-бар
