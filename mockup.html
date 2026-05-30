@@ -2389,7 +2389,7 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
               <input type="file" accept="image/*" style="display:none" onchange="_uploadRequisite('stamp',this)">
               <span class="btn btn-o" style="padding:8px 16px;font-size:13px">📷 Загрузить фото печати</span>
             </label>
-            <select id="stamp-type-sel" style="border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--ink)">
+            <select id="stamp-type-sel" style="border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--ink)" onchange="localStorage.setItem('zashita_stamp_type',this.value)">
               <option value="round">Круглая (⌀ 40 мм)</option>
               <option value="rect_ip">ИП прямоугольная (38×70 мм)</option>
               <option value="rect_ooo">ООО прямоугольная (38×58 мм)</option>
@@ -4761,6 +4761,59 @@ var _docMode   = 'view';
 var _docData   = null;   // текущий документ
 var _docIsClean = true;  // true = клиент не вносил правок → колонтитул разрешён
 
+// Стандартные размеры печатей (px при 96dpi → для print используем мм)
+var STAMP_SIZES = {
+  round:    { w: 151, h: 151, label: 'Круглая ⌀ 40 мм' },
+  rect_ip:  { w: 264, h: 144, label: 'ИП 38×70 мм' },
+  rect_ooo: { w: 219, h: 144, label: 'ООО 38×58 мм' },
+  triangle: { w: 189, h: 135, label: 'Треугольная 35×50 мм' },
+};
+
+function _getRequisiteImages() {
+  var sig   = localStorage.getItem('zashita_sig')   || null;
+  var stamp = localStorage.getItem('zashita_stamp') || null;
+  var stampType = (document.getElementById('stamp-type-sel') || {}).value
+               || localStorage.getItem('zashita_stamp_type') || 'round';
+  return { sig: sig, stamp: stamp, stampType: stampType };
+}
+
+function _buildSignatureBlock(req, forPrint) {
+  // req = {sig, stamp, stampType}
+  if (!req.sig && !req.stamp) return '';
+
+  var stampSize = STAMP_SIZES[req.stampType] || STAMP_SIZES.round;
+  // При печати: px → mm (96dpi: 1mm ≈ 3.78px)
+  var sigH  = forPrint ? '14mm' : '56px';
+  var stW   = forPrint ? Math.round(stampSize.w/3.78) + 'mm' : stampSize.w * 0.4 + 'px';
+  var stH   = forPrint ? Math.round(stampSize.h/3.78) + 'mm' : stampSize.h * 0.4 + 'px';
+
+  var html = '<div style="display:flex;justify-content:space-between;align-items:flex-end;' +
+    'margin-top:' + (forPrint ? '12mm' : '24px') + ';' +
+    'padding-top:' + (forPrint ? '6mm' : '16px') + ';' +
+    'border-top:1px solid ' + (forPrint ? '#ccc' : 'var(--line)') + '">';
+
+  // Подпись слева
+  if (req.sig) {
+    html += '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px">' +
+      '<div style="font-size:' + (forPrint ? '8pt' : '11px') + ';color:#9ca3af">Подпись</div>' +
+      '<img src="' + req.sig + '" style="height:' + sigH + ';max-width:200px;object-fit:contain">' +
+    '</div>';
+  } else {
+    html += '<div></div>';
+  }
+
+  // Печать справа
+  if (req.stamp) {
+    html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
+      '<div style="font-size:' + (forPrint ? '8pt' : '11px') + ';color:#9ca3af">М.П.</div>' +
+      '<img src="' + req.stamp + '" style="width:' + stW + ';height:' + stH + ';object-fit:contain">' +
+    '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
 function _showGeneratedDoc(data) {
   _docData    = data;
   _docMode    = 'view';
@@ -4850,6 +4903,8 @@ function _renderDocModal() {
           : '<pre id="tpl-doc-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.7;color:#1a1a2e;' +
               'border:1.5px solid var(--line);border-radius:10px;padding:14px">' +
               (data.text||'').replace(/</g,'&lt;') + '</pre>') +
+        // Блок подписи и печати (если загружены)
+        (function(){ var r = _getRequisiteImages(); return r.sig||r.stamp ? _buildSignatureBlock(r, false) : ''; })() +
       '</div>' +
 
       // ── Нижняя панель действий
@@ -5091,19 +5146,25 @@ function _printDoc() {
       '</div>'
     : ''; // редактировался клиентом — без пометок
 
+  var req = _getRequisiteImages();
+  var sigBlock = (req.sig || req.stamp) ? _buildSignatureBlock(req, true) : '';
+
   var w = window.open('', '_blank');
   w.document.write(
     '<html><head><title>' + ((_docData && _docData.title) || 'Документ') + '</title>' +
     '<style>' +
       'body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;' +
-           'padding:48px;max-width:700px;margin:0 auto;color:#1a1a2e}' +
+           'padding:20mm 25mm;max-width:none;color:#1a1a2e}' +
       'pre{white-space:pre-wrap;font-family:inherit}' +
+      'img{display:block}' +
+      '@page{size:A4;margin:20mm 25mm}' +
       '@media print{.no-print{display:none}}' +
     '</style></head>' +
     '<body>' +
       '<pre>' + (text.tagName === 'TEXTAREA'
         ? text.value.replace(/</g,'&lt;')
         : text.innerHTML) + '</pre>' +
+      sigBlock +
       footer +
     '<script>window.print();<\/script>' +
     '</body></html>'
@@ -9561,6 +9622,12 @@ function _loadRequisites() {
     var saved = localStorage.getItem('zashita_' + type);
     if (saved) _showRequisite(type, saved);
   });
+  // Восстанавливаем тип штампа
+  var stampType = localStorage.getItem('zashita_stamp_type');
+  if (stampType) {
+    var sel = document.getElementById('stamp-type-sel');
+    if (sel) sel.value = stampType;
+  }
 }
 
 // Флаг памяти — используется для контекстного приветствия (с защитой от race condition)
