@@ -1725,6 +1725,8 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
       <a id="t-sroki" onclick="tab('sroki')">⏱️ Сроки</a>
       <a id="t-shab" onclick="tab('shab')">📋 Шаблоны</a>
       <a id="t-create" onclick="tab('create')">✍️ Составить документ</a>
+      <a id="t-docs" onclick="tab('docs')">✅ Мои документы</a>
+      <a id="t-requisites" onclick="tab('requisites')">🖊️ Реквизиты</a>
       <a id="t-balance" onclick="tab('balance')">💳 Баланс и оплата</a>
       <a onclick="go('start')">↩ Выйти (в начало)</a>
       <a onclick="go('admin')" style="color:#ef4444;font-weight:700">⚙️ Администратор</a>
@@ -2251,6 +2253,101 @@ body{font-family:var(--font-ui);background:var(--surf);color:var(--ink);line-hei
           </div>
         </div>
       </div></div>
+      <!-- Мои документы — чеклист аудита -->
+      <div class="tabpane" id="p-docs"><div class="main-body">
+        <div class="crumb">Кабинет</div><h1>Мои документы</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg">
+          <div class="et"><b>Аудит документов по Вашей ситуации.</b> Отмечайте что есть — покажу что грозит если чего-то не хватает 💛</div>
+        </div>
+        <div id="docs-checklist">
+          <!-- Заполняется через renderDocChecklist() -->
+          <div style="padding:24px;text-align:center;color:var(--mut)">
+            Загрузите договор или опишите ситуацию Елене — она определит тип и покажет нужный чеклист.
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Реквизиты — подпись и печать -->
+      <div class="tabpane" id="p-requisites"><div class="main-body">
+        <div class="crumb">Кабинет</div><h1>Реквизиты</h1>
+        <div class="enote"><img src="logos/elena-photo.jpg">
+          <div class="et"><b>Подпись и печать автоматически подставляются в документы.</b> Загрузите один раз — и все документы будут подписаны 💛</div>
+        </div>
+
+        <!-- Подпись -->
+        <div style="margin-bottom:24px">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">🖊️ Факсимиле (подпись)</h3>
+          <p style="font-size:13px;color:var(--mut);margin-bottom:12px">Сфотографируйте подпись на белой бумаге или загрузите скан. Мы автоматически уберём фон и сохраним.</p>
+          <div id="sig-preview" style="display:none;margin-bottom:12px">
+            <img id="sig-img" style="max-height:80px;border:1.5px solid var(--line);border-radius:8px;padding:8px;background:#fff">
+            <button class="svc-btn-detail" style="margin-left:8px;font-size:12px" onclick="_clearRequisite('sig')">✕ Удалить</button>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label style="cursor:pointer">
+              <input type="file" accept="image/*" style="display:none" onchange="_uploadRequisite('sig',this)">
+              <span class="btn btn-o" style="padding:8px 16px;font-size:13px">📷 Загрузить фото подписи</span>
+            </label>
+            <button class="svc-btn-detail" onclick="_drawSignature()" style="font-size:13px">✏️ Нарисовать подпись</button>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--line);margin:20px 0">
+
+        <!-- Печать -->
+        <div style="margin-bottom:24px">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">🔴 Печать / штамп</h3>
+          <p style="font-size:13px;color:var(--mut);margin-bottom:4px">Сфотографируйте печать на белой бумаге. Система уберёт фон и подберёт правильный размер.</p>
+          <p style="font-size:12px;color:var(--mut);margin-bottom:12px">Стандарт: круглая печать ⌀ 38-42 мм · треугольная 35×50 мм · прямоугольная для ИП 38×70 мм</p>
+          <div id="stamp-preview" style="display:none;margin-bottom:12px">
+            <img id="stamp-img" style="max-height:100px;border:1.5px solid var(--line);border-radius:8px;padding:8px;background:#fff">
+            <div id="stamp-size" style="font-size:12px;color:var(--mut);margin-top:4px"></div>
+            <button class="svc-btn-detail" style="margin-left:8px;font-size:12px" onclick="_clearRequisite('stamp')">✕ Удалить</button>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+            <label style="cursor:pointer">
+              <input type="file" accept="image/*" style="display:none" onchange="_uploadRequisite('stamp',this)">
+              <span class="btn btn-o" style="padding:8px 16px;font-size:13px">📷 Загрузить фото печати</span>
+            </label>
+            <select id="stamp-type-sel" style="border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--ink)">
+              <option value="round">Круглая (⌀ 40 мм)</option>
+              <option value="rect_ip">ИП прямоугольная (38×70 мм)</option>
+              <option value="rect_ooo">ООО прямоугольная (38×58 мм)</option>
+              <option value="triangle">Треугольная (35×50 мм)</option>
+            </select>
+          </div>
+          <p style="font-size:12px;color:var(--mut)">💡 Лайфхак: положите печать на белый лист, сфотографируйте при хорошем освещении без теней.</p>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--line);margin:20px 0">
+
+        <!-- Реквизиты компании -->
+        <div>
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">🏢 Реквизиты для документов</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;max-width:500px">
+            <input class="elena-main-inp" id="req-name" placeholder="Полное наименование (ООО «...» / ИП ФИО)" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-inn" placeholder="ИНН / ОГРН" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-addr" placeholder="Юридический адрес" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-phone" placeholder="Телефон" oninput="_saveRequisites()">
+            <input class="elena-main-inp" id="req-email" placeholder="Email" oninput="_saveRequisites()">
+          </div>
+          <p style="font-size:12px;color:var(--mut);margin-top:8px">Эти данные автоматически подставляются во все создаваемые документы.</p>
+        </div>
+
+        <!-- Canvas для рисования подписи -->
+        <div id="sig-draw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center">
+          <div style="background:#fff;border-radius:16px;padding:20px;width:400px">
+            <div style="font-weight:700;margin-bottom:12px">✏️ Нарисуйте подпись</div>
+            <canvas id="sig-canvas" width="360" height="120" style="border:2px solid var(--line);border-radius:8px;cursor:crosshair;touch-action:none;background:#fff"></canvas>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button class="btn btn-p" style="flex:1;padding:9px" onclick="_saveSigCanvas()">✅ Сохранить</button>
+              <button class="btn btn-o" style="padding:9px 14px" onclick="_clearCanvas()">🗑</button>
+              <button class="svc-btn-detail" onclick="document.getElementById('sig-draw-modal').style.display='none'">Отмена</button>
+            </div>
+          </div>
+        </div>
+
+      </div></div>
+
       <!-- Составить документ -->
       <div class="tabpane" id="p-create"><div class="main-body">
         <div class="crumb">Кабинет</div><h1>Составить документ</h1>
@@ -7276,7 +7373,13 @@ window.addEventListener('hashchange', handleHash);
 function tab(name){
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on',p.id==='p-'+name));
   if(name==='sroki' && typeof renderDeadlines==='function') renderDeadlines();
-  if(name==='shab'  && typeof renderContextTemplates==='function') renderContextTemplates();
+  if(name==='shab'       && typeof renderContextTemplates==='function') renderContextTemplates();
+  if(name==='requisites' && typeof _loadRequisites==='function') _loadRequisites();
+  if(name==='docs') {
+    var contracts = typeof _getContracts === 'function' ? _getContracts() : [];
+    if (contracts.length && typeof renderDocChecklist === 'function') renderDocChecklist(contracts[0].type);
+    else if (typeof renderDocChecklist === 'function') renderDocChecklist('');
+  }
   if(name==='balance' && typeof _refreshBalanceTab==='function') _refreshBalanceTab();
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('on'));
   const map={cases:'t-cases',case:'t-case',sroki:'t-sroki',shab:'t-shab',create:'t-create'};
@@ -7583,6 +7686,280 @@ function _compressAsync(showToast) {
     }
   })
   .catch(function(){});
+}
+
+// ── ЧЕКЛИСТ ДОКУМЕНТОВ ──────────────────────────────────────────────────────
+
+var DOC_CHECKLISTS = {
+  'аренда': {
+    label: 'Договор аренды', icon: '🏠',
+    docs: [
+      { id:'contract',    label:'Договор аренды (подписанный)',          risk:'critical', tip:'Нет договора — нет правовых оснований пользования помещением' },
+      { id:'act_in',      label:'Акт приёмки-передачи при заезде',       risk:'critical', tip:'Без акта арендодатель может заявить что ВЫ испортили помещение' },
+      { id:'photo_in',    label:'Фотофиксация помещения при заезде',     risk:'high',     tip:'Без фото сложно доказать состояние на дату заезда' },
+      { id:'deposit_rec', label:'Квитанция об оплате депозита',          risk:'high',     tip:'Без квитанции спорно — платили ли депозит и какую сумму' },
+      { id:'payments',    label:'Квитанции/платёжки об аренде',          risk:'medium',   tip:'Сложнее доказать факт регулярной оплаты' },
+      { id:'notice',      label:'Уведомление о непродлении (если нужно)', risk:'critical', tip:'Без уведомления — договор автоматически продлится' },
+      { id:'act_out',     label:'Акт возврата помещения (при съезде)',   risk:'high',     tip:'Без акта арендодатель может требовать доплату «за пользование»' },
+    ]
+  },
+  'подряд': {
+    label: 'Договор подряда/услуг', icon: '🔨',
+    docs: [
+      { id:'contract',  label:'Договор подряда/услуг',       risk:'critical', tip:'Нет договора — нет оснований требовать исполнения' },
+      { id:'tz',        label:'ТЗ / спецификация работ',     risk:'critical', tip:'Без ТЗ любой результат подрядчик назовёт «надлежащим»' },
+      { id:'act',       label:'Акт сдачи-приёмки работ',     risk:'high',     tip:'Без акта работы считаются невыполненными' },
+      { id:'payments',  label:'Платёжки об оплате',          risk:'medium',   tip:'Нужны для доказательства оплаты' },
+      { id:'warranty',  label:'Гарантийные обязательства',   risk:'high',     tip:'Без чётких условий гарантии подрядчик откажет в ремонте' },
+    ]
+  },
+  'купля-продажа': {
+    label: 'Купля-продажа', icon: '🛒',
+    docs: [
+      { id:'contract',  label:'Договор купли-продажи',        risk:'critical', tip:'Нет договора — нет оснований' },
+      { id:'upd',       label:'УПД / накладная ТОРГ-12',      risk:'high',     tip:'Без накладной нельзя доказать факт поставки' },
+      { id:'act',       label:'Акт приёмки по качеству',      risk:'critical', tip:'Без акта принятое считается надлежащим' },
+      { id:'payments',  label:'Платёжные документы',          risk:'medium',   tip:'Доказательство оплаты' },
+    ]
+  },
+  'дду': {
+    label: 'ДДУ / новостройка', icon: '🏗️',
+    docs: [
+      { id:'ddu',       label:'ДДУ зарегистрированный в Росреестре', risk:'critical', tip:'Без регистрации нет защиты по 214-ФЗ' },
+      { id:'payments',  label:'Квитанции об оплате по ДДУ',         risk:'high',     tip:'Нужны для расчёта неустойки' },
+      { id:'act',       label:'Акт осмотра с замечаниями',          risk:'critical', tip:'Без замечаний в акте претензии по дефектам сложнее' },
+      { id:'act_in',    label:'Акт приёмки-передачи квартиры',     risk:'high',     tip:'Дата акта = начало гарантийного срока' },
+      { id:'notice',    label:'Уведомления застройщика о сроках',  risk:'medium',   tip:'Фиксирует когда было обещано и когда нарушено' },
+    ]
+  },
+  'недвижимость': {
+    label: 'Купля-продажа недвижимости', icon: '🏠',
+    docs: [
+      { id:'egrn',      label:'Выписка из ЕГРН (свежая, до 30 дней)', risk:'critical', tip:'Аресты, ипотека, запреты — всё здесь' },
+      { id:'osnov',     label:'Основание права продавца',             risk:'critical', tip:'Откуда у него право — дарение/наследство/купля — возможны оспаривания' },
+      { id:'forma9',    label:'Справка о зарегистрированных (Ф.9)',   risk:'high',     tip:'Прописанные после сделки не выписываются автоматически' },
+      { id:'spr_sup',   label:'Согласие супруга (нотариально)',       risk:'critical', tip:'Без согласия сделку оспорит супруг' },
+      { id:'zhkh',      label:'Справка об отсутствии долгов ЖКХ',    risk:'medium',   tip:'Чужие долги могут перейти к вам' },
+      { id:'contract',  label:'ДКП зарегистрированный в Росреестре', risk:'critical', tip:'До регистрации квартира юридически не ваша' },
+    ]
+  },
+  'трудовой': {
+    label: 'Трудовой договор', icon: '💼',
+    docs: [
+      { id:'contract',  label:'Трудовой договор',              risk:'critical', tip:'Без договора нет доказательств условий труда' },
+      { id:'order',     label:'Приказ о приёме на работу',     risk:'high',     tip:'Подтверждение трудовых отношений' },
+      { id:'instruc',   label:'Должностная инструкция',        risk:'high',     tip:'Без неё обязанности расширяют как хотят' },
+      { id:'payslips',  label:'Расчётные листки',              risk:'medium',   tip:'Доказательство начисленной зарплаты' },
+      { id:'ndfl2',     label:'Справка 2-НДФЛ',               risk:'high',     tip:'Без неё компенсации считают от минималки' },
+    ]
+  },
+  'займ': {
+    label: 'Займ / расписка', icon: '💰',
+    docs: [
+      { id:'receipt',   label:'Расписка или договор займа',   risk:'critical', tip:'Нет расписки — нет доказательств займа' },
+      { id:'transfer',  label:'Подтверждение передачи денег', risk:'critical', tip:'Без подтверждения должник скажет «не получал»' },
+      { id:'percent',   label:'Условие о процентах',          risk:'medium',   tip:'Без пункта о % займ считается беспроцентным' },
+      { id:'deadline',  label:'Срок возврата',                risk:'high',     tip:'Без срока — по первому требованию, но сложно взыскать' },
+    ]
+  },
+};
+
+function renderDocChecklist(contractType) {
+  var el = document.getElementById('docs-checklist');
+  if (!el) return;
+
+  var type = (contractType || '').toLowerCase();
+  // Определяем ближайший тип
+  var key = null;
+  if (/аренд/.test(type)) key = 'аренда';
+  else if (/подряд|услуг/.test(type)) key = 'подряд';
+  else if (/купли.продажи|поставк/.test(type)) key = 'купля-продажа';
+  else if (/дду|долев|новостройк/.test(type)) key = 'дду';
+  else if (/недвижим|квартир/.test(type)) key = 'недвижимость';
+  else if (/трудов/.test(type)) key = 'трудовой';
+  else if (/займ|расписк/.test(type)) key = 'займ';
+
+  if (!key) {
+    el.innerHTML = '<div style="padding:16px;color:var(--mut);font-size:13px">Загрузите договор — Елена определит тип и покажет нужный чеклист.</div>';
+    return;
+  }
+
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + key) || '{}'); } catch(e){}
+
+  var cl = DOC_CHECKLISTS[key];
+  var missing = cl.docs.filter(function(d){ return !saved[d.id]; });
+  var critical = missing.filter(function(d){ return d.risk === 'critical'; }).length;
+
+  var html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+    '<span style="font-size:24px">' + cl.icon + '</span>' +
+    '<div><div style="font-weight:700;font-size:16px">' + cl.label + '</div>' +
+    (critical > 0
+      ? '<div style="font-size:12px;color:#dc2626">⚠️ ' + critical + ' критических пункта требуют внимания</div>'
+      : '<div style="font-size:12px;color:#16a34a">✅ Пакет документов в порядке</div>') +
+    '</div></div>';
+
+  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  cl.docs.forEach(function(doc) {
+    var checked = !!saved[doc.id];
+    var riskColor = {critical:'#dc2626', high:'#d97706', medium:'#2563eb'}[doc.risk] || '#6b7280';
+    html +=
+      '<label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid ' +
+      (checked ? '#16a34a' : riskColor) + ';border-radius:10px;cursor:pointer;background:' +
+      (checked ? '#f0fdf4' : '#fafafa') + '">' +
+      '<input type="checkbox" ' + (checked ? 'checked' : '') +
+        ' onchange="_toggleDocCheck(\'' + key + '\',\'' + doc.id + '\',this.checked)" style="margin-top:2px;width:16px;height:16px;accent-color:#16a34a">' +
+      '<div style="flex:1">' +
+        '<div style="font-size:13px;font-weight:600;color:' + (checked ? '#15803d' : '#1a1a2e') + '">' + doc.label + '</div>' +
+        (!checked ? '<div style="font-size:12px;color:' + riskColor + ';margin-top:2px">' + doc.tip + '</div>' : '') +
+      '</div>' +
+      '<span style="font-size:10px;font-weight:700;color:' + riskColor + ';text-transform:uppercase;white-space:nowrap">' +
+        ({critical:'🔴 крит.', high:'🟠 важно', medium:'🟡 желат.'}[doc.risk] || '') +
+      '</span>' +
+      '</label>';
+  });
+  html += '</div>';
+
+  // Кнопка загрузить недостающие
+  if (missing.length) {
+    html += '<div style="margin-top:16px;padding:12px;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;font-size:13px">' +
+      '<b>Не хватает ' + missing.length + ' документа:</b> ' +
+      missing.map(function(d){ return d.label.split('(')[0].trim(); }).join(', ') + '.<br>' +
+      '<span style="color:var(--mut)">Загрузите их в Елену — она проверит и зафиксирует в деле.</span>' +
+      '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function _toggleDocCheck(key, docId, checked) {
+  try {
+    var saved = JSON.parse(localStorage.getItem('zashita_doccheck_' + key) || '{}');
+    saved[docId] = checked;
+    localStorage.setItem('zashita_doccheck_' + key, JSON.stringify(saved));
+    renderDocChecklist(key);
+  } catch(e){}
+}
+
+// ── РЕКВИЗИТЫ — ПОДПИСЬ И ПЕЧАТЬ ────────────────────────────────────────────
+
+function _uploadRequisite(type, input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      // Canvas: убираем белый фон (простая threshold-обработка)
+      var canvas = document.createElement('canvas');
+      canvas.width  = img.width;
+      canvas.height = img.height;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var d = data.data;
+      for (var i = 0; i < d.length; i += 4) {
+        var r = d[i], g = d[i+1], b = d[i+2];
+        // Белый / светло-серый → прозрачный
+        if (r > 220 && g > 220 && b > 220) {
+          d[i+3] = 0;
+        }
+      }
+      ctx.putImageData(data, 0, 0);
+      var png = canvas.toDataURL('image/png');
+      localStorage.setItem('zashita_' + type, png);
+      _showRequisite(type, png);
+      toast('✅ ' + (type === 'sig' ? 'Подпись' : 'Печать') + ' сохранена');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _showRequisite(type, dataUrl) {
+  var prev = document.getElementById(type + '-preview');
+  var imgEl = document.getElementById(type + '-img');
+  if (prev) prev.style.display = '';
+  if (imgEl) imgEl.src = dataUrl;
+  if (type === 'stamp') {
+    var sel  = document.getElementById('stamp-type-sel');
+    var sizeEl = document.getElementById('stamp-size');
+    var sizes = {round:'⌀ 40 мм', rect_ip:'38×70 мм', rect_ooo:'38×58 мм', triangle:'35×50 мм'};
+    var selVal = sel ? sel.value : 'round';
+    if (sizeEl) sizeEl.textContent = 'Размер: ' + (sizes[selVal] || '');
+  }
+}
+
+function _clearRequisite(type) {
+  localStorage.removeItem('zashita_' + type);
+  var prev = document.getElementById(type + '-preview');
+  if (prev) prev.style.display = 'none';
+  toast((type === 'sig' ? 'Подпись' : 'Печать') + ' удалена');
+}
+
+function _drawSignature() {
+  var modal = document.getElementById('sig-draw-modal');
+  if (modal) { modal.style.display = 'flex'; _initSigCanvas(); }
+}
+
+var _sigDrawing = false;
+function _initSigCanvas() {
+  var c = document.getElementById('sig-canvas');
+  if (!c || c._inited) return;
+  c._inited = true;
+  var ctx = c.getContext('2d');
+  ctx.strokeStyle = '#1a1a2e';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  var getPos = function(e) {
+    var rect = c.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  };
+  c.onmousedown = c.ontouchstart = function(e){ e.preventDefault(); _sigDrawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  c.onmousemove = c.ontouchmove = function(e){ e.preventDefault(); if (!_sigDrawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  c.onmouseup = c.ontouchend = function(){ _sigDrawing = false; };
+}
+
+function _clearCanvas() {
+  var c = document.getElementById('sig-canvas');
+  if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+
+function _saveSigCanvas() {
+  var c = document.getElementById('sig-canvas');
+  if (!c) return;
+  var png = c.toDataURL('image/png');
+  localStorage.setItem('zashita_sig', png);
+  _showRequisite('sig', png);
+  var modal = document.getElementById('sig-draw-modal');
+  if (modal) modal.style.display = 'none';
+  toast('✅ Подпись сохранена');
+}
+
+function _saveRequisites() {
+  var fields = ['name','inn','addr','phone','email'];
+  var data = {};
+  fields.forEach(function(f){
+    var el = document.getElementById('req-' + f);
+    if (el) data[f] = el.value;
+  });
+  try { localStorage.setItem('zashita_requisites', JSON.stringify(data)); } catch(e){}
+}
+
+function _loadRequisites() {
+  try {
+    var data = JSON.parse(localStorage.getItem('zashita_requisites') || '{}');
+    ['name','inn','addr','phone','email'].forEach(function(f){
+      var el = document.getElementById('req-' + f);
+      if (el && data[f]) el.value = data[f];
+    });
+  } catch(e){}
+  // Загружаем сохранённые изображения
+  ['sig','stamp'].forEach(function(type){
+    var saved = localStorage.getItem('zashita_' + type);
+    if (saved) _showRequisite(type, saved);
+  });
 }
 
 // Флаг памяти — используется для контекстного приветствия (с защитой от race condition)
