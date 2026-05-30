@@ -5045,6 +5045,29 @@ function _chatTransition(userText, intent) {
 
 /* ── HERO CHAT ── */
 
+// Приглашение в кабинет после первого ответа Елены
+function _inviteToCabinet(userText) {
+  var msgs = document.getElementById('hchat-msgs');
+  if (!msgs) return;
+  var div = document.createElement('div');
+  div.className = 'hc-msg hc-elena';
+  div.innerHTML =
+    '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble" style="display:flex;flex-direction:column;gap:10px">' +
+      '<div>Давайте зафиксирую Ваш вопрос — так удобнее работать с документами и отслеживать статус.</div>' +
+      '<button class="btn btn-p" style="padding:8px 18px;font-size:13px;width:fit-content" ' +
+        'onclick="_goToCabinetWithContext()">📂 Перейти в кабинет →</button>' +
+    '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function _goToCabinetWithContext() {
+  go('start');       // переходим на главный экран
+  go('cabinet');     // затем в кабинет
+  setTimeout(function(){ initReturnChat(); }, 100);
+}
+
 var _hchatDone =false;
 
 var _HC_MESSAGES = [
@@ -5484,7 +5507,10 @@ function heroChatSend() {
         _hcRemoveTyping();
         var elenaText = apiReply || fallbackText;
         _hcAddBubble(elenaText, false);
-        setTimeout(function(){ _chatTransition(txt, intent); }, 1400);
+        // Сохраняем ситуацию для кабинета
+        try { sessionStorage.setItem('zashita_pending_intake', JSON.stringify({text: txt, intent: intent, ts: Date.now()})); } catch(e){}
+        // Приглашение в кабинет вместо автоперехода
+        setTimeout(function(){ _inviteToCabinet(txt); }, 900);
       });
     }, 400);
     return;
@@ -5768,7 +5794,36 @@ function initReturnChat() {
   _renderRchatButtons({ urgentDL: urgentDL, hasContracts: _getContracts().length > 0,
                         hasHistory: _chatHistory.length > 0, credits: credits, subPlan: subPlan });
 
-  // ── Последовательность сообщений ──
+  // ── Проверяем незавершённый intake с главного экрана ──
+  var pendingIntake = null;
+  try { pendingIntake = JSON.parse(sessionStorage.getItem('zashita_pending_intake') || 'null'); } catch(e){}
+  if (pendingIntake && pendingIntake.text && (Date.now() - pendingIntake.ts < 600000)) {
+    // Клиент пришёл из главного чата — показываем подтверждение
+    sessionStorage.removeItem('zashita_pending_intake');
+    var intake = pendingIntake;
+    setTimeout(function(){
+      _rcAddTyping();
+      setTimeout(function(){
+        _rcRemoveTyping();
+        var quote = intake.text.length > 80 ? intake.text.slice(0, 80) + '...' : intake.text;
+        var confirmHtml =
+          'Я правильно Вас поняла:<br>' +
+          '<div style="background:var(--surf);border-left:3px solid var(--bg);border-radius:0 8px 8px 0;' +
+            'padding:8px 12px;margin:8px 0;font-style:italic;font-size:13px">' +
+            '«' + quote.replace(/</g,'&lt;') + '»' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;margin-top:10px">' +
+            '<button class="btn btn-p" style="padding:7px 16px;font-size:13px" ' +
+              'onclick="_confirmIntake(\'' + intake.intent + '\',\'' + quote.replace(/'/g,"\\'").replace(/"/g,"&quot;") + '\')">✅ Да, всё верно</button>' +
+            '<button class="svc-btn-detail" onclick="_clarifyIntake()">✏️ Уточнить</button>' +
+          '</div>';
+        _rcAddBubble(confirmHtml, false, true);
+      }, 800);
+    }, 300);
+    return; // не показываем стандартное приветствие
+  }
+
+  // ── Стандартная последовательность сообщений ──
   var delay = 0;
 
   // msg 1: greeting
@@ -6504,6 +6559,58 @@ function _getElenaCtxReply(intent, dl) {
   }
   if (intent === 'dispute')  return 'Разберёмся со сроком «' + name + '». Расскажите что именно произошло — дам конкретный план.';
   return 'Продолжаем по сроку «' + name + '». Что именно хотите уточнить?';
+}
+
+function _confirmIntake(intent, quote) {
+  // Клиент подтвердил ситуацию → фиксируем и начинаем работу
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+
+  // Пузырь клиента
+  var uDiv = document.createElement('div');
+  uDiv.className = 'hc-msg hc-user';
+  uDiv.innerHTML = '<div class="hc-bubble">Да, всё верно</div>';
+  msgs.appendChild(uDiv);
+
+  // Сохраняем в историю
+  _chatHistory.push({role: 'user', content: quote});
+  _saveHistory();
+
+  // Елена: фиксирует дело и спрашивает про договор
+  setTimeout(function(){
+    _rcAddTyping();
+    var ctx = quote;
+    _elenaApi('Клиент подтвердил ситуацию: ' + ctx + '. Зафикисруй дело и спроси что нужно для помощи.',
+      intent,
+      function(apiReply, apiActions) {
+        _rcRemoveTyping();
+        var reply = apiReply || 'Хорошо, зафиксировала. Есть ли у Вас договор на руках? Если загрузите — смогу сразу оценить риски и предложить конкретные действия.';
+        _chatHistory.push({role: 'assistant', content: reply});
+        _saveHistory();
+        _rcAddBubble(reply, false);
+        if (apiActions && apiActions.length) {
+          var m = document.getElementById('rchat-msgs');
+          if (m) _renderElenaActions(apiActions, m);
+        }
+        _rcShowControls();
+
+        // Обновляем досье
+        _updateDossier({ facts: ['Зафиксировано дело: ' + ctx] });
+      });
+  }, 400);
+}
+
+function _clarifyIntake() {
+  // Клиент хочет уточнить
+  var msgs = document.getElementById('rchat-msgs');
+  if (!msgs) return;
+  var div = document.createElement('div');
+  div.className = 'hc-msg hc-elena';
+  div.innerHTML = '<img class="hc-av" src="logos/elena-photo.jpg">' +
+    '<div class="hc-bubble">Уточните, пожалуйста — опишите ситуацию своими словами.</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  _rcShowControls();
 }
 
 function retChatSend() {
