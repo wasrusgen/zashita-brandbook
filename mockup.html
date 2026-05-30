@@ -6,16 +6,80 @@
 <script>
 (function(){
   var tg = window.Telegram && window.Telegram.WebApp;
-  if(tg){
-    tg.ready();
-    tg.expand();
-    document.documentElement.classList.add('tma');
-    // Нативная кнопка «назад» TG
-    tg.BackButton.onClick(function(){
-      var screens = document.querySelectorAll('.screen.on');
-      if(screens.length && screens[0].id !== 'start'){ window.go('start'); }
-    });
+  if (!tg) return;
+
+  tg.ready();
+  tg.expand();
+  document.documentElement.classList.add('tma');
+
+  // Тема из Telegram
+  var colorScheme = tg.colorScheme; // 'dark' | 'light'
+  if (colorScheme === 'dark') document.documentElement.classList.add('tg-dark');
+
+  // Данные пользователя из Telegram
+  var tgUser = tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (tgUser) {
+    window._tgUser = tgUser;
+    // Сохраняем в localStorage для использования в напоминаниях и авторизации
+    try {
+      var b2b = JSON.parse(localStorage.getItem('zashita_b2b') || '{}');
+      if (!b2b.name && tgUser.first_name) b2b.name = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+      if (!b2b.telegram && tgUser.username) b2b.telegram = '@' + tgUser.username;
+      b2b.tg_id   = tgUser.id;
+      b2b.tg_lang = tgUser.language_code;
+      localStorage.setItem('zashita_b2b', JSON.stringify(b2b));
+    } catch(e){}
   }
+
+  // Нативная кнопка «назад» — управляет навигацией
+  tg.BackButton.onClick(function(){
+    var screens = document.querySelectorAll('.screen.on');
+    if (screens.length && screens[0].id !== 'start') {
+      window.go('start');
+    } else {
+      tg.BackButton.hide();
+    }
+  });
+
+  // Показываем/скрываем BackButton при навигации
+  var _origGo = window.go;
+  window.go = function(id) {
+    if (_origGo) _origGo(id);
+    if (id === 'start') tg.BackButton.hide();
+    else tg.BackButton.show();
+  };
+
+  // MainButton — основное действие (меняется контекстно)
+  window._tgSetMainBtn = function(text, color, fn) {
+    tg.MainButton.setParams({ text: text, color: color || '#B91C1C', text_color: '#FFFFFF' });
+    tg.MainButton.onClick(fn);
+    tg.MainButton.show();
+  };
+  window._tgHideMainBtn = function() { tg.MainButton.hide(); };
+
+  // Хаптик при важных действиях
+  window._tgHaptic = function(type) {
+    if (tg.HapticFeedback) {
+      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+      else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+      else tg.HapticFeedback.impactOccurred('medium');
+    }
+  };
+
+  // Нативный алерт вместо toast в TG
+  var _origToast = window.toast;
+  window.toast = function(msg) {
+    if (tg && tg.showPopup) {
+      // Только важные сообщения показываем как popup, остальные — тихо
+      if (msg && (msg.includes('✅') || msg.includes('❌') || msg.includes('⚠️'))) {
+        tg.showAlert(msg.replace(/[✅❌⚠️🔔📋📂]/g, '').trim());
+        return;
+      }
+    }
+    if (_origToast) _origToast(msg);
+  };
+
+  console.log('[TMA] @wasrusgen1_protect_bot · user:', tgUser && tgUser.id);
 })();
 </script>
 <link rel="stylesheet" href="tokens.css">
