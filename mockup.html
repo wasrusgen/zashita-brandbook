@@ -4757,12 +4757,14 @@ function _generateFromModal() {
 }
 
 // Режимы документа: view | elena-add | blocks | direct-edit
-var _docMode = 'view';
-var _docData  = null; // текущий документ
+var _docMode   = 'view';
+var _docData   = null;   // текущий документ
+var _docIsClean = true;  // true = клиент не вносил правок → колонтитул разрешён
 
 function _showGeneratedDoc(data) {
-  _docData = data;
-  _docMode = 'view';
+  _docData    = data;
+  _docMode    = 'view';
+  _docIsClean = true;   // сброс при каждом новом документе
   var old = document.getElementById('tpl-result'); if (old) old.remove();
   _renderDocModal();
   _updateDossier({ decisions: ['Составлен документ: ' + (data.title||data.template)] });
@@ -4997,6 +4999,7 @@ function _proceedWithAddition(request, warningText) {
 
   // Если клиент решил добавить несмотря на предупреждение — логируем
   if (warningText) {
+    _docIsClean = false; // правка с риском → убираем колонтитул
     _logInformed(
       'Добавлен пункт несмотря на предупреждение: «' + request.slice(0,60) + '»',
       warningText,
@@ -5053,10 +5056,10 @@ function _addBlockToDoc(blockText) {
 
 // Режим 3: Сохранить прямое редактирование + логируем информирование
 function _saveDocEdits() {
+  _docIsClean = false; // прямое редактирование → убираем колонтитул
   var textEl = document.getElementById('tpl-doc-text');
   if (textEl && _docData) {
     _docData.text = textEl.tagName === 'TEXTAREA' ? textEl.value : (textEl.textContent||'');
-    // Логируем как факт информирования
     _logInformed(
       'Документ «' + (_docData.title||'без названия') + '» отредактирован клиентом самостоятельно',
       'ЗАЩИТА — информационный сервис. Ответственность за внесённые изменения несёт клиент.',
@@ -5073,12 +5076,32 @@ var _origAddBlock = typeof _addBlockToDoc === 'function' ? _addBlockToDoc : null
 function _printDoc() {
   var text = document.getElementById('tpl-doc-text');
   if (!text) return;
+
+  // Колонтитул — только для чистых документов (без правок клиента)
+  var footer = _docIsClean
+    ? '<div style="margin-top:40px;padding-top:12px;border-top:1px solid #e5e7eb;' +
+        'font-size:10px;color:#9ca3af;text-align:center">' +
+        'Подготовлено с помощью информационной системы ЗАЩИТА · wasrusgen1.ru' +
+      '</div>'
+    : ''; // редактировался клиентом — без пометок
+
   var w = window.open('', '_blank');
-  w.document.write('<html><head><title>Документ</title>' +
-    '<style>body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;padding:40px;max-width:700px;margin:0 auto}' +
-    'pre{white-space:pre-wrap;font-family:inherit}</style></head>' +
-    '<body><pre>' + text.innerHTML + '</pre>' +
-    '<script>window.print();<\/script></body></html>');
+  w.document.write(
+    '<html><head><title>' + ((_docData && _docData.title) || 'Документ') + '</title>' +
+    '<style>' +
+      'body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;' +
+           'padding:48px;max-width:700px;margin:0 auto;color:#1a1a2e}' +
+      'pre{white-space:pre-wrap;font-family:inherit}' +
+      '@media print{.no-print{display:none}}' +
+    '</style></head>' +
+    '<body>' +
+      '<pre>' + (text.tagName === 'TEXTAREA'
+        ? text.value.replace(/</g,'&lt;')
+        : text.innerHTML) + '</pre>' +
+      footer +
+    '<script>window.print();<\/script>' +
+    '</body></html>'
+  );
   w.document.close();
 }
 
